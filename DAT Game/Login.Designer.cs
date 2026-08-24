@@ -32,6 +32,8 @@
             txtboxUsername = new TextBox();
             txtboxPassword = new TextBox();
             txtTitle = new Label();
+            lblAttemptDisplay = new Label();
+            btnAdmin = new Button();
             SuspendLayout();
             // 
             // btnSubmit
@@ -42,7 +44,7 @@
             btnSubmit.TabIndex = 0;
             btnSubmit.Text = "Submit";
             btnSubmit.UseVisualStyleBackColor = true;
-            btnSubmit.Click += btnSubmitClicked;
+            btnSubmit.Click += SubmitClicked;
             // 
             // txtboxUsername
             // 
@@ -72,11 +74,33 @@
             txtTitle.Text = "DAT Game";
             txtTitle.TextAlign = ContentAlignment.TopCenter;
             // 
+            // lblAttemptDisplay
+            // 
+            lblAttemptDisplay.AutoSize = true;
+            lblAttemptDisplay.ForeColor = SystemColors.ButtonShadow;
+            lblAttemptDisplay.Location = new Point(171, 215);
+            lblAttemptDisplay.Name = "lblAttemptDisplay";
+            lblAttemptDisplay.Size = new Size(90, 20);
+            lblAttemptDisplay.TabIndex = 7;
+            lblAttemptDisplay.Text = "Attempt 1/5";
+            // 
+            // btnAdmin
+            // 
+            btnAdmin.Location = new Point(322, 228);
+            btnAdmin.Name = "btnAdmin";
+            btnAdmin.Size = new Size(116, 29);
+            btnAdmin.TabIndex = 8;
+            btnAdmin.Text = "Admin Center";
+            btnAdmin.UseVisualStyleBackColor = true;
+            btnAdmin.Click += AdminCenterClicked;
+            // 
             // LoginForm
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(450, 269);
+            Controls.Add(btnAdmin);
+            Controls.Add(lblAttemptDisplay);
             Controls.Add(txtTitle);
             Controls.Add(txtboxPassword);
             Controls.Add(txtboxUsername);
@@ -95,5 +119,7 @@
         private TextBox txtboxUsername;
         private TextBox txtboxPassword;
         private Label txtTitle;
+        private Label lblAttemptDisplay;
+        private Button btnAdmin;
     }
 }
