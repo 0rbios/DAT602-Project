@@ -9,8 +9,8 @@ namespace DATGame
 
         private void SubmitClicked(object sender, EventArgs e)
         {
-            //UserDAO userDAO = new UserDAO();
-            //userDAO.FetchUsers();
+            UserDAO userDAO = new UserDAO();
+            userDAO.FetchUsers();
 
             this.Visible = false;
 

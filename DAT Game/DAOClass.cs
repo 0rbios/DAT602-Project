@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Text;
 using System.Diagnostics;
 using MySql.Data.MySqlClient;
 
@@ -78,7 +76,7 @@ namespace DATGame
                 _connection.Open();
 
                 // Specialized database operations utilizing the inherited _connection object occur here
-                MySqlCommand command = new MySqlCommand("SELECT * FROM tblUser;", _connection);
+                MySqlCommand command = new MySqlCommand("SELECT * FROM account;", _connection);
                 using (MySqlDataReader reader = command.ExecuteReader())
                 {
                     while (reader.Read())
@@ -100,6 +98,64 @@ namespace DATGame
             finally
             {
                 // Ensures the connection is returned to the pool regardless of query success
+                _connection.Close();
+            }
+        }
+
+        public void FetchTiles()
+        {
+            try
+            {
+                _connection.Open();
+
+                MySqlCommand command = new MySqlCommand("SELECT * FROM tile;", _connection);
+                using (MySqlDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        StringBuilder rowData = new StringBuilder();
+                        for (int i = 0; i < reader.FieldCount; i++)
+                        {
+                            string columnName = reader.GetName(i);
+                            object columnValue = reader.GetValue(i);
+                            rowData.Append($"{columnName}: {columnValue} | ");
+                        }
+
+                        Debug.WriteLine($"Row Data -> {rowData.ToString()}");
+                    }
+                }
+            }
+            finally
+            {
+                _connection.Close();
+            }
+        }
+
+        public void FetchRooms()
+        {
+            try
+            {
+                _connection.Open();
+
+                MySqlCommand command = new MySqlCommand("SELECT * FROM room;", _connection);
+                using (MySqlDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        StringBuilder rowData = new StringBuilder();
+                        for (int i = 0; i < reader.FieldCount; i++)
+                        {
+                            string columnName = reader.GetName(i);
+                            object columnValue = reader.GetValue(i);
+                            rowData.Append($"{columnName}: {columnValue} | ");
+                        }
+
+                        Debug.WriteLine($"Row Data -> {rowData.ToString()}");
+                    }
+                }
+            }
+            finally
+            {
                 _connection.Close();
             }
         }

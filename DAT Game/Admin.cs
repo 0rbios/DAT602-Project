@@ -17,6 +17,9 @@ namespace DATGame
 
         private void BackClicked(object sender, EventArgs e)
         {
+            UserDAO userdao = new UserDAO();
+            userdao.FetchRooms();
+
             this.Close();
         }
     }

@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Gameplay));
             btnBack = new Button();
             txtStatBox = new ListBox();
@@ -61,6 +62,7 @@
             button24 = new Button();
             button25 = new Button();
             button26 = new Button();
+            imageList1 = new ImageList(components);
             ((System.ComponentModel.ISupportInitialize)dataScoreboard).BeginInit();
             ((System.ComponentModel.ISupportInitialize)dataInventory).BeginInit();
             ((System.ComponentModel.ISupportInitialize)dataGround).BeginInit();
@@ -292,7 +294,8 @@
             button14.BackgroundImageLayout = ImageLayout.Zoom;
             button14.FlatAppearance.BorderSize = 0;
             button14.FlatStyle = FlatStyle.Flat;
-            button14.Image = (Image)resources.GetObject("button14.Image");
+            button14.ImageKey = "Gorilla Token.png";
+            button14.ImageList = imageList1;
             button14.Location = new Point(375, 141);
             button14.Margin = new Padding(0);
             button14.Name = "button14";
@@ -456,6 +459,13 @@
             button26.TabIndex = 30;
             button26.UseVisualStyleBackColor = false;
             // 
+            // imageList1
+            // 
+            imageList1.ColorDepth = ColorDepth.Depth32Bit;
+            imageList1.ImageStream = (ImageListStreamer)resources.GetObject("imageList1.ImageStream");
+            imageList1.TransparentColor = Color.Transparent;
+            imageList1.Images.SetKeyName(0, "Gorilla Token.png");
+            // 
             // Gameplay
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
@@ -536,5 +546,6 @@
         private Button button24;
         private Button button25;
         private Button button26;
+        private ImageList imageList1;
     }
 }

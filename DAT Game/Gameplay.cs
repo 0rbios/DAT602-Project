@@ -17,6 +17,9 @@ namespace DATGame
 
         private void BackButtonClicked(object sender, EventArgs e)
         {
+            UserDAO userdao = new UserDAO();
+            userdao.FetchTiles();
+
             this.Close();
         }
     }
