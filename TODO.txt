@@ -1,0 +1,2 @@
+Link storyboards to database
+Discuss DDL in doc

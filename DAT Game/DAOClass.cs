@@ -29,7 +29,7 @@ namespace DATGame
          *    The default authentication plugin for MySQL 8.0+, utilizing SHA-256 hashing.
          */
         protected static readonly string _connectionStringSha2 =
-            "Server=127.0.0.1;Database=gamedb;Uid=root;Pwd=ENTERPASSWORDHERE;";
+            "Server=127.0.0.1;Database=gamedb;Uid=root;Pwd=PASSWORDGOESHERE;";
 
         /*
          * 2. Windows Native Authentication (authentication_windows_client):
