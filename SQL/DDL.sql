@@ -18,7 +18,11 @@ BEGIN
 	CREATE TABLE `room` (
 		`RoomID` INT AUTO_INCREMENT,
 		`RoomName` VARCHAR(32) NOT NULL,
-		PRIMARY KEY (`RoomID`)
+		`AccountName` VARCHAR(32) NOT NULL,
+		PRIMARY KEY (`RoomID`),
+		CONSTRAINT fk_account_room
+			FOREIGN KEY (`AccountName`)
+			REFERENCES `account`(`AccountName`)
 	);
 
 	CREATE TABLE `player` (
@@ -154,8 +158,8 @@ BEGIN
 		('V', 'V3nd3774', 0)
 	;
 
-	INSERT INTO `room` (`RoomName`)
-		VALUES ('Test Room');
+	INSERT INTO `room` (`RoomName`, `AccountName`)
+		VALUES ('Test Room', 'Ghostie');
 
 	INSERT INTO `player` (`CurrentEnergy`, `CurrentHealth`, `AccountName`, `RoomID`, `Sprite`)
 		VALUES
