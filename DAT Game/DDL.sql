@@ -148,7 +148,10 @@ BEGIN
 			FOREIGN KEY (`AbilityID`)
 			REFERENCES `ability`(`AbilityID`)
 	);
+END //
 
+CREATE PROCEDURE `Create_Test_Data` ()
+BEGIN
 	INSERT INTO `account` (`AccountName`, `Password`, `Admin`)
 		VALUES 
 		('John', 'Password123', 1),
@@ -229,9 +232,9 @@ BEGIN
 		('2026-12-31 10:00:00', 2, 1),
 		('2026-12-31 10:00:00', 1, 2)
 	;
-
 END //
 
 DELIMITER ;
 
 CALL `Generate_Database`();
+-- CALL `Create_Test_Data`();
