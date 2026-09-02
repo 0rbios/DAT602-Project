@@ -234,7 +234,23 @@ BEGIN
 	;
 END //
 
+CREATE PROCEDURE `Fetch_Users`()
+BEGIN
+	SELECT * FROM `account`;
+END//
+
+CREATE PROCEDURE `Fetch_Tiles`()
+BEGIN
+	SELECT * FROM `tile`;
+END//
+
+CREATE PROCEDURE `Fetch_Rooms`()
+BEGIN
+	SELECT * FROM `room`;
+END//
+
+
 DELIMITER ;
 
 CALL `Generate_Database`();
--- CALL `Create_Test_Data`();
+CALL `Create_Test_Data`();

@@ -29,7 +29,7 @@ namespace DATGame
          *    The default authentication plugin for MySQL 8.0+, utilizing SHA-256 hashing.
          */
         protected static readonly string _connectionStringSha2 =
-            "Server=127.0.0.1;Database=gamedb;Uid=root;Pwd=PASSWORDGOESHERE;";
+            "Server=127.0.0.1;Database=gamedb;Uid=root;Pwd=Password123;";
 
         /*
          * 2. Windows Native Authentication (authentication_windows_client):
@@ -76,7 +76,7 @@ namespace DATGame
                 _connection.Open();
 
                 // Specialized database operations utilizing the inherited _connection object occur here
-                MySqlCommand command = new MySqlCommand("SELECT * FROM account;", _connection);
+                MySqlCommand command = new MySqlCommand("CALL Fetch_Users();", _connection);
                 using (MySqlDataReader reader = command.ExecuteReader())
                 {
                     while (reader.Read())
@@ -108,7 +108,7 @@ namespace DATGame
             {
                 _connection.Open();
 
-                MySqlCommand command = new MySqlCommand("SELECT * FROM tile;", _connection);
+                MySqlCommand command = new MySqlCommand("CALL Fetch_Tiles();", _connection);
                 using (MySqlDataReader reader = command.ExecuteReader())
                 {
                     while (reader.Read())
@@ -137,7 +137,7 @@ namespace DATGame
             {
                 _connection.Open();
 
-                MySqlCommand command = new MySqlCommand("SELECT * FROM room;", _connection);
+                MySqlCommand command = new MySqlCommand("CALL Fetch_Rooms();", _connection);
                 using (MySqlDataReader reader = command.ExecuteReader())
                 {
                     while (reader.Read())
