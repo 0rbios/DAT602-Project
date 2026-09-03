@@ -3,6 +3,7 @@ USE gamedb;
 DROP PROCEDURE IF EXISTS `Login`;
 DROP PROCEDURE IF EXISTS `Create_Account`;
 DROP PROCEDURE IF EXISTS `Create_Room`;
+DROP PROCEDURE IF EXISTS `Layout_Tiles`;
 
 DELIMITER //
 
@@ -76,7 +77,48 @@ room_creation:BEGIN
 END//
 
 -- 3. Laying out tiles on a game board
-
+CREATE PROCEDURE `Layout_Tiles`(
+	IN InRoom INT,
+	IN mapX INT,
+    IN mapY INT
+)
+create_tiles:BEGIN
+    DECLARE tx INT DEFAULT 0;
+    DECLARE ty INT DEFAULT 0;
+    
+    
+    IF NOT EXISTS (SELECT * FROM `room` WHERE `RoomID` = INRoom) THEN
+		SELECT 'Room Does Not Exist' AS message;
+	END IF;
+    
+    tileX: LOOP
+		SET ty = 0;
+    
+        tileY: LOOP
+            INSERT INTO `tile` (`XPos`, `YPos`, `RoomID`)
+				VALUES (tx, ty, InRoom);
+                
+			SET ty = ty + 1;
+            
+            IF ty < mapY THEN
+				ITERATE tileY;
+			END IF;
+            
+			LEAVE tileY;
+        END LOOP tileY;
+        
+		SET tx = tx + 1;
+        
+		IF tx < mapX THEN
+			ITERATE tileX;
+		END IF;
+        
+        LEAVE tileX;
+	END LOOP tileX;
+    
+    SELECT * FROM `tile`;
+    
+END//
 
 -- 4. Placing an item on a tile
 
@@ -105,3 +147,7 @@ END//
 -- 12. Delete a player
 
 DELIMITER ;
+
+CALL `Login`('Test Account', 'Test Password');
+CALL `Create_Room`('Test Room', 'Test Account');
+CALL `Layout_Tiles`(1, 5, 5);

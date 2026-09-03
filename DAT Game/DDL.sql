@@ -253,4 +253,4 @@ END//
 DELIMITER ;
 
 CALL `Generate_Database`();
-CALL `Create_Test_Data`();
+-- CALL `Create_Test_Data`();
