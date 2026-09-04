@@ -122,6 +122,41 @@ END//
 
 -- 4. Placing an item on a tile
 
+CREATE PROCEDURE `Create_ability`()
+BEGIN
+	
+    INSERT INTO `ability` (`AbilityName`, `Description`, `Value`, `Cost`, `Combat`, `Sprite`)
+		VALUES ('Test Ability', 'This is a test ability', 10, 10, 0, './Test.png');
+    
+SELECT 
+    *
+FROM
+    `ability`;
+    
+END//
+
+CREATE PROCEDURE `Place_Ability_On_Tile`(
+	IN InAbility INT,
+    IN InTile INT
+)
+ability_placement:BEGIN
+
+	IF NOT EXISTS (SELECT * FROM `tile` WHERE `TileID` = InTile) THEN
+		SELECT 'Tile does not exist' AS message;
+        LEAVE ability_placement;
+    END IF;
+    
+	IF NOT EXISTS (SELECT * FROM `ability` WHERE `AbilityID` = InAbility) THEN
+		SELECT 'Ability does not exist' AS message;
+        LEAVE ability_placement;
+    END IF;
+
+	INSERT INTO `Tile_Ability` (`Timestamp`, `TileID`, `AbilityID`)
+		VALUES (current_timestamp(), InTile, InAbility);
+
+	SELECT * FROM `Tile_Ability`;
+
+END//
 
 -- 5. Player game play movement
 
@@ -151,3 +186,5 @@ DELIMITER ;
 CALL `Login`('Test Account', 'Test Password');
 CALL `Create_Room`('Test Room', 'Test Account');
 CALL `Layout_Tiles`(1, 5, 5);
+CALL `Create_Ability`();
+CALL `Place_Ability_On_Tile`(1, 1)
