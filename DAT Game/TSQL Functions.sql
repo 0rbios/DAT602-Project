@@ -4,10 +4,12 @@ DROP PROCEDURE IF EXISTS `Login`;
 DROP PROCEDURE IF EXISTS `Create_Account`;
 DROP PROCEDURE IF EXISTS `Create_Room`;
 DROP PROCEDURE IF EXISTS `Layout_Tiles`;
+DROP PROCEDURE IF EXISTS `Get_Available_Tiles`;
 
 DELIMITER //
 
--- Player login, including lock out
+
+-- Account login, including lock out
 CREATE PROCEDURE `Login`(
 	IN In_Username VARCHAR(32),
 	IN In_Password VARCHAR(32)
@@ -42,7 +44,8 @@ login_process:BEGIN
 	
 END//
 
--- 2. Player registration
+
+-- Account registration
 CREATE PROCEDURE `Create_Account` (
 	IN IN_Username VARCHAR(32),
 	IN IN_Password VARCHAR(32)
@@ -58,6 +61,7 @@ BEGIN
 	END IF;
     
 END//
+
 
 -- Creating a room
 CREATE PROCEDURE `Create_Room`(
@@ -76,7 +80,8 @@ room_creation:BEGIN
     
 END//
 
--- 3. Laying out tiles on a game board
+
+-- Laying out tiles on a game board
 CREATE PROCEDURE `Layout_Tiles`(
 	IN InRoom INT,
 	IN mapX INT,
@@ -120,21 +125,18 @@ create_tiles:BEGIN
     
 END//
 
--- 4. Placing an item on a tile
 
+-- Creating abilities
 CREATE PROCEDURE `Create_ability`()
 BEGIN
 	
     INSERT INTO `ability` (`AbilityName`, `Description`, `Value`, `Cost`, `Combat`, `Sprite`)
 		VALUES ('Test Ability', 'This is a test ability', 10, 10, 0, './Test.png');
-    
-SELECT 
-    *
-FROM
-    `ability`;
-    
+
 END//
 
+
+-- Placing an ability on a tile
 CREATE PROCEDURE `Place_Ability_On_Tile`(
 	IN InAbility INT,
     IN InTile INT
@@ -158,8 +160,80 @@ ability_placement:BEGIN
 
 END//
 
--- 5. Player game play movement
 
+-- Create player
+CREATE PROCEDURE `Create_Player`(
+	IN InAccountName VARCHAR(32),
+    IN InRoomID INT
+)
+create_player:BEGIN
+
+	IF NOT EXISTS (SELECT * FROM `account` WHERE `AccountName` = InAccountName) THEN
+		SELECT 'Account does not exist' AS message;
+        LEAVE create_player;
+	END IF;
+    
+	IF NOT EXISTS (SELECT * FROM `room` WHERE `RoomID` = InRoomID) THEN
+		SELECT 'Room does not exist' AS message;
+        LEAVE create_player;
+	END IF;
+
+	INSERT INTO `player` (`CurrentEnergy`, `CurrentHealth`, `AccountName`, `RoomID`, `Sprite`)
+		VALUES (10, 10, InAccountName, InRoomID, './Player.png');
+
+END//
+
+
+-- Place player on tile
+
+
+-- Find available movement tiles
+CREATE PROCEDURE `Get_Available_Tiles`(
+	IN SearchRadius INT,
+    IN Player INT,
+    IN AllowDiagonal BIT
+)
+find_tiles:BEGIN
+
+	DECLARE tx INT;
+	DECLARE ty INT;    
+
+    IF SearchRadius < 1 THEN
+		SELECT 'Search radius too small' AS message;
+        LEAVE find_tiles;
+	END IF;
+    
+	IF NOT EXISTS (SELECT * FROM `player` WHERE `PlayerID` = Player) THEN
+		SELECT 'Player not found' AS message;
+        LEAVE find_tiles;
+	END IF;
+    
+    SET tx = (SELECT `XPos` FROM `tile` WHERE `TileID` = (SELECT `TileID` FROM `player_tile` WHERE `PlayerID` = Player ORDER BY `Timestamp` LIMIT 1));
+    SET ty = (SELECT `YPos` FROM `tile` WHERE `TileID` = (SELECT `TileID` FROM `player_tile` WHERE `PlayerID` = Player ORDER BY `Timestamp` LIMIT 1));
+
+    -- For each tile in the search radius
+    
+    -- Check if adding/removing 1 from the tile that is currently being checked will find a non-existant tile
+    
+    -- If the tile does not exist, then leave it and move to the next tile
+    
+    -- Do this along both the x and y both positive and negative
+    
+    -- If allow diagonal is true, then check all y for each x value otherwise, only check the y when x is player's x
+    
+    check_tile:LOOP
+        
+		SELECT * FROM `tile` WHERE `XPos` = tx AND `YPos` = ty;
+        
+        SET tx = tx + 1;
+    
+    END LOOP check_tile;
+		
+END//
+
+
+-- Player game play movement
+CREATE PROCEDURE ``
 
 -- 6. Game play scoring
 
@@ -173,13 +247,13 @@ END//
 -- 9. Kill running games
 
 
--- 10. Add new players
+-- 10. Add new account
 
 
--- 11. Update data of a player
+-- 11. Update data of an account
 
 
--- 12. Delete a player
+-- 12. Delete an account
 
 DELIMITER ;
 
@@ -187,4 +261,5 @@ CALL `Login`('Test Account', 'Test Password');
 CALL `Create_Room`('Test Room', 'Test Account');
 CALL `Layout_Tiles`(1, 5, 5);
 CALL `Create_Ability`();
-CALL `Place_Ability_On_Tile`(1, 1)
+CALL `Place_Ability_On_Tile`(1, 1);
+-- CALL `Get_Available_Tiles`(1, 1, 0);
