@@ -185,8 +185,6 @@ create_player:BEGIN
                 current_timestamp()
 				);
 
-	SELECT * FROM `player_tile`;
-
 END//
 
 
@@ -198,8 +196,10 @@ CREATE PROCEDURE `Get_Available_Tiles`(
 )
 find_tiles:BEGIN
 
-	DECLARE tx INT;
-	DECLARE ty INT;    
+	DECLARE playerX INT;
+	DECLARE playerY INT;
+    DECLARE searchX INT;
+    DECLARE searchY INT;
 
     IF SearchRadius < 1 THEN
 		SELECT 'Search radius too small' AS message;
@@ -211,24 +211,28 @@ find_tiles:BEGIN
         LEAVE find_tiles;
 	END IF;
     
-    SET tx = (SELECT `XPos` FROM `tile` WHERE `TileID` = (SELECT `TileID` FROM `player_tile` WHERE `PlayerID` = Player ORDER BY `Timestamp` LIMIT 1));
-    SET ty = (SELECT `YPos` FROM `tile` WHERE `TileID` = (SELECT `TileID` FROM `player_tile` WHERE `PlayerID` = Player ORDER BY `Timestamp` LIMIT 1));
+    SET playerX = (SELECT `XPos` FROM `tile` WHERE `TileID` = (SELECT `TileID` FROM `player_tile` WHERE `PlayerID` = Player ORDER BY `Timestamp` LIMIT 1));
+    SET playerY = (SELECT `YPos` FROM `tile` WHERE `TileID` = (SELECT `TileID` FROM `player_tile` WHERE `PlayerID` = Player ORDER BY `Timestamp` LIMIT 1));
 
-    -- For each tile in the search radius
-    
-    -- Check if adding/removing 1 from the tile that is currently being checked will find a non-existant tile
-    
-    -- If the tile does not exist, then leave it and move to the next tile
-    
-    -- Do this along both the x and y both positive and negative
-    
-    -- If allow diagonal is true, then check all y for each x value otherwise, only check the y when x is player's x
+    -- Set the starting search x position to be the players current x position minus the search radius
+    SET searchX = playerX - searchRadius;
     
     check_tile:LOOP
+        IF searchX > SearchRadius THEN
+			LEAVE check_tile;
+		END IF;
         
-		SELECT * FROM `tile` WHERE `XPos` = tx AND `YPos` = ty;
-        
-        SET tx = tx + 1;
+        -- Check if there is a tile in the players room which has the current searching x position
+        IF EXISTS (SELECT *
+					FROM `tile`
+                    WHERE `XPos` = searchX
+							AND `RoomID` = (SELECT `RoomID`
+											FROM `player`
+											WHERE `PlayerID` = Player)) THEN
+			SELECT * FROM `tile` WHERE `XPos` = searchX;
+		END IF;
+    
+		SET searchX = searchX + 1;
     
     END LOOP check_tile;
 		
@@ -266,4 +270,4 @@ CALL `Layout_Tiles`(1, 5, 5);
 CALL `Create_Ability`();
 CALL `Place_Ability_On_Tile`(1, 1);
 CALL `Create_Player`('Test Account', 1);
--- CALL `Get_Available_Tiles`(1, 1, 0);
+CALL `Get_Available_Tiles`(1, 1, 0);
