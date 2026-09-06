@@ -5,9 +5,9 @@ DROP PROCEDURE IF EXISTS `Create_Account`;
 DROP PROCEDURE IF EXISTS `Create_Room`;
 DROP PROCEDURE IF EXISTS `Layout_Tiles`;
 DROP PROCEDURE IF EXISTS `Get_Available_Tiles`;
+DROP PROCEDURE IF EXISTS `Create_Player`;
 
 DELIMITER //
-
 
 -- Account login, including lock out
 CREATE PROCEDURE `Login`(
@@ -120,9 +120,7 @@ create_tiles:BEGIN
         
         LEAVE tileX;
 	END LOOP tileX;
-    
-    SELECT * FROM `tile`;
-    
+
 END//
 
 
@@ -156,12 +154,10 @@ ability_placement:BEGIN
 	INSERT INTO `Tile_Ability` (`Timestamp`, `TileID`, `AbilityID`)
 		VALUES (current_timestamp(), InTile, InAbility);
 
-	SELECT * FROM `Tile_Ability`;
-
 END//
 
 
--- Create player
+-- Create player and place on home tile
 CREATE PROCEDURE `Create_Player`(
 	IN InAccountName VARCHAR(32),
     IN InRoomID INT
@@ -181,10 +177,17 @@ create_player:BEGIN
 	INSERT INTO `player` (`CurrentEnergy`, `CurrentHealth`, `AccountName`, `RoomID`, `Sprite`)
 		VALUES (10, 10, InAccountName, InRoomID, './Player.png');
 
+	-- Places the player with the given account and room who also has the largest auto_incementing ID onto the tile with position 0,0 on the given table.
+	INSERT INTO `player_tile` (`TileID`, `PlayerID`, `Timestamp`)
+		VALUES (
+				(SELECT `TileID` FROM `tile` WHERE `RoomID` = InRoomID AND `XPos` = 0 AND `YPos` = 0),
+                (SELECT `PlayerID` FROM `player` WHERE `AccountName` = InAccountName AND `RoomID` = InRoomID ORDER BY `PlayerID` LIMIT 1),
+                current_timestamp()
+				);
+
+	SELECT * FROM `player_tile`;
+
 END//
-
-
--- Place player on tile
 
 
 -- Find available movement tiles
@@ -233,7 +236,7 @@ END//
 
 
 -- Player game play movement
-CREATE PROCEDURE ``
+
 
 -- 6. Game play scoring
 
@@ -262,4 +265,5 @@ CALL `Create_Room`('Test Room', 'Test Account');
 CALL `Layout_Tiles`(1, 5, 5);
 CALL `Create_Ability`();
 CALL `Place_Ability_On_Tile`(1, 1);
+CALL `Create_Player`('Test Account', 1);
 -- CALL `Get_Available_Tiles`(1, 1, 0);
