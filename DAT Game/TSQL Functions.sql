@@ -4,9 +4,9 @@ DROP PROCEDURE IF EXISTS `Login`;
 DROP PROCEDURE IF EXISTS `Create_Account`;
 DROP PROCEDURE IF EXISTS `Create_Room`;
 DROP PROCEDURE IF EXISTS `Layout_Tiles`;
-DROP PROCEDURE IF EXISTS `Get_Available_Tiles`;
 DROP PROCEDURE IF EXISTS `Create_Player`;
 DROP PROCEDURE IF EXISTS `Create_Ability`;
+DROP PROCEDURE IF EXISTS `Move_Player`;
 
 DELIMITER //
 
@@ -189,60 +189,72 @@ create_player:BEGIN
 END//
 
 
--- Find available movement tiles
-CREATE PROCEDURE `Get_Available_Tiles`(
-	IN SearchRadius INT,
+-- Find available movement tiles and move player
+CREATE PROCEDURE `Move_Player`(
     IN Player INT,
+	IN MoveX INT,
+    IN MoveY INT,
+	IN SearchRadius INT,
     IN AllowDiagonal BIT
 )
-find_tiles:BEGIN
+move_player:BEGIN
 
 	DECLARE playerX INT;
 	DECLARE playerY INT;
 
     IF SearchRadius < 1 THEN
 		SELECT 'Search radius too small' AS message;
-        LEAVE find_tiles;
+        LEAVE move_player;
 	END IF;
     
 	IF NOT EXISTS (SELECT * FROM `player` WHERE `PlayerID` = Player) THEN
 		SELECT 'Player not found' AS message;
-        LEAVE find_tiles;
+        LEAVE move_player;
 	END IF;
     
     SET playerX = (SELECT `XPos` FROM `tile` WHERE `TileID` = (SELECT `TileID` FROM `player_tile` WHERE `PlayerID` = Player ORDER BY `Timestamp` LIMIT 1));
     SET playerY = (SELECT `YPos` FROM `tile` WHERE `TileID` = (SELECT `TileID` FROM `player_tile` WHERE `PlayerID` = Player ORDER BY `Timestamp` LIMIT 1));
 
 	IF AllowDiagonal = 1 THEN
-		-- Check if there is a tile in the players room which is within the search radius around
-		SELECT *
-		FROM `tile`
-		WHERE `XPos` >= playerX - searchRadius
-			AND `XPos` <= playerX + searchRadius
-			AND `YPos` >= playerY - searchRadius
-			AND `YPos` <= playerY + searchRadius
-			AND `RoomID` = (SELECT `RoomID`
-							FROM `player`
-							WHERE `PlayerID` = Player);
+		-- Checks if the requested position is within the radius around the player
+		IF NOT EXISTS (SELECT * FROM (SELECT *
+								FROM `tile`
+								WHERE `XPos` >= playerX - searchRadius
+									AND `XPos` <= playerX + searchRadius
+									AND `YPos` >= playerY - searchRadius
+									AND `YPos` <= playerY + searchRadius
+									AND `RoomID` = (SELECT `RoomID`
+													FROM `player`
+													WHERE `PlayerID` = Player)) AS Available
+			WHERE `XPos` = MoveX AND `YPos` = MoveY) THEN
+				SELECT 'Tile out of range' as message;
+                LEAVE move_player;
+		END IF;
 	ELSE
-		-- Check if there is a tile in the players room which is whithin the search radius straight
-		SELECT *
-		FROM `tile`
-		WHERE ((`XPos` >= playerX - searchRadius
-				AND `XPos` <= playerX + searchRadius)
-                AND `YPos` = playerY)
-			OR ((`YPos` >= playerY - searchRadius
-				AND `YPos` <= playerY + searchRadius)
-                AND `XPos` = playerX)
-			AND `RoomID` = (SELECT `RoomID`
-							FROM `player`
-							WHERE `PlayerID` = Player);
+		-- Checks if the requested position is within the bounds the the straights out from the player
+		IF NOT EXISTS (SELECT * FROM (SELECT *
+										FROM `tile`
+										WHERE ((`XPos` >= playerX - searchRadius
+												AND `XPos` <= playerX + searchRadius)
+												AND `YPos` = playerY)
+												OR ((`YPos` >= playerY - searchRadius
+												AND `YPos` <= playerY + searchRadius)
+												AND `XPos` = playerX)
+												AND `RoomID` = (SELECT `RoomID`
+																FROM `player`
+																WHERE `PlayerID` = Player)) AS Availalable
+			WHERE `XPos` = MoveX AND `YPos` = MoveY) THEN
+				SELECT 'Tile out of range' as message;
+				LEAVE move_player;
+		END IF;
 	END IF;
 	
+    INSERT INTO `player_tile` (`TileID`, `PlayerID`, `Timestamp`)
+		VALUES ((SELECT `TileID` FROM `tile` WHERE `XPos` = MoveX AND `YPos` = MoveY), Player, current_timestamp());
+    
+    
+    SELECT * FROM `player_tile`;
 END//
-
-
--- Player game play movement
 
 
 -- 6. Game play scoring
@@ -273,4 +285,4 @@ CALL `Layout_Tiles`(1, 5, 5);
 CALL `Create_Ability`();
 CALL `Place_Ability_On_Tile`(1, 1);
 CALL `Create_Player`('Test Account', 1);
-CALL `Get_Available_Tiles`(1, 1, 0);
+CALL `Move_Player`(1, 1, 0, 1, 0);
