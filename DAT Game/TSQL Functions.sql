@@ -4,9 +4,10 @@ DROP PROCEDURE IF EXISTS `Login`;
 DROP PROCEDURE IF EXISTS `Create_Account`;
 DROP PROCEDURE IF EXISTS `Create_Room`;
 DROP PROCEDURE IF EXISTS `Layout_Tiles`;
-DROP PROCEDURE IF EXISTS `Create_Player`;
 DROP PROCEDURE IF EXISTS `Create_Ability`;
+DROP PROCEDURE IF EXISTS `Create_Player`;
 DROP PROCEDURE IF EXISTS `Move_Player`;
+DROP PROCEDURE IF EXISTS `Update_Score`;
 
 DELIMITER //
 
@@ -45,7 +46,6 @@ login_process:BEGIN
 	
 END//
 
-
 -- Account registration
 CREATE PROCEDURE `Create_Account` (
 	IN IN_Username VARCHAR(32),
@@ -63,7 +63,6 @@ BEGIN
     
 END//
 
-
 -- Creating a room
 CREATE PROCEDURE `Create_Room`(
 	IN In_Name VARCHAR(32),
@@ -80,7 +79,6 @@ room_creation:BEGIN
 		VALUES (In_Name, In_Player);
     
 END//
-
 
 -- Laying out tiles on a game board
 CREATE PROCEDURE `Layout_Tiles`(
@@ -124,7 +122,6 @@ create_tiles:BEGIN
 
 END//
 
-
 -- Creating abilities
 CREATE PROCEDURE `Create_Ability`()
 BEGIN
@@ -133,7 +130,6 @@ BEGIN
 		VALUES ('Test Ability', 'This is a test ability', 10, 10, 0, './Test.png');
 
 END//
-
 
 -- Placing an ability on a tile
 CREATE PROCEDURE `Place_Ability_On_Tile`(
@@ -156,7 +152,6 @@ ability_placement:BEGIN
 		VALUES (current_timestamp(), InTile, InAbility);
 
 END//
-
 
 -- Create player and place on home tile
 CREATE PROCEDURE `Create_Player`(
@@ -187,7 +182,6 @@ create_player:BEGIN
 				);
 
 END//
-
 
 -- Find available movement tiles and move player
 CREATE PROCEDURE `Move_Player`(
@@ -256,26 +250,54 @@ move_player:BEGIN
     SELECT * FROM `player_tile`;
 END//
 
+-- Update score
+CREATE PROCEDURE `Update_Score` (
+	IN Player INT
+)
+update_score:BEGIN
 
--- 6. Game play scoring
+	-- Back out if the player id doesn't exist
+	IF NOT EXISTS (SELECT * FROM `player` WHERE `PlayerID` = Player) THEN
+		SELECT 'Invalid Player ID' AS message;
+        LEAVE update_score;
+	END IF;
+
+	-- Update the player's score
+	UPDATE `player`
+	SET `CurrentScore` = (SELECT SUM(`Value`) FROM `player_ability` WHERE `PlayerID` = Player AND `Dropped` = NULL)
+    WHERE `PlayerID` = Player;
+    
+    -- If they have a new highscore, set it
+    IF (SELECT `CurrentScore` FROM `player`) > (SELECT `HighScore` FROM `player`) THEN
+		UPDATE `player`
+        SET `HighScore` = `CurrentScore`
+        WHERE `PlayerID` = Player;
+	END IF;
+
+END//
+
+-- Get score
 
 
--- 7. Player game play acquiring inventory
+-- Get leaderboard
 
 
--- 8. Move an Item (NPC effect)
+-- Player acquiring inventory
 
 
--- 9. Kill running games
+-- Move an Item (NPC effect)
 
 
--- 10. Add new account
+-- Kill running games
 
 
--- 11. Update data of an account
+-- Add new account
 
 
--- 12. Delete an account
+-- Update data of an account
+
+
+-- Delete an account
 
 DELIMITER ;
 
