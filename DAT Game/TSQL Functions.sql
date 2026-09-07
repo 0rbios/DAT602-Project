@@ -6,6 +6,7 @@ DROP PROCEDURE IF EXISTS `Create_Room`;
 DROP PROCEDURE IF EXISTS `Layout_Tiles`;
 DROP PROCEDURE IF EXISTS `Get_Available_Tiles`;
 DROP PROCEDURE IF EXISTS `Create_Player`;
+DROP PROCEDURE IF EXISTS `Create_Ability`;
 
 DELIMITER //
 
@@ -125,7 +126,7 @@ END//
 
 
 -- Creating abilities
-CREATE PROCEDURE `Create_ability`()
+CREATE PROCEDURE `Create_Ability`()
 BEGIN
 	
     INSERT INTO `ability` (`AbilityName`, `Description`, `Value`, `Cost`, `Combat`, `Sprite`)
@@ -198,8 +199,6 @@ find_tiles:BEGIN
 
 	DECLARE playerX INT;
 	DECLARE playerY INT;
-    DECLARE searchX INT;
-    DECLARE searchY INT;
 
     IF SearchRadius < 1 THEN
 		SELECT 'Search radius too small' AS message;
@@ -214,28 +213,32 @@ find_tiles:BEGIN
     SET playerX = (SELECT `XPos` FROM `tile` WHERE `TileID` = (SELECT `TileID` FROM `player_tile` WHERE `PlayerID` = Player ORDER BY `Timestamp` LIMIT 1));
     SET playerY = (SELECT `YPos` FROM `tile` WHERE `TileID` = (SELECT `TileID` FROM `player_tile` WHERE `PlayerID` = Player ORDER BY `Timestamp` LIMIT 1));
 
-    -- Set the starting search x position to be the players current x position minus the search radius
-    SET searchX = playerX - searchRadius;
-    
-    check_tile:LOOP
-        IF searchX > SearchRadius THEN
-			LEAVE check_tile;
-		END IF;
-        
-        -- Check if there is a tile in the players room which has the current searching x position
-        IF EXISTS (SELECT *
-					FROM `tile`
-                    WHERE `XPos` = searchX
-							AND `RoomID` = (SELECT `RoomID`
-											FROM `player`
-											WHERE `PlayerID` = Player)) THEN
-			SELECT * FROM `tile` WHERE `XPos` = searchX;
-		END IF;
-    
-		SET searchX = searchX + 1;
-    
-    END LOOP check_tile;
-		
+	IF AllowDiagonal = 1 THEN
+		-- Check if there is a tile in the players room which is within the search radius around
+		SELECT *
+		FROM `tile`
+		WHERE `XPos` >= playerX - searchRadius
+			AND `XPos` <= playerX + searchRadius
+			AND `YPos` >= playerY - searchRadius
+			AND `YPos` <= playerY + searchRadius
+			AND `RoomID` = (SELECT `RoomID`
+							FROM `player`
+							WHERE `PlayerID` = Player);
+	ELSE
+		-- Check if there is a tile in the players room which is whithin the search radius straight
+		SELECT *
+		FROM `tile`
+		WHERE ((`XPos` >= playerX - searchRadius
+				AND `XPos` <= playerX + searchRadius)
+                AND `YPos` = playerY)
+			OR ((`YPos` >= playerY - searchRadius
+				AND `YPos` <= playerY + searchRadius)
+                AND `XPos` = playerX)
+			AND `RoomID` = (SELECT `RoomID`
+							FROM `player`
+							WHERE `PlayerID` = Player);
+	END IF;
+	
 END//
 
 
