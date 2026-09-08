@@ -4,10 +4,12 @@ DROP PROCEDURE IF EXISTS `Login`;
 DROP PROCEDURE IF EXISTS `Create_Account`;
 DROP PROCEDURE IF EXISTS `Create_Room`;
 DROP PROCEDURE IF EXISTS `Layout_Tiles`;
+DROP PROCEDURE IF EXISTS `Place_Ability_On_Tile`;
 DROP PROCEDURE IF EXISTS `Create_Ability`;
 DROP PROCEDURE IF EXISTS `Create_Player`;
 DROP PROCEDURE IF EXISTS `Move_Player`;
 DROP PROCEDURE IF EXISTS `Update_Score`;
+DROP FUNCTION IF EXISTS `Get_Score`;
 
 DELIMITER //
 
@@ -262,10 +264,21 @@ update_score:BEGIN
         LEAVE update_score;
 	END IF;
 
-	-- Update the player's score
-	UPDATE `player`
-	SET `CurrentScore` = (SELECT SUM(`Value`) FROM `player_ability` WHERE `PlayerID` = Player AND `Dropped` = NULL)
-    WHERE `PlayerID` = Player;
+	-- Make sure there is something in the inventory before updating or just make the score 0
+    IF NOT EXISTS (SELECT * FROM `player_ability` WHERE `PlayerID` = Player AND `Dropped` IS NULL) THEN
+		
+		UPDATE `player`
+		SET `CurrentScore` = 0
+		WHERE `PlayerID` = Player;
+	
+    ELSE
+    
+		-- Update the player's score
+		UPDATE `player`
+		SET `CurrentScore` = (SELECT SUM(a.`Value`) FROM `player_ability` AS pa JOIN `ability` AS a ON pa.`AbilityID` = a.`AbilityID` WHERE pa.`Dropped` IS NULL GROUP BY pa.`PlayerID` HAVING pa.`PlayerID` = 1)
+		WHERE `PlayerID` = Player;
+    
+	END IF;
     
     -- If they have a new highscore, set it
     IF (SELECT `CurrentScore` FROM `player`) > (SELECT `HighScore` FROM `player`) THEN
@@ -277,7 +290,17 @@ update_score:BEGIN
 END//
 
 -- Get score
+CREATE FUNCTION `Get_Score` ( Player INT )
+RETURNS INT DETERMINISTIC
+BEGIN
 
+	IF NOT EXISTS (SELECT `CurrentScore` FROM `player` WHERE `PlayerID` = Player) THEN
+		RETURN 0;
+	END IF;
+
+	RETURN (SELECT `CurrentScore` FROM `player` WHERE `PlayerID` = Player);
+    
+END//
 
 -- Get leaderboard
 
@@ -308,3 +331,5 @@ CALL `Create_Ability`();
 CALL `Place_Ability_On_Tile`(1, 1);
 CALL `Create_Player`('Test Account', 1);
 CALL `Move_Player`(1, 1, 0, 1, 0);
+CALL `Update_Score`(1);
+SELECT `Get_Score`(1) AS player_score;
