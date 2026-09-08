@@ -23,6 +23,7 @@ BEGIN
 		CONSTRAINT fk_account_room
 			FOREIGN KEY (`AccountName`)
 			REFERENCES `account`(`AccountName`)
+            ON DELETE CASCADE
 	);
 
 	CREATE TABLE `player` (
@@ -37,10 +38,12 @@ BEGIN
 		PRIMARY KEY (`PlayerID`),
 		CONSTRAINT fk_player_account
 			FOREIGN KEY (`AccountName`)
-			REFERENCES `account`(`AccountName`),
+			REFERENCES `account`(`AccountName`)
+            ON DELETE CASCADE,
 		CONSTRAINT fk_player_room
 			FOREIGN KEY (`RoomID`)
 			REFERENCES `room`(`RoomID`)
+            ON DELETE CASCADE
 	);
 
 	CREATE TABLE `tile` (
@@ -52,6 +55,7 @@ BEGIN
 		CONSTRAINT fk_tile_room
 			FOREIGN KEY (`RoomID`)
 			REFERENCES `room`(`RoomID`)
+            ON DELETE CASCADE
 	);
 
 	CREATE TABLE `ability` (
@@ -75,6 +79,7 @@ BEGIN
 		CONSTRAINT fk_message_player
 			FOREIGN KEY (`PlayerID`)
 			REFERENCES `player`(`PlayerID`)
+            ON DELETE CASCADE
 	);
 
 	CREATE TABLE `stat` (
@@ -90,7 +95,8 @@ BEGIN
 		PRIMARY KEY (`AbilityID`, `StatName`),
 		CONSTRAINT fk_statchange_ability
 			FOREIGN KEY (`AbilityID`)
-			REFERENCES `ability`(`AbilityID`),
+			REFERENCES `ability`(`AbilityID`)
+            ON DELETE CASCADE,
 		CONSTRAINT fk_statchange_stat
 			FOREIGN KEY (`StatName`)
 			REFERENCES `stat`(`StatName`)
@@ -117,10 +123,12 @@ BEGIN
 		PRIMARY KEY (`PickedUp`, `AbilityID`, `PlayerID`),
 		CONSTRAINT fk_playerability_ability
 			FOREIGN KEY (`AbilityID`)
-			REFERENCES `ability`(`AbilityID`),
+			REFERENCES `ability`(`AbilityID`)
+            ON DELETE CASCADE,
 		CONSTRAINT fk_playerability_player
 			FOREIGN KEY (`PlayerID`)
 			REFERENCES `player`(`PlayerID`)
+            ON DELETE CASCADE
 	);
 
 	CREATE TABLE `player_tile` (
@@ -130,10 +138,12 @@ BEGIN
 		PRIMARY KEY (`TileID`, `PlayerID`, `Timestamp`),
 		CONSTRAINT fk_playertile_player
 			FOREIGN KEY (`PlayerID`)
-			REFERENCES `player`(`PlayerID`),
+			REFERENCES `player`(`PlayerID`)
+            ON DELETE CASCADE,
 		CONSTRAINT fk_playertile_tile
 			FOREIGN KEY (`TileID`)
 			REFERENCES `tile`(`TileID`)
+            ON DELETE CASCADE
 	);
 
 	CREATE TABLE `tile_ability` (
@@ -143,10 +153,12 @@ BEGIN
 		PRIMARY KEY (`Timestamp`, `TileID`),
 		CONSTRAINT fk_tileability_tile
 			FOREIGN KEY (`TileID`)
-			REFERENCES `tile`(`TileID`),
+			REFERENCES `tile`(`TileID`)
+            ON DELETE CASCADE,
 		CONSTRAINT fk_tileability_ability
 			FOREIGN KEY (`AbilityID`)
 			REFERENCES `ability`(`AbilityID`)
+            ON DELETE CASCADE
 	);
 END //
 

@@ -341,7 +341,7 @@ ability_pickup:BEGIN
     
 END//
 
--- Move an Item (NPC effect)
+-- Glitch ability movement
 
 
 -- Kill running games
@@ -354,6 +354,25 @@ END//
 
 
 -- Delete an account
+CREATE PROCEDURE `Delete_Account`(
+	IN InAccount VARCHAR(32),
+    IN Confirm BIT
+)
+delete_account:BEGIN
+
+	IF Confirm <> 1 THEN
+		SELECT 'Account Deletion Cancelled' AS message;
+		LEAVE delete_account;
+	END IF;
+    
+    IF NOT EXISTS (SELECT * FROM `account` WHERE `AccountName` = InAccount) THEN
+		SELECT 'Account does not exist' AS message;
+        LEAVE delete_account;
+	END IF;
+    
+    DELETE FROM `Account` WHERE `AccountName` = InAccount;
+
+END//
 
 DELIMITER ;
 
@@ -368,3 +387,6 @@ CALL `Pickup_Ability`(1, 1);
 CALL `Update_Score`(1);
 SELECT `Get_Score`(1) AS player_score;
 CALL `Get_Leaderboard`(1);
+CALL `Delete_Account`('Test Account', 1);
+
+SELECT * FROM `account`;
