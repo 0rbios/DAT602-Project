@@ -11,6 +11,8 @@ DROP PROCEDURE IF EXISTS `Move_Player`;
 DROP PROCEDURE IF EXISTS `Update_Score`;
 DROP PROCEDURE IF EXISTS `Get_Leaderboard`;
 DROP PROCEDURE IF EXISTS `Pickup_Abiltiy`;
+DROP PROCEDURE IF EXISTS `Delete_Account`;
+DROP PROCEDURE IF EXISTS `Kill_Room`;
 DROP FUNCTION IF EXISTS `Get_Score`;
 
 DELIMITER //
@@ -345,7 +347,19 @@ END//
 
 
 -- Kill running games
+CREATE PROCEDURE `Kill_Room`(
+	IN Room INT
+)
+kill_room:BEGIN
 
+	IF NOT EXISTS (SELECT * FROM `room` WHERE `RoomID` = Room) THEN
+		SELECT 'Room does not exist' AS message;
+        LEAVE kill_room;
+	END IF;
+    
+    DELETE FROM `room` WHERE `RoomID` = Room;
+
+END//
 
 -- Add new account
 
@@ -387,6 +401,5 @@ CALL `Pickup_Ability`(1, 1);
 CALL `Update_Score`(1);
 SELECT `Get_Score`(1) AS player_score;
 CALL `Get_Leaderboard`(1);
+CALL `Kill_Room`(1);
 CALL `Delete_Account`('Test Account', 1);
-
-SELECT * FROM `account`;
