@@ -9,6 +9,7 @@ DROP PROCEDURE IF EXISTS `Create_Ability`;
 DROP PROCEDURE IF EXISTS `Create_Player`;
 DROP PROCEDURE IF EXISTS `Move_Player`;
 DROP PROCEDURE IF EXISTS `Update_Score`;
+DROP PROCEDURE IF EXISTS `Get_Leaderboard`;
 DROP FUNCTION IF EXISTS `Get_Score`;
 
 DELIMITER //
@@ -32,7 +33,7 @@ login_process:BEGIN
         
 		UPDATE `account`
 		SET `LoginAttempts` = `LoginAttempts` + 1
-		WHERE EXISTS (SELECT * FROM `account` WHERE `AccountName` = In_Username);
+		WHERE `AccountName` = In_Username;
         
         LEAVE login_process;
 	END IF;
@@ -303,7 +304,19 @@ BEGIN
 END//
 
 -- Get leaderboard
+CREATE PROCEDURE `Get_Leaderboard`(
+	IN Room INT
+)
+get_leaderboard:BEGIN
 
+	IF NOT EXISTS (SELECT * FROM `room` WHERE `RoomID` = Room) THEN
+		SELECT 'Invalid Room' AS message;
+		LEAVE get_leaderboard;
+	END IF;
+
+	SELECT `AccountName`, `HighScore` FROM `player` WHERE `RoomID` = Room;
+
+END//
 
 -- Player acquiring inventory
 
@@ -333,3 +346,4 @@ CALL `Create_Player`('Test Account', 1);
 CALL `Move_Player`(1, 1, 0, 1, 0);
 CALL `Update_Score`(1);
 SELECT `Get_Score`(1) AS player_score;
+CALL `Get_Leaderboard`(1);
