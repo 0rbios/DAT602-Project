@@ -14,6 +14,7 @@ DROP PROCEDURE IF EXISTS `Pickup_Ability`;
 DROP PROCEDURE IF EXISTS `Delete_Account`;
 DROP PROCEDURE IF EXISTS `Kill_Room`;
 DROP PROCEDURE IF EXISTS `Glitch_Ability`;
+DROP PROCEDURE IF EXISTS `Update_Account`;
 DROP FUNCTION IF EXISTS `Get_Score`;
 DROP FUNCTION IF EXISTS `Random_Tile`;
 
@@ -397,11 +398,29 @@ kill_room:BEGIN
 
 END//
 
--- Add new account
-
-
 -- Update data of an account
+CREATE PROCEDURE `Update_Account`(
+	IN InAccount VARCHAR(32),
+    IN NewPassword VARCHAR(32),
+    IN IsAdmin BIT,
+    IN IsLocked BIT
+)
+account_update:BEGIN
 
+	IF NOT EXISTS (SELECT * FROM `account` WHERE `AccountName` = InAccount) THEN
+		SELECT 'Account does not exist' AS message;
+        LEAVE account_update;
+	END IF;
+    
+    UPDATE `account`
+    SET `Password` = NewPassword,
+		`Admin`= IsAdmin,
+        `Locked` = IsLocked
+	WHERE `AccountName` = InAccount;
+    
+    SELECT * FROM `Account`;
+
+END//
 
 -- Delete an account
 CREATE PROCEDURE `Delete_Account`(
@@ -439,4 +458,5 @@ CALL `Update_Score`(1);
 SELECT `Get_Score`(1) AS player_score;
 CALL `Get_Leaderboard`(1);
 CALL `Kill_Room`(1);
+CALL `Update_Account`('Test Account', 'New Password', 1, 1);
 CALL `Delete_Account`('Test Account', 1);
