@@ -10,6 +10,7 @@ DROP PROCEDURE IF EXISTS `Create_Player`;
 DROP PROCEDURE IF EXISTS `Move_Player`;
 DROP PROCEDURE IF EXISTS `Update_Score`;
 DROP PROCEDURE IF EXISTS `Get_Leaderboard`;
+DROP PROCEDURE IF EXISTS `Pickup_Abiltiy`;
 DROP FUNCTION IF EXISTS `Get_Score`;
 
 DELIMITER //
@@ -319,7 +320,26 @@ get_leaderboard:BEGIN
 END//
 
 -- Player acquiring inventory
+CREATE PROCEDURE `Pickup_Ability` (
+	IN Player INT,
+    IN Ability INT
+)
+ability_pickup:BEGIN
 
+	IF NOT EXISTS (SELECT * FROM `player` WHERE `PlayerID` = Player) THEN
+		SELECT 'Invalid player' AS message;
+        LEAVE ability_pickup;
+	END IF;
+    
+	IF NOT EXISTS (SELECT * FROM `ability` WHERE `abilityID` = Ability) THEN
+		SELECT 'Invalid ability' AS message;
+        LEAVE ability_pickup;
+	END IF;
+    
+    INSERT INTO `player_ability` (`PlayerID`, `AbilityID`, `PickedUp`)
+		VALUES (Player, Ability, current_timestamp());
+    
+END//
 
 -- Move an Item (NPC effect)
 
@@ -344,6 +364,7 @@ CALL `Create_Ability`();
 CALL `Place_Ability_On_Tile`(1, 1);
 CALL `Create_Player`('Test Account', 1);
 CALL `Move_Player`(1, 1, 0, 1, 0);
+CALL `Pickup_Ability`(1, 1);
 CALL `Update_Score`(1);
 SELECT `Get_Score`(1) AS player_score;
 CALL `Get_Leaderboard`(1);
