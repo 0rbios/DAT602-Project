@@ -10,10 +10,12 @@ DROP PROCEDURE IF EXISTS `Create_Player`;
 DROP PROCEDURE IF EXISTS `Move_Player`;
 DROP PROCEDURE IF EXISTS `Update_Score`;
 DROP PROCEDURE IF EXISTS `Get_Leaderboard`;
-DROP PROCEDURE IF EXISTS `Pickup_Abiltiy`;
+DROP PROCEDURE IF EXISTS `Pickup_Ability`;
 DROP PROCEDURE IF EXISTS `Delete_Account`;
 DROP PROCEDURE IF EXISTS `Kill_Room`;
+DROP PROCEDURE IF EXISTS `Glitch_Ability`;
 DROP FUNCTION IF EXISTS `Get_Score`;
+DROP FUNCTION IF EXISTS `Random_Tile`;
 
 DELIMITER //
 
@@ -343,8 +345,42 @@ ability_pickup:BEGIN
     
 END//
 
--- Glitch ability movement
+-- Select random tile
+CREATE FUNCTION `Random_Tile`(
+	Room INT
+) RETURNS INT DETERMINISTIC
+BEGIN
+	
+    IF NOT EXISTS (SELECT * FROM `room` WHERE `RoomID` = Room) THEN
+		RETURN 0;
+	END IF;
+    
+    RETURN RAND()*((SELECT MAX(`TileID`) FROM `tile` WHERE `RoomID` = Room)-(SELECT MIN(`TileID`) FROM `tile` WHERE `RoomID` = Room))+(SELECT MIN(`TileID`) FROM `tile` WHERE `RoomID` = Room);
+    
+END//
 
+-- Glitch ability movement
+CREATE PROCEDURE `Glitch_Ability` (
+	IN Ability INT
+)
+glitch_move:BEGIN
+
+	IF NOT EXISTS (SELECT * FROM `ability` WHERE `AbilityID` = Ability) THEN
+		SELECT 'Ability does not exist' AS message;
+		LEAVE glitch_move;
+	END IF;
+    
+    IF EXISTS (SELECT * FROM `player_ability` WHERE `AbilityID` = Ability AND `Dropped` IS NULL) THEN
+		SELECT 'Ability is being held' AS message;
+        LEAVE glitch_move;
+	END IF;
+    
+    INSERT INTO `tile_ability` (`TileID`, `AbilityID`, `Timestamp`)
+		VALUE (`Random_Tile`((SELECT t.`RoomID` FROM `tile_ability` AS ta JOIN `ability` AS a ON a.`AbilityID` = ta.`AbilityID` JOIN `tile` AS t ON t.`TileID` = ta.`TileID` WHERE ta.`AbilityID` = Ability)), Ability, current_timestamp());
+        
+	SELECT * FROM `tile_ability`;
+
+END//
 
 -- Kill running games
 CREATE PROCEDURE `Kill_Room`(
@@ -397,6 +433,7 @@ CALL `Create_Ability`();
 CALL `Place_Ability_On_Tile`(1, 1);
 CALL `Create_Player`('Test Account', 1);
 CALL `Move_Player`(1, 1, 0, 1, 0);
+CALL `Glitch_Ability`(1);
 CALL `Pickup_Ability`(1, 1);
 CALL `Update_Score`(1);
 SELECT `Get_Score`(1) AS player_score;
