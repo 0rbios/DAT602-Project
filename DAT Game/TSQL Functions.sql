@@ -15,6 +15,7 @@ DROP PROCEDURE IF EXISTS `Delete_Account`;
 DROP PROCEDURE IF EXISTS `Kill_Room`;
 DROP PROCEDURE IF EXISTS `Glitch_Ability`;
 DROP PROCEDURE IF EXISTS `Update_Account`;
+DROP PROCEDURE IF EXISTS `Find_Abilities`;
 DROP FUNCTION IF EXISTS `Get_Score`;
 DROP FUNCTION IF EXISTS `Random_Tile`;
 
@@ -355,8 +356,21 @@ BEGIN
     IF NOT EXISTS (SELECT * FROM `room` WHERE `RoomID` = Room) THEN
 		RETURN 0;
 	END IF;
-    
-    RETURN RAND()*((SELECT MAX(`TileID`) FROM `tile` WHERE `RoomID` = Room)-(SELECT MIN(`TileID`) FROM `tile` WHERE `RoomID` = Room))+(SELECT MIN(`TileID`) FROM `tile` WHERE `RoomID` = Room);
+
+    RETURN RAND()*(
+		(SELECT MAX(`TileID`)
+         FROM `tile`
+         WHERE `RoomID` = Room
+		) - 
+        (SELECT MIN(`TileID`)
+         FROM `tile`
+         WHERE `RoomID` = Room
+         )
+         ) + 
+         (SELECT MIN(`TileID`)
+          FROM `tile`
+          WHERE `RoomID` = Room
+		 );
     
 END//
 
@@ -443,6 +457,36 @@ delete_account:BEGIN
 
 END//
 
+-- Locate current position of each ability
+CREATE PROCEDURE `Find_Abilities`(
+	IN Room INT
+)
+find_abilities:BEGIN
+
+	IF NOT EXISTS (SELECT * FROM `room` WHERE `RoomID` = Room) THEN
+		SELECT 'Room does not exist' AS message;
+        LEAVE find_abilities;
+	END IF;
+    
+    WITH ability_locations (`time`, `tile`, `player`, `ability`) AS (
+		SELECT `tile_ability`.`Timestamp`, `tile_ability`.`TileID`, NULL, `tile_ability`.`AbilityID`
+        FROM `tile_ability`
+        JOIN `tile`
+			ON `tile`.`TileID` = `tile_ability`.`TileID`
+		WHERE `tile`.`RoomID` = Room
+        
+        UNION
+        
+		SELECT `player_ability`.`PickedUp`, NULL, `player_ability`.`PlayerID`, `player_ability`.`AbilityID`
+        FROM `player_ability`
+        JOIN `player`
+			ON `player`.`PlayerID` = `player_ability`.`PlayerID`
+		WHERE `player`.`RoomID` = Room
+    )
+	SELECT DISTINCT `ability`, `time`, `tile`, `player` FROM ability_locations WHERE `time` = (SELECT MAX(`time`) FROM ability_locations);
+
+END//
+
 DELIMITER ;
 
 CALL `Login`('Test Account', 'Test Password');
@@ -457,6 +501,7 @@ CALL `Pickup_Ability`(1, 1);
 CALL `Update_Score`(1);
 SELECT `Get_Score`(1) AS player_score;
 CALL `Get_Leaderboard`(1);
+CALL `Find_Abilities`(1);
 CALL `Kill_Room`(1);
 CALL `Update_Account`('Test Account', 'New Password', 1, 1);
 CALL `Delete_Account`('Test Account', 1);
