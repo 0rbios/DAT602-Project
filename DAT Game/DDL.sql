@@ -59,8 +59,7 @@ BEGIN
 	);
 
 	CREATE TABLE `ability` (
-		`AbilityID` INT AUTO_INCREMENT,
-		`AbilityName` VARCHAR(24) NOT NULL,
+		`AbilityName` VARCHAR(24),
 		`Description` VARCHAR(255) NOT NULL,
 		`Value` INT(5) NOT NULL,
 		`Cost` INT(5) NOT NULL,
@@ -68,8 +67,18 @@ BEGIN
 		`Damage` INT(3),
 		`Glitched` BIT NOT NULL DEFAULT 0,
 		`Sprite` VARCHAR(32) NOT NULL,
-		PRIMARY KEY (`AbilityID`)
+		PRIMARY KEY (`AbilityName`)
 	);
+
+	CREATE TABLE `abilityinstance` (
+		`AbilityID` INT AUTO_INCREMENT,
+		`AbilityName` VARCHAR(24) NOT NULL,
+        PRIMARY KEY (`AbilityID`),
+        CONSTRAINT fk_abilityinstance_ability
+			FOREIGN KEY (`AbilityName`)
+            REFERENCES `ability`(`AbilityName`)
+            ON DELETE CASCADE
+    );
 
 	CREATE TABLE `message` (
 		`PlayerID` INT,
@@ -89,13 +98,13 @@ BEGIN
 	);
 
 	CREATE TABLE `statchange` (
-		`AbilityID` INT,
+		`AbilityName` VARCHAR(24),
 		`StatName` VARCHAR(16),
 		`Amount` INT(2) NOT NULL,
-		PRIMARY KEY (`AbilityID`, `StatName`),
+		PRIMARY KEY (`AbilityName`, `StatName`),
 		CONSTRAINT fk_statchange_ability
-			FOREIGN KEY (`AbilityID`)
-			REFERENCES `ability`(`AbilityID`)
+			FOREIGN KEY (`AbilityName`)
+			REFERENCES `ability`(`AbilityName`)
             ON DELETE CASCADE,
 		CONSTRAINT fk_statchange_stat
 			FOREIGN KEY (`StatName`)
@@ -121,9 +130,9 @@ BEGIN
 		`PlayerID` INT,
 		`Dropped` TIMESTAMP,
 		PRIMARY KEY (`PickedUp`, `AbilityID`, `PlayerID`),
-		CONSTRAINT fk_playerability_ability
+		CONSTRAINT fk_playerability_abilityinstance
 			FOREIGN KEY (`AbilityID`)
-			REFERENCES `ability`(`AbilityID`)
+			REFERENCES `abilityinstance`(`AbilityID`)
             ON DELETE CASCADE,
 		CONSTRAINT fk_playerability_player
 			FOREIGN KEY (`PlayerID`)
@@ -147,17 +156,18 @@ BEGIN
 	);
 
 	CREATE TABLE `tile_ability` (
-		`Timestamp` TIMESTAMP,
+		`Placed` TIMESTAMP,
 		`TileID` INT,
-		`AbilityID` INT NOT NULL,
-		PRIMARY KEY (`Timestamp`, `TileID`),
+		`AbilityID` INT,
+        `Removed` TIMESTAMP,
+		PRIMARY KEY (`Placed`, `TileID`, `AbilityID`),
 		CONSTRAINT fk_tileability_tile
 			FOREIGN KEY (`TileID`)
 			REFERENCES `tile`(`TileID`)
             ON DELETE CASCADE,
-		CONSTRAINT fk_tileability_ability
+		CONSTRAINT fk_tileability_abilityinstance
 			FOREIGN KEY (`AbilityID`)
-			REFERENCES `ability`(`AbilityID`)
+			REFERENCES `abilityinstance`(`AbilityID`)
             ON DELETE CASCADE
 	);
 END //
@@ -197,6 +207,14 @@ BEGIN
 		('Hyper-Shift', 'A gearshift that can switch between gears with minimal slowdown.', 10, 0, 0, 0, './Ability.png')
 	;
 
+	INSERT INTO `abilityinstance` (`AbilityName`)
+		VALUES
+        ('Teleport'),
+        ('Overtightened Spring'),
+        ('Piston Wreck'),
+        ('Hyper-Shift')
+	;
+
 	INSERT INTO `message` (`PlayerID`, `SendTime`, `Text`)
 		VALUES
 		(1, '2026-12-31 12:00:00', 'Hello World!'),
@@ -211,11 +229,11 @@ BEGIN
 		('Strength', 100)
 	;
 
-	INSERT INTO `statchange` (`AbilityID`, `StatName`, `Amount`)
+	INSERT INTO `statchange` (`AbilityName`, `StatName`, `Amount`)
 		VALUES
-		(1, 'Speed', 5),
-		(1, 'Health', -5),
-		(2, 'Speed', 10)
+		('Overtightened Spring', 'Speed', 5),
+		('Overtightened Spring', 'Health', -5),
+		('Hyper-Shift', 'Speed', 10)
 	;
 
 	INSERT INTO `player_stat` (`StatName`, `PlayerID`, `Value`)

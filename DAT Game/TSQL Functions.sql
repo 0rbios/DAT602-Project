@@ -5,7 +5,7 @@ DROP PROCEDURE IF EXISTS `Create_Account`;
 DROP PROCEDURE IF EXISTS `Create_Room`;
 DROP PROCEDURE IF EXISTS `Layout_Tiles`;
 DROP PROCEDURE IF EXISTS `Place_Ability_On_Tile`;
-DROP PROCEDURE IF EXISTS `Create_Ability`;
+DROP PROCEDURE IF EXISTS `Create_Abilities`;
 DROP PROCEDURE IF EXISTS `Create_Player`;
 DROP PROCEDURE IF EXISTS `Move_Player`;
 DROP PROCEDURE IF EXISTS `Update_Score`;
@@ -73,7 +73,16 @@ BEGIN
     
 END//
 
--- Creating a room
+-- Creating abilities
+CREATE PROCEDURE `Create_Abilities`()
+BEGIN
+	
+    INSERT INTO `ability` (`AbilityName`, `Description`, `Value`, `Cost`, `Combat`, `Sprite`)
+		VALUES ('Test Ability', 'This is a test ability', 10, 10, 0, './Test.png');
+
+END//
+
+-- Creating a room and ability instances
 CREATE PROCEDURE `Create_Room`(
 	IN In_Name VARCHAR(32),
     IN In_Player VARCHAR(32)
@@ -87,6 +96,10 @@ room_creation:BEGIN
     
 	INSERT INTO `room` (`RoomName`, `AccountName`)
 		VALUES (In_Name, In_Player);
+    
+    INSERT INTO `abilityinstance` (`AbilityName`)
+		VALUES ('Test Ability')
+	;
     
 END//
 
@@ -132,18 +145,9 @@ create_tiles:BEGIN
 
 END//
 
--- Creating abilities
-CREATE PROCEDURE `Create_Ability`()
-BEGIN
-	
-    INSERT INTO `ability` (`AbilityName`, `Description`, `Value`, `Cost`, `Combat`, `Sprite`)
-		VALUES ('Test Ability', 'This is a test ability', 10, 10, 0, './Test.png');
-
-END//
-
 -- Placing an ability on a tile
 CREATE PROCEDURE `Place_Ability_On_Tile`(
-	IN InAbility INT,
+	IN InAbilityInstance INT,
     IN InTile INT
 )
 ability_placement:BEGIN
@@ -153,13 +157,13 @@ ability_placement:BEGIN
         LEAVE ability_placement;
     END IF;
     
-	IF NOT EXISTS (SELECT * FROM `ability` WHERE `AbilityID` = InAbility) THEN
-		SELECT 'Ability does not exist' AS message;
+	IF NOT EXISTS (SELECT * FROM `abilityinstance` WHERE `AbilityID` = InAbilityInstance) THEN
+		SELECT 'Ability instance does not exist' AS message;
         LEAVE ability_placement;
     END IF;
 
-	INSERT INTO `Tile_Ability` (`Timestamp`, `TileID`, `AbilityID`)
-		VALUES (current_timestamp(), InTile, InAbility);
+	INSERT INTO `Tile_Ability` (`Placed`, `TileID`, `AbilityID`)
+		VALUES (current_timestamp(), InTile, InAbilityInstance);
 
 END//
 
@@ -283,7 +287,17 @@ update_score:BEGIN
     
 		-- Update the player's score
 		UPDATE `player`
-		SET `CurrentScore` = (SELECT SUM(a.`Value`) FROM `player_ability` AS pa JOIN `ability` AS a ON pa.`AbilityID` = a.`AbilityID` WHERE pa.`Dropped` IS NULL GROUP BY pa.`PlayerID` HAVING pa.`PlayerID` = 1)
+		SET `CurrentScore` = (
+								SELECT SUM(a.`Value`)
+                                FROM `player_ability` AS pa
+                                JOIN `abilityinstance` AS ai
+									ON pa.`AbilityID` = ai.`AbilityID`
+								JOIN `ability` AS a
+									ON ai.`AbilityName` = a.`AbilityName`
+								WHERE pa.`Dropped` IS NULL
+                                GROUP BY pa.`PlayerID`
+									HAVING pa.`PlayerID` = 1
+							  )
 		WHERE `PlayerID` = Player;
     
 	END IF;
@@ -328,7 +342,7 @@ END//
 -- Player acquiring inventory
 CREATE PROCEDURE `Pickup_Ability` (
 	IN Player INT,
-    IN Ability INT
+    IN AbilityInstance INT
 )
 ability_pickup:BEGIN
 
@@ -337,13 +351,20 @@ ability_pickup:BEGIN
         LEAVE ability_pickup;
 	END IF;
     
-	IF NOT EXISTS (SELECT * FROM `ability` WHERE `abilityID` = Ability) THEN
-		SELECT 'Invalid ability' AS message;
+	IF NOT EXISTS (SELECT * FROM `abilityinstance` WHERE `abilityID` = AbilityInstance) THEN
+		SELECT 'Invalid ability instance' AS message;
         LEAVE ability_pickup;
 	END IF;
     
+    UPDATE `tile_ability`
+    SET `Removed` = current_timestamp()
+    WHERE `AbilityID` = AbilityInstance
+		AND `Removed` IS NULL
+    ORDER BY `Placed`
+    LIMIT 1;
+    
     INSERT INTO `player_ability` (`PlayerID`, `AbilityID`, `PickedUp`)
-		VALUES (Player, Ability, current_timestamp());
+		VALUES (Player, AbilityInstance, current_timestamp());
     
 END//
 
@@ -376,22 +397,37 @@ END//
 
 -- Glitch ability movement
 CREATE PROCEDURE `Glitch_Ability` (
-	IN Ability INT
+	IN AbilityInstance INT
 )
 glitch_move:BEGIN
 
-	IF NOT EXISTS (SELECT * FROM `ability` WHERE `AbilityID` = Ability) THEN
-		SELECT 'Ability does not exist' AS message;
+	IF NOT EXISTS (SELECT * FROM `abilityinstance` WHERE `AbilityID` = AbilityInstance) THEN
+		SELECT 'Ability instance does not exist' AS message;
 		LEAVE glitch_move;
 	END IF;
     
-    IF EXISTS (SELECT * FROM `player_ability` WHERE `AbilityID` = Ability AND `Dropped` IS NULL) THEN
+    IF EXISTS (SELECT * FROM `player_ability` WHERE `AbilityID` = AbilityInstance AND `Dropped` IS NULL) THEN
 		SELECT 'Ability is being held' AS message;
         LEAVE glitch_move;
 	END IF;
     
-    INSERT INTO `tile_ability` (`TileID`, `AbilityID`, `Timestamp`)
-		VALUE (`Random_Tile`((SELECT t.`RoomID` FROM `tile_ability` AS ta JOIN `ability` AS a ON a.`AbilityID` = ta.`AbilityID` JOIN `tile` AS t ON t.`TileID` = ta.`TileID` WHERE ta.`AbilityID` = Ability)), Ability, current_timestamp());
+    UPDATE `tile_ability`
+    SET `Removed` = current_timestamp()
+    WHERE `AbilityID` = AbilityInstance
+		AND `Removed` IS NULL
+    ORDER BY `Placed`
+    LIMIT 1;
+    
+    INSERT INTO `tile_ability` (`TileID`, `AbilityID`, `Placed`)
+		VALUE (`Random_Tile`(
+					(SELECT t.`RoomID`
+					 FROM `tile_ability` AS ta
+                     JOIN `abilityinstance` AS ai
+						ON ai.`AbilityID` = ta.`AbilityID`
+					 JOIN `tile` AS t
+						ON t.`TileID` = ta.`TileID`
+					 WHERE ta.`AbilityID` = AbilityInstance)
+					), AbilityInstance, current_timestamp());
         
 	SELECT * FROM `tile_ability`;
 
@@ -468,8 +504,8 @@ find_abilities:BEGIN
         LEAVE find_abilities;
 	END IF;
     
-    WITH ability_locations (`time`, `tile`, `player`, `ability`) AS (
-		SELECT `tile_ability`.`Timestamp`, `tile_ability`.`TileID`, NULL, `tile_ability`.`AbilityID`
+    WITH ability_locations (`added`, `removed`, `tile`, `player`, `abilityid`) AS (
+		SELECT `tile_ability`.`Placed`, `tile_ability`.`Removed`, `tile_ability`.`TileID`, NULL, `tile_ability`.`AbilityID`
         FROM `tile_ability`
         JOIN `tile`
 			ON `tile`.`TileID` = `tile_ability`.`TileID`
@@ -477,22 +513,22 @@ find_abilities:BEGIN
         
         UNION
         
-		SELECT `player_ability`.`PickedUp`, NULL, `player_ability`.`PlayerID`, `player_ability`.`AbilityID`
+		SELECT `player_ability`.`PickedUp`, `player_ability`.`Dropped`, NULL, `player_ability`.`PlayerID`, `player_ability`.`AbilityID`
         FROM `player_ability`
         JOIN `player`
 			ON `player`.`PlayerID` = `player_ability`.`PlayerID`
 		WHERE `player`.`RoomID` = Room
     )
-	SELECT DISTINCT `ability`, `time`, `tile`, `player` FROM ability_locations WHERE `time` = (SELECT MAX(`time`) FROM ability_locations);
+	SELECT * FROM ability_locations WHERE `removed` IS NULL;
 
 END//
 
 DELIMITER ;
 
 CALL `Login`('Test Account', 'Test Password');
+CALL `Create_Abilities`();
 CALL `Create_Room`('Test Room', 'Test Account');
 CALL `Layout_Tiles`(1, 5, 5);
-CALL `Create_Ability`();
 CALL `Place_Ability_On_Tile`(1, 1);
 CALL `Create_Player`('Test Account', 1);
 CALL `Move_Player`(1, 1, 0, 1, 0);
