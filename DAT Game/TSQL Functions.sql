@@ -2,22 +2,22 @@ USE gamedb;
 
 DROP PROCEDURE IF EXISTS `Login`;
 DROP PROCEDURE IF EXISTS `Create_Account`;
+DROP PROCEDURE IF EXISTS `Create_Abilities`;
 DROP PROCEDURE IF EXISTS `Create_Room`;
 DROP PROCEDURE IF EXISTS `Layout_Tiles`;
 DROP PROCEDURE IF EXISTS `Place_Ability_On_Tile`;
-DROP PROCEDURE IF EXISTS `Create_Abilities`;
 DROP PROCEDURE IF EXISTS `Create_Player`;
 DROP PROCEDURE IF EXISTS `Move_Player`;
-DROP PROCEDURE IF EXISTS `Update_Score`;
-DROP PROCEDURE IF EXISTS `Get_Leaderboard`;
-DROP PROCEDURE IF EXISTS `Pickup_Ability`;
-DROP PROCEDURE IF EXISTS `Delete_Account`;
-DROP PROCEDURE IF EXISTS `Kill_Room`;
 DROP PROCEDURE IF EXISTS `Glitch_Ability`;
-DROP PROCEDURE IF EXISTS `Update_Account`;
-DROP PROCEDURE IF EXISTS `Find_Abilities`;
-DROP FUNCTION IF EXISTS `Get_Score`;
 DROP FUNCTION IF EXISTS `Random_Tile`;
+DROP PROCEDURE IF EXISTS `Pickup_Ability`;
+DROP PROCEDURE IF EXISTS `Update_Score`;
+DROP FUNCTION IF EXISTS `Get_Score`;
+DROP PROCEDURE IF EXISTS `Get_Leaderboard`;
+DROP PROCEDURE IF EXISTS `Find_Abilities`;
+DROP PROCEDURE IF EXISTS `Kill_Room`;
+DROP PROCEDURE IF EXISTS `Update_Account`;
+DROP PROCEDURE IF EXISTS `Delete_Account`;
 
 DELIMITER //
 
@@ -26,33 +26,33 @@ CREATE PROCEDURE `Login`(
 	IN In_Username VARCHAR(32),
 	IN In_Password VARCHAR(32)
 )
-login_process:BEGIN
+BEGIN
 
-	-- If the account doesn't exist, try to create it
+	-- Redirect: If requested account name doesn't exist
 	IF NOT EXISTS (SELECT * FROM `account` WHERE `AccountName` = In_Username) THEN
 		CALL `Create_Account`(In_Username, In_Password);
-		LEAVE login_process;
-	END IF;
-    
-    -- If the password if wrong, tell the user and increase the account's login attempts
-	IF EXISTS (SELECT * FROM `account` WHERE `AccountName` = In_Username AND `Password` = In_Password) THEN
+        
+    -- Error: If requested password does not match requested username
+	ELSEIF EXISTS (SELECT * FROM `account` WHERE `AccountName` = In_Username AND `Password` = In_Password) THEN
 		SELECT 'Incorrect Password' AS message;
         
 		UPDATE `account`
-		SET `LoginAttempts` = `LoginAttempts` + 1
-		WHERE `AccountName` = In_Username;
+			SET `LoginAttempts` = `LoginAttempts` + 1
+			WHERE `AccountName` = In_Username;
         
-        LEAVE login_process;
+	-- Return the username and reset the login attempts
+	ELSE
+		SELECT `AccountName`
+		FROM `account`
+		WHERE EXISTS (
+						SELECT *
+                        FROM `account`
+                        WHERE `AccountName` = In_Username);
+		
+		UPDATE `account`
+			SET `LoginAttempts` = 0
+			WHERE EXISTS (SELECT * FROM `account` WHERE `AccountName` = In_Username);
 	END IF;
-	
-    -- If all goes well, return the username and reset the login attempts
-	SELECT `AccountName`
-	FROM `account`
-	WHERE EXISTS (SELECT * FROM `account` WHERE `AccountName` = In_Username);
-    
-    UPDATE `account`
-	SET `LoginAttempts` = 0
-	WHERE EXISTS (SELECT * FROM `account` WHERE `AccountName` = In_Username);
 	
 END//
 
@@ -63,12 +63,16 @@ CREATE PROCEDURE `Create_Account` (
 )
 BEGIN
 
+	-- Error: If requested account name already exists
 	IF NOT EXISTS (SELECT * FROM `account` WHERE `AccountName` = IN_Username) THEN
+		SELECT 'Account name already exists' AS message;
+	
+    -- Create the new account with the requested username and password
+	ELSE
 		INSERT INTO `account` (`AccountName`, `Password`)
 			VALUES (IN_Username, IN_Password);
+            
 		SELECT * FROM `account`;
-	ELSE
-		SELECT 'Account name already exists' as message;
 	END IF;
     
 END//
@@ -77,6 +81,7 @@ END//
 CREATE PROCEDURE `Create_Abilities`()
 BEGIN
 	
+    -- Create all of the games abilities
     INSERT INTO `ability` (`AbilityName`, `Description`, `Value`, `Cost`, `Combat`, `Sprite`)
 		VALUES ('Test Ability', 'This is a test ability', 10, 10, 0, './Test.png');
 
@@ -87,19 +92,20 @@ CREATE PROCEDURE `Create_Room`(
 	IN In_Name VARCHAR(32),
     IN In_Player VARCHAR(32)
 )
-room_creation:BEGIN
+BEGIN
 	
+    -- Error: Requested room owner account name doesn't exist
     IF NOT EXISTS (SELECT * FROM `account` WHERE `AccountName` = In_Player) THEN
-		SELECT 'Invalid Account Name' as message;
-        LEAVE room_creation;
+		SELECT 'Invalid Account Name' AS message;
+	
+    -- Create the new room with the requested name and owner, then create new ability instances
+    ELSE
+		INSERT INTO `room` (`RoomName`, `AccountName`)
+			VALUES (In_Name, In_Player);
+		
+		INSERT INTO `abilityinstance` (`AbilityName`)
+			VALUES ('Test Ability');
 	END IF;
-    
-	INSERT INTO `room` (`RoomName`, `AccountName`)
-		VALUES (In_Name, In_Player);
-    
-    INSERT INTO `abilityinstance` (`AbilityName`)
-		VALUES ('Test Ability')
-	;
     
 END//
 
@@ -109,39 +115,42 @@ CREATE PROCEDURE `Layout_Tiles`(
 	IN mapX INT,
     IN mapY INT
 )
-create_tiles:BEGIN
+BEGIN
+
     DECLARE tx INT DEFAULT 0;
     DECLARE ty INT DEFAULT 0;
     
-    
+    -- Error: If requested room doesn't exist
     IF NOT EXISTS (SELECT * FROM `room` WHERE `RoomID` = INRoom) THEN
 		SELECT 'Room Does Not Exist' AS message;
-	END IF;
-    
-    tileX: LOOP
-		SET ty = 0;
-    
-        tileY: LOOP
-            INSERT INTO `tile` (`XPos`, `YPos`, `RoomID`)
-				VALUES (tx, ty, InRoom);
-                
-			SET ty = ty + 1;
-            
-            IF ty < mapY THEN
-				ITERATE tileY;
+	
+    -- Loop across and then down the x and y of the grid, creating each tile
+	ELSE
+		tileX: LOOP
+			SET ty = 0;
+		
+			tileY: LOOP
+				INSERT INTO `tile` (`XPos`, `YPos`, `RoomID`)
+					VALUES (tx, ty, InRoom);
+					
+				SET ty = ty + 1;
+				
+				IF ty < mapY THEN
+					ITERATE tileY;
+				END IF;
+				
+				LEAVE tileY;
+			END LOOP tileY;
+			
+			SET tx = tx + 1;
+			
+			IF tx < mapX THEN
+				ITERATE tileX;
 			END IF;
-            
-			LEAVE tileY;
-        END LOOP tileY;
-        
-		SET tx = tx + 1;
-        
-		IF tx < mapX THEN
-			ITERATE tileX;
-		END IF;
-        
-        LEAVE tileX;
-	END LOOP tileX;
+			
+			LEAVE tileX;
+		END LOOP tileX;
+	END IF;
 
 END//
 
@@ -150,20 +159,21 @@ CREATE PROCEDURE `Place_Ability_On_Tile`(
 	IN InAbilityInstance INT,
     IN InTile INT
 )
-ability_placement:BEGIN
+BEGIN
 
+	-- Error: If requested tile doesn't exist
 	IF NOT EXISTS (SELECT * FROM `tile` WHERE `TileID` = InTile) THEN
 		SELECT 'Tile does not exist' AS message;
-        LEAVE ability_placement;
-    END IF;
-    
-	IF NOT EXISTS (SELECT * FROM `abilityinstance` WHERE `AbilityID` = InAbilityInstance) THEN
-		SELECT 'Ability instance does not exist' AS message;
-        LEAVE ability_placement;
-    END IF;
-
-	INSERT INTO `Tile_Ability` (`Placed`, `TileID`, `AbilityID`)
-		VALUES (current_timestamp(), InTile, InAbilityInstance);
+	
+    -- Error: If requested ability instance doesn't exist
+	ELSEIF NOT EXISTS (SELECT * FROM `abilityinstance` WHERE `AbilityID` = InAbilityInstance) THEN
+			SELECT 'Ability instance does not exist' AS message;
+	
+    -- Put item on tile
+	ELSE
+		INSERT INTO `Tile_Ability` (`Placed`, `TileID`, `AbilityID`)
+			VALUES (current_timestamp(), InTile, InAbilityInstance);
+	END IF;
 
 END//
 
@@ -172,28 +182,29 @@ CREATE PROCEDURE `Create_Player`(
 	IN InAccountName VARCHAR(32),
     IN InRoomID INT
 )
-create_player:BEGIN
+BEGIN
 
+	-- Error: If requested account doesn't exist
 	IF NOT EXISTS (SELECT * FROM `account` WHERE `AccountName` = InAccountName) THEN
 		SELECT 'Account does not exist' AS message;
-        LEAVE create_player;
-	END IF;
-    
-	IF NOT EXISTS (SELECT * FROM `room` WHERE `RoomID` = InRoomID) THEN
+
+	-- Error: If requested room doesn't exist
+    ELSEIF NOT EXISTS (SELECT * FROM `room` WHERE `RoomID` = InRoomID) THEN
 		SELECT 'Room does not exist' AS message;
-        LEAVE create_player;
+	
+    -- Create a new player with the requested account on the requested room and place them on the tile at 0,0
+    ELSE
+		INSERT INTO `player` (`CurrentEnergy`, `CurrentHealth`, `AccountName`, `RoomID`, `Sprite`)
+			VALUES (10, 10, InAccountName, InRoomID, './Player.png');
+
+		-- Places the player with the given account and room who also has the largest auto_incementing ID onto the tile with position 0,0 on the given table.
+		INSERT INTO `player_tile` (`TileID`, `PlayerID`, `Timestamp`)
+			VALUES (
+					(SELECT `TileID` FROM `tile` WHERE `RoomID` = InRoomID AND `XPos` = 0 AND `YPos` = 0),
+					(SELECT `PlayerID` FROM `player` WHERE `AccountName` = InAccountName AND `RoomID` = InRoomID ORDER BY `PlayerID` LIMIT 1),
+					current_timestamp()
+					);
 	END IF;
-
-	INSERT INTO `player` (`CurrentEnergy`, `CurrentHealth`, `AccountName`, `RoomID`, `Sprite`)
-		VALUES (10, 10, InAccountName, InRoomID, './Player.png');
-
-	-- Places the player with the given account and room who also has the largest auto_incementing ID onto the tile with position 0,0 on the given table.
-	INSERT INTO `player_tile` (`TileID`, `PlayerID`, `Timestamp`)
-		VALUES (
-				(SELECT `TileID` FROM `tile` WHERE `RoomID` = InRoomID AND `XPos` = 0 AND `YPos` = 0),
-                (SELECT `PlayerID` FROM `player` WHERE `AccountName` = InAccountName AND `RoomID` = InRoomID ORDER BY `PlayerID` LIMIT 1),
-                current_timestamp()
-				);
 
 END//
 
@@ -205,104 +216,173 @@ CREATE PROCEDURE `Move_Player`(
 	IN SearchRadius INT,
     IN AllowDiagonal BIT
 )
-move_player:BEGIN
+BEGIN
 
 	DECLARE playerX INT;
 	DECLARE playerY INT;
 
-    IF SearchRadius < 1 THEN
+	-- Error: If procedure tries to move diagonally without diagonal flag
+	IF AllowDiagonal = 0 THEN
+		IF MoveX AND MoveY <> 0 THEN
+			SELECT 'Diagonal movement on non-diagonal check' AS message;
+		END IF;
+            
+	-- Error: If requested radius is too small
+    ELSEIF SearchRadius < 1 THEN
 		SELECT 'Search radius too small' AS message;
-        LEAVE move_player;
-	END IF;
-    
-	IF NOT EXISTS (SELECT * FROM `player` WHERE `PlayerID` = Player) THEN
-		SELECT 'Player not found' AS message;
-        LEAVE move_player;
-	END IF;
-    
-    SET playerX = (SELECT `XPos` FROM `tile` WHERE `TileID` = (SELECT `TileID` FROM `player_tile` WHERE `PlayerID` = Player ORDER BY `Timestamp` LIMIT 1));
-    SET playerY = (SELECT `YPos` FROM `tile` WHERE `TileID` = (SELECT `TileID` FROM `player_tile` WHERE `PlayerID` = Player ORDER BY `Timestamp` LIMIT 1));
-
-	IF AllowDiagonal = 1 THEN
-		-- Checks if the requested position is within the radius around the player
-		IF NOT EXISTS (SELECT * FROM (SELECT *
-								FROM `tile`
-								WHERE `XPos` >= playerX - searchRadius
-									AND `XPos` <= playerX + searchRadius
-									AND `YPos` >= playerY - searchRadius
-									AND `YPos` <= playerY + searchRadius
-									AND `RoomID` = (SELECT `RoomID`
-													FROM `player`
-													WHERE `PlayerID` = Player)) AS Available
-			WHERE `XPos` = MoveX AND `YPos` = MoveY) THEN
-				SELECT 'Tile out of range' as message;
-                LEAVE move_player;
-		END IF;
-	ELSE
-		-- Checks if the requested position is within the bounds the the straights out from the player
-		IF NOT EXISTS (SELECT * FROM (SELECT *
-										FROM `tile`
-										WHERE ((`XPos` >= playerX - searchRadius
-												AND `XPos` <= playerX + searchRadius)
-												AND `YPos` = playerY)
-												OR ((`YPos` >= playerY - searchRadius
-												AND `YPos` <= playerY + searchRadius)
-												AND `XPos` = playerX)
-												AND `RoomID` = (SELECT `RoomID`
-																FROM `player`
-																WHERE `PlayerID` = Player)) AS Availalable
-			WHERE `XPos` = MoveX AND `YPos` = MoveY) THEN
-				SELECT 'Tile out of range' as message;
-				LEAVE move_player;
-		END IF;
-	END IF;
 	
-    INSERT INTO `player_tile` (`TileID`, `PlayerID`, `Timestamp`)
-		VALUES ((SELECT `TileID` FROM `tile` WHERE `XPos` = MoveX AND `YPos` = MoveY), Player, current_timestamp());
+    -- Error: If requested player doesn't exist
+	ELSEIF NOT EXISTS (SELECT * FROM `player` WHERE `PlayerID` = Player) THEN
+		SELECT 'Player not found' AS message;
     
+    ELSE
     
-    SELECT * FROM `player_tile`;
+		-- Get the player's current position
+		SET playerX = (SELECT `XPos` FROM `tile` WHERE `TileID` = (SELECT `TileID` FROM `player_tile` WHERE `PlayerID` = Player ORDER BY `Timestamp` LIMIT 1));
+		SET playerY = (SELECT `YPos` FROM `tile` WHERE `TileID` = (SELECT `TileID` FROM `player_tile` WHERE `PlayerID` = Player ORDER BY `Timestamp` LIMIT 1));
+
+		-- Error: Requested tile is out of range
+		IF NOT EXISTS (WITH surroundingtiles AS 
+			(
+				SELECT *
+				FROM `tile`
+				WHERE `XPos` >= playerX - searchRadius
+					AND `XPos` <= playerX + searchRadius
+					AND `YPos` >= playerY - searchRadius
+					AND `YPos` <= playerY + searchRadius
+					AND `RoomID` = (SELECT `RoomID`
+									FROM `player`
+									WHERE `PlayerID` = Player)
+			) SELECT `TileID` FROM surroundingtiles WHERE `XPos` = MoveX AND `YPos` = MoveY) THEN
+			
+            SELECT 'Tile out of range' AS message;
+		
+        -- Place the requested player on the requested tile
+        ELSE
+			INSERT INTO `player_tile` (`TileID`, `PlayerID`, `Timestamp`)
+				VALUES ((SELECT `TileID` FROM `tile` WHERE `XPos` = MoveX AND `YPos` = MoveY), Player, current_timestamp());
+			
+			SELECT * FROM `player_tile`;
+            
+		END IF;
+	END IF;
+END//
+
+-- Glitch ability movement
+CREATE PROCEDURE `Glitch_Ability` (
+	IN AbilityInstance INT
+)
+BEGIN
+
+	-- Error: If requested ability instance doesn't exist
+	IF NOT EXISTS (SELECT * FROM `abilityinstance` WHERE `AbilityID` = AbilityInstance) THEN
+		SELECT 'Ability instance does not exist' AS message;
+    
+    -- Error: If requested ability instance is in a player's inventory
+    ELSEIF EXISTS (SELECT * FROM `player_ability` WHERE `AbilityID` = AbilityInstance AND `Dropped` IS NULL) THEN
+		SELECT 'Ability is being held' AS message;
+    
+    -- Remove the requested ability instance from its tile and add it to the player's inventory
+    ELSE
+		UPDATE `tile_ability`
+			SET `Removed` = current_timestamp()
+			WHERE `AbilityID` = AbilityInstance
+				AND `Removed` IS NULL;
+		
+		INSERT INTO `tile_ability` (`TileID`, `AbilityID`, `Placed`)
+			VALUE (`Random_Tile`(
+						(SELECT t.`RoomID`
+						 FROM `tile_ability` AS ta
+						 JOIN `abilityinstance` AS ai
+							ON ai.`AbilityID` = ta.`AbilityID`
+						 JOIN `tile` AS t
+							ON t.`TileID` = ta.`TileID`
+						 WHERE ta.`AbilityID` = AbilityInstance)
+						), AbilityInstance, current_timestamp());
+			
+		SELECT * FROM `tile_ability`;
+	END IF;
+
+END//
+
+-- Select random tile
+CREATE FUNCTION `Random_Tile`(
+	Room INT
+) RETURNS INT DETERMINISTIC
+BEGIN
+	
+    -- Error: If the requested room doesn't exist
+    IF NOT EXISTS (SELECT * FROM `room` WHERE `RoomID` = Room) THEN
+		RETURN 0;
+	END IF;
+
+	-- Get a table with all of the room's tiles, shuffles them and then returns the top one's ID
+	RETURN (SELECT `TileID` FROM `tile` WHERE `RoomID` = Room ORDER BY RAND() LIMIT 1);
+    
+END//
+
+-- Player acquiring inventory
+CREATE PROCEDURE `Pickup_Ability` (
+	IN Player INT,
+    IN AbilityInstance INT
+)
+BEGIN
+
+	-- Error: If requested player doesn't exist
+	IF NOT EXISTS (SELECT * FROM `player` WHERE `PlayerID` = Player) THEN
+		SELECT 'Invalid player' AS message;
+    
+    -- Error: If requested ability instance doesn't exist
+	ELSEIF NOT EXISTS (SELECT * FROM `abilityinstance` WHERE `abilityID` = AbilityInstance) THEN
+		SELECT 'Invalid ability instance' AS message;
+    
+    -- Remove the requested item from its current tile and add it to the player's inventory
+    ELSE
+		UPDATE `tile_ability`
+			SET `Removed` = current_timestamp()
+			WHERE `AbilityID` = AbilityInstance
+				AND `Removed` IS NULL;
+		
+		INSERT INTO `player_ability` (`PlayerID`, `AbilityID`, `PickedUp`)
+			VALUES (Player, AbilityInstance, current_timestamp());
+    END IF;
+    
 END//
 
 -- Update score
 CREATE PROCEDURE `Update_Score` (
 	IN Player INT
 )
-update_score:BEGIN
+BEGIN
 
-	-- Back out if the player id doesn't exist
+	-- Error: If requested player doesn't exist
 	IF NOT EXISTS (SELECT * FROM `player` WHERE `PlayerID` = Player) THEN
 		SELECT 'Invalid Player ID' AS message;
-        LEAVE update_score;
-	END IF;
 
-	-- Make sure there is something in the inventory before updating or just make the score 0
-    IF NOT EXISTS (SELECT * FROM `player_ability` WHERE `PlayerID` = Player AND `Dropped` IS NULL) THEN
-		
+	-- Default: If there is nothing in the inventory score becomes 0
+    ELSEIF NOT EXISTS (SELECT * FROM `player_ability` WHERE `PlayerID` = Player AND `Dropped` IS NULL) THEN
 		UPDATE `player`
-		SET `CurrentScore` = 0
-		WHERE `PlayerID` = Player;
+			SET `CurrentScore` = 0
+			WHERE `PlayerID` = Player;
 	
+    -- Set the player's score to the sum of the values of all abilities they are currently holding !! THIS IS MISSING THE PLAYERS SCORE FROM COMBAT
     ELSE
-    
-		-- Update the player's score
 		UPDATE `player`
-		SET `CurrentScore` = (
-								SELECT SUM(a.`Value`)
-                                FROM `player_ability` AS pa
-                                JOIN `abilityinstance` AS ai
-									ON pa.`AbilityID` = ai.`AbilityID`
-								JOIN `ability` AS a
-									ON ai.`AbilityName` = a.`AbilityName`
-								WHERE pa.`Dropped` IS NULL
-                                GROUP BY pa.`PlayerID`
-									HAVING pa.`PlayerID` = 1
-							  )
-		WHERE `PlayerID` = Player;
-    
+			SET `CurrentScore` = (
+									SELECT SUM(a.`Value`)
+									FROM `player_ability` AS pa
+									JOIN `abilityinstance` AS ai
+										ON pa.`AbilityID` = ai.`AbilityID`
+									JOIN `ability` AS a
+										ON ai.`AbilityName` = a.`AbilityName`
+									WHERE pa.`Dropped` IS NULL
+									GROUP BY pa.`PlayerID`
+										HAVING pa.`PlayerID` = 1
+								  )
+			WHERE `PlayerID` = Player;
 	END IF;
     
-    -- If they have a new highscore, set it
+    -- Update the high score if necessary
     IF (SELECT `CurrentScore` FROM `player`) > (SELECT `HighScore` FROM `player`) THEN
 		UPDATE `player`
         SET `HighScore` = `CurrentScore`
@@ -316,10 +396,12 @@ CREATE FUNCTION `Get_Score` ( Player INT )
 RETURNS INT DETERMINISTIC
 BEGIN
 
+	-- Default: If requested player doesn't exist return 0
 	IF NOT EXISTS (SELECT `CurrentScore` FROM `player` WHERE `PlayerID` = Player) THEN
 		RETURN 0;
 	END IF;
 
+	-- Return the player's current score value
 	RETURN (SELECT `CurrentScore` FROM `player` WHERE `PlayerID` = Player);
     
 END//
@@ -328,108 +410,48 @@ END//
 CREATE PROCEDURE `Get_Leaderboard`(
 	IN Room INT
 )
-get_leaderboard:BEGIN
+BEGIN
 
+	-- Error: If requested room doesn't exist
 	IF NOT EXISTS (SELECT * FROM `room` WHERE `RoomID` = Room) THEN
 		SELECT 'Invalid Room' AS message;
-		LEAVE get_leaderboard;
-	END IF;
 
-	SELECT `AccountName`, `HighScore` FROM `player` WHERE `RoomID` = Room;
+	-- Get the player names and high scores from the requested room
+	ELSE
+		SELECT `AccountName`, `HighScore` FROM `player` WHERE `RoomID` = Room;
+	END IF;
 
 END//
 
--- Player acquiring inventory
-CREATE PROCEDURE `Pickup_Ability` (
-	IN Player INT,
-    IN AbilityInstance INT
+-- Locate current position of each ability
+CREATE PROCEDURE `Find_Abilities`(
+	IN Room INT
 )
-ability_pickup:BEGIN
-
-	IF NOT EXISTS (SELECT * FROM `player` WHERE `PlayerID` = Player) THEN
-		SELECT 'Invalid player' AS message;
-        LEAVE ability_pickup;
-	END IF;
-    
-	IF NOT EXISTS (SELECT * FROM `abilityinstance` WHERE `abilityID` = AbilityInstance) THEN
-		SELECT 'Invalid ability instance' AS message;
-        LEAVE ability_pickup;
-	END IF;
-    
-    UPDATE `tile_ability`
-    SET `Removed` = current_timestamp()
-    WHERE `AbilityID` = AbilityInstance
-		AND `Removed` IS NULL
-    ORDER BY `Placed`
-    LIMIT 1;
-    
-    INSERT INTO `player_ability` (`PlayerID`, `AbilityID`, `PickedUp`)
-		VALUES (Player, AbilityInstance, current_timestamp());
-    
-END//
-
--- Select random tile
-CREATE FUNCTION `Random_Tile`(
-	Room INT
-) RETURNS INT DETERMINISTIC
 BEGIN
 	
-    IF NOT EXISTS (SELECT * FROM `room` WHERE `RoomID` = Room) THEN
-		RETURN 0;
+    -- Error: If the requested room doesn't exist
+	IF NOT EXISTS (SELECT * FROM `room` WHERE `RoomID` = Room) THEN
+		SELECT 'Room does not exist' AS message;
+    
+    -- Get a list of all abilties combining the tile and player lists and then getting only the ones that haven't been removed
+    ELSE
+		WITH ability_locations (`added`, `removed`, `tile`, `player`, `abilityid`) AS (
+			SELECT `tile_ability`.`Placed`, `tile_ability`.`Removed`, `tile_ability`.`TileID`, NULL, `tile_ability`.`AbilityID`
+			FROM `tile_ability`
+			JOIN `tile`
+				ON `tile`.`TileID` = `tile_ability`.`TileID`
+			WHERE `tile`.`RoomID` = Room
+			
+			UNION
+			
+			SELECT `player_ability`.`PickedUp`, `player_ability`.`Dropped`, NULL, `player_ability`.`PlayerID`, `player_ability`.`AbilityID`
+			FROM `player_ability`
+			JOIN `player`
+				ON `player`.`PlayerID` = `player_ability`.`PlayerID`
+			WHERE `player`.`RoomID` = Room
+		)
+		SELECT * FROM ability_locations WHERE `removed` IS NULL;
 	END IF;
-
-    RETURN RAND()*(
-		(SELECT MAX(`TileID`)
-         FROM `tile`
-         WHERE `RoomID` = Room
-		) - 
-        (SELECT MIN(`TileID`)
-         FROM `tile`
-         WHERE `RoomID` = Room
-         )
-         ) + 
-         (SELECT MIN(`TileID`)
-          FROM `tile`
-          WHERE `RoomID` = Room
-		 );
-    
-END//
-
--- Glitch ability movement
-CREATE PROCEDURE `Glitch_Ability` (
-	IN AbilityInstance INT
-)
-glitch_move:BEGIN
-
-	IF NOT EXISTS (SELECT * FROM `abilityinstance` WHERE `AbilityID` = AbilityInstance) THEN
-		SELECT 'Ability instance does not exist' AS message;
-		LEAVE glitch_move;
-	END IF;
-    
-    IF EXISTS (SELECT * FROM `player_ability` WHERE `AbilityID` = AbilityInstance AND `Dropped` IS NULL) THEN
-		SELECT 'Ability is being held' AS message;
-        LEAVE glitch_move;
-	END IF;
-    
-    UPDATE `tile_ability`
-    SET `Removed` = current_timestamp()
-    WHERE `AbilityID` = AbilityInstance
-		AND `Removed` IS NULL
-    ORDER BY `Placed`
-    LIMIT 1;
-    
-    INSERT INTO `tile_ability` (`TileID`, `AbilityID`, `Placed`)
-		VALUE (`Random_Tile`(
-					(SELECT t.`RoomID`
-					 FROM `tile_ability` AS ta
-                     JOIN `abilityinstance` AS ai
-						ON ai.`AbilityID` = ta.`AbilityID`
-					 JOIN `tile` AS t
-						ON t.`TileID` = ta.`TileID`
-					 WHERE ta.`AbilityID` = AbilityInstance)
-					), AbilityInstance, current_timestamp());
-        
-	SELECT * FROM `tile_ability`;
 
 END//
 
@@ -437,14 +459,16 @@ END//
 CREATE PROCEDURE `Kill_Room`(
 	IN Room INT
 )
-kill_room:BEGIN
+BEGIN
 
+	-- Error: If the requested room does not exist
 	IF NOT EXISTS (SELECT * FROM `room` WHERE `RoomID` = Room) THEN
 		SELECT 'Room does not exist' AS message;
-        LEAVE kill_room;
+	
+    -- Delete the requested room
+    ELSE
+		DELETE FROM `room` WHERE `RoomID` = Room;
 	END IF;
-    
-    DELETE FROM `room` WHERE `RoomID` = Room;
 
 END//
 
@@ -455,20 +479,22 @@ CREATE PROCEDURE `Update_Account`(
     IN IsAdmin BIT,
     IN IsLocked BIT
 )
-account_update:BEGIN
+BEGIN
 
+	-- Error: If requested account doesn't exist
 	IF NOT EXISTS (SELECT * FROM `account` WHERE `AccountName` = InAccount) THEN
 		SELECT 'Account does not exist' AS message;
-        LEAVE account_update;
+    
+    -- Update the requested account with the given data
+    ELSE
+		UPDATE `account`
+			SET `Password` = NewPassword,
+				`Admin`= IsAdmin,
+				`Locked` = IsLocked
+			WHERE `AccountName` = InAccount;
+		
+		SELECT * FROM `Account`;
 	END IF;
-    
-    UPDATE `account`
-    SET `Password` = NewPassword,
-		`Admin`= IsAdmin,
-        `Locked` = IsLocked
-	WHERE `AccountName` = InAccount;
-    
-    SELECT * FROM `Account`;
 
 END//
 
@@ -477,67 +503,39 @@ CREATE PROCEDURE `Delete_Account`(
 	IN InAccount VARCHAR(32),
     IN Confirm BIT
 )
-delete_account:BEGIN
+BEGIN
 
+	-- Error: If the account deletion wasn't confirmed
 	IF Confirm <> 1 THEN
 		SELECT 'Account Deletion Cancelled' AS message;
-		LEAVE delete_account;
-	END IF;
     
-    IF NOT EXISTS (SELECT * FROM `account` WHERE `AccountName` = InAccount) THEN
+    -- Error: If the requested account doesn't exist
+    ELSEIF NOT EXISTS (SELECT * FROM `account` WHERE `AccountName` = InAccount) THEN
 		SELECT 'Account does not exist' AS message;
-        LEAVE delete_account;
-	END IF;
     
-    DELETE FROM `Account` WHERE `AccountName` = InAccount;
-
-END//
-
--- Locate current position of each ability
-CREATE PROCEDURE `Find_Abilities`(
-	IN Room INT
-)
-find_abilities:BEGIN
-
-	IF NOT EXISTS (SELECT * FROM `room` WHERE `RoomID` = Room) THEN
-		SELECT 'Room does not exist' AS message;
-        LEAVE find_abilities;
+    -- Delete the requested account
+    ELSE
+		DELETE FROM `Account` WHERE `AccountName` = InAccount;
 	END IF;
-    
-    WITH ability_locations (`added`, `removed`, `tile`, `player`, `abilityid`) AS (
-		SELECT `tile_ability`.`Placed`, `tile_ability`.`Removed`, `tile_ability`.`TileID`, NULL, `tile_ability`.`AbilityID`
-        FROM `tile_ability`
-        JOIN `tile`
-			ON `tile`.`TileID` = `tile_ability`.`TileID`
-		WHERE `tile`.`RoomID` = Room
-        
-        UNION
-        
-		SELECT `player_ability`.`PickedUp`, `player_ability`.`Dropped`, NULL, `player_ability`.`PlayerID`, `player_ability`.`AbilityID`
-        FROM `player_ability`
-        JOIN `player`
-			ON `player`.`PlayerID` = `player_ability`.`PlayerID`
-		WHERE `player`.`RoomID` = Room
-    )
-	SELECT * FROM ability_locations WHERE `removed` IS NULL;
 
 END//
 
 DELIMITER ;
 
-CALL `Login`('Test Account', 'Test Password');
-CALL `Create_Abilities`();
-CALL `Create_Room`('Test Room', 'Test Account');
-CALL `Layout_Tiles`(1, 5, 5);
-CALL `Place_Ability_On_Tile`(1, 1);
-CALL `Create_Player`('Test Account', 1);
-CALL `Move_Player`(1, 1, 0, 1, 0);
-CALL `Glitch_Ability`(1);
-CALL `Pickup_Ability`(1, 1);
-CALL `Update_Score`(1);
-SELECT `Get_Score`(1) AS player_score;
-CALL `Get_Leaderboard`(1);
-CALL `Find_Abilities`(1);
-CALL `Kill_Room`(1);
-CALL `Update_Account`('Test Account', 'New Password', 1, 1);
-CALL `Delete_Account`('Test Account', 1);
+-- Test Execution
+CALL `Login`('Test Account', 'Test Password');						-- Try to log in
+CALL `Create_Abilities`();											-- Generate all of the game's abilties
+CALL `Create_Room`('Test Room', 'Test Account');					-- Create a new room
+CALL `Layout_Tiles`(1, 5, 5);										-- Layout the tiles in the room
+CALL `Place_Ability_On_Tile`(1, 1);									-- Place abilities on the tiles
+CALL `Create_Player`('Test Account', 1);							-- Create a new player in the room
+CALL `Move_Player`(1, 1, 0, 1, 0);									-- Move the player to 1,0 within radius 1 and disallowing diagonal movement
+CALL `Glitch_Ability`(1);											-- Move the ability
+CALL `Pickup_Ability`(1, 1);										-- Make the player pick up the ability
+CALL `Update_Score`(1);												-- Update the player's score
+SELECT `Get_Score`(1) AS player_score;								-- Get the player's score
+CALL `Get_Leaderboard`(1);											-- Get the room's leaderboard
+CALL `Find_Abilities`(1);											-- Find the current location of all abilities in the room
+CALL `Kill_Room`(1);												-- Kill the room
+CALL `Update_Account`('Test Account', 'New Password', 1, 1);		-- Update the account
+CALL `Delete_Account`('Test Account', 1);							-- Delete the account
