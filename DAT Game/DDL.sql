@@ -4,177 +4,177 @@ USE gamedb;
 
 DELIMITER //
 
-CREATE PROCEDURE `Generate_Database`()
+CREATE PROCEDURE Generate_Database()
 BEGIN
 	CREATE TABLE `account` (
-		`AccountName` VARCHAR(32),
+		AccountName VARCHAR(32),
 		`Password` VARCHAR(32) NOT NULL,
 		`Admin` BIT NOT NULL DEFAULT 0,
 		`Locked` BIT NOT NULL DEFAULT 0,
-		`LoginAttempts` INT(1) NOT NULL DEFAULT 0,
-		PRIMARY KEY (`AccountName`)
+		LoginAttempts INT(1) NOT NULL DEFAULT 0,
+		PRIMARY KEY (AccountName)
 	);
 
-	CREATE TABLE `room` (
-		`RoomID` INT AUTO_INCREMENT,
-		`RoomName` VARCHAR(32) NOT NULL,
-		`AccountName` VARCHAR(32) NOT NULL,
-		PRIMARY KEY (`RoomID`),
+	CREATE TABLE room (
+		RoomID INT AUTO_INCREMENT,
+		RoomName VARCHAR(32) NOT NULL,
+		AccountName VARCHAR(32) NOT NULL,
+		PRIMARY KEY (RoomID),
 		CONSTRAINT fk_account_room
-			FOREIGN KEY (`AccountName`)
-			REFERENCES `account`(`AccountName`)
+			FOREIGN KEY (AccountName)
+			REFERENCES `account`(AccountName)
             ON DELETE CASCADE
 	);
 
-	CREATE TABLE `player` (
-		`PlayerID` INT AUTO_INCREMENT,
-		`CurrentScore` INT NOT NULL DEFAULT 0,
-		`HighScore` INT NOT NULL DEFAULT 0,
-		`CurrentEnergy` INT NOT NULL,
-		`CurrentHealth` INT NOT NULL,
-		`AccountName` VARCHAR(32) NOT NULL,
-		`RoomID` INT NOT NULL,
-		`Sprite` VARCHAR(32) NOT NULL,
-		PRIMARY KEY (`PlayerID`),
+	CREATE TABLE player (
+		PlayerID INT AUTO_INCREMENT,
+		CurrentScore INT NOT NULL DEFAULT 0,
+		HighScore INT NOT NULL DEFAULT 0,
+		CurrentEnergy INT NOT NULL,
+		CurrentHealth INT NOT NULL,
+		AccountName VARCHAR(32) NOT NULL,
+		RoomID INT NOT NULL,
+		Sprite VARCHAR(32) NOT NULL,
+		PRIMARY KEY (PlayerID),
 		CONSTRAINT fk_player_account
-			FOREIGN KEY (`AccountName`)
-			REFERENCES `account`(`AccountName`)
+			FOREIGN KEY (AccountName)
+			REFERENCES `account`(AccountName)
             ON DELETE CASCADE,
 		CONSTRAINT fk_player_room
-			FOREIGN KEY (`RoomID`)
-			REFERENCES `room`(`RoomID`)
+			FOREIGN KEY (RoomID)
+			REFERENCES room(RoomID)
             ON DELETE CASCADE
 	);
 
-	CREATE TABLE `tile` (
-		`TileID` INT AUTO_INCREMENT,
-		`XPos` INT NOT NULL,
-		`YPos` INT NOT NULL,
-		`RoomID` INT NOT NULL,
-		PRIMARY KEY (`TileID`),
+	CREATE TABLE tile (
+		TileID INT AUTO_INCREMENT,
+		XPos INT NOT NULL,
+		YPos INT NOT NULL,
+		RoomID INT NOT NULL,
+		PRIMARY KEY (TileID),
 		CONSTRAINT fk_tile_room
-			FOREIGN KEY (`RoomID`)
-			REFERENCES `room`(`RoomID`)
+			FOREIGN KEY (RoomID)
+			REFERENCES room(RoomID)
             ON DELETE CASCADE
 	);
 
-	CREATE TABLE `ability` (
-		`AbilityName` VARCHAR(24),
+	CREATE TABLE ability (
+		AbilityName VARCHAR(24),
 		`Description` VARCHAR(255) NOT NULL,
 		`Value` INT(5) NOT NULL,
-		`Cost` INT(5) NOT NULL,
-		`Combat` BIT NOT NULL,
-		`Damage` INT(3),
-		`Glitched` BIT NOT NULL DEFAULT 0,
-		`Sprite` VARCHAR(32) NOT NULL,
-		PRIMARY KEY (`AbilityName`)
+		Cost INT(5) NOT NULL,
+		Combat BIT NOT NULL,
+		Damage INT(3),
+		Glitched BIT NOT NULL DEFAULT 0,
+		Sprite VARCHAR(32) NOT NULL,
+		PRIMARY KEY (AbilityName)
 	);
 
-	CREATE TABLE `abilityinstance` (
-		`AbilityID` INT AUTO_INCREMENT,
-		`AbilityName` VARCHAR(24) NOT NULL,
-        PRIMARY KEY (`AbilityID`),
+	CREATE TABLE abilityinstance (
+		AbilityID INT AUTO_INCREMENT,
+		AbilityName VARCHAR(24) NOT NULL,
+        PRIMARY KEY (AbilityID),
         CONSTRAINT fk_abilityinstance_ability
-			FOREIGN KEY (`AbilityName`)
-            REFERENCES `ability`(`AbilityName`)
+			FOREIGN KEY (AbilityName)
+            REFERENCES ability(AbilityName)
             ON DELETE CASCADE
     );
 
-	CREATE TABLE `message` (
-		`PlayerID` INT,
-		`SendTime` TIMESTAMP,
+	CREATE TABLE message (
+		PlayerID INT,
+		SendTime TIMESTAMP,
 		`Text` VARCHAR(128) NOT NULL,
-		PRIMARY KEY (`PlayerID`, `SendTime`),
+		PRIMARY KEY (PlayerID, SendTime),
 		CONSTRAINT fk_message_player
-			FOREIGN KEY (`PlayerID`)
-			REFERENCES `player`(`PlayerID`)
+			FOREIGN KEY (PlayerID)
+			REFERENCES player(PlayerID)
             ON DELETE CASCADE
 	);
 
-	CREATE TABLE `stat` (
-		`StatName` VARCHAR(16),
+	CREATE TABLE stat (
+		StatName VARCHAR(16),
 		`MaxValue` INT NOT NULL,
-		PRIMARY KEY (`StatName`)
+		PRIMARY KEY (StatName)
 	);
 
-	CREATE TABLE `statchange` (
-		`AbilityName` VARCHAR(24),
-		`StatName` VARCHAR(16),
-		`Amount` INT(2) NOT NULL,
-		PRIMARY KEY (`AbilityName`, `StatName`),
+	CREATE TABLE statchange (
+		AbilityName VARCHAR(24),
+		StatName VARCHAR(16),
+		Amount INT(2) NOT NULL,
+		PRIMARY KEY (AbilityName, StatName),
 		CONSTRAINT fk_statchange_ability
-			FOREIGN KEY (`AbilityName`)
-			REFERENCES `ability`(`AbilityName`)
+			FOREIGN KEY (AbilityName)
+			REFERENCES ability(AbilityName)
             ON DELETE CASCADE,
 		CONSTRAINT fk_statchange_stat
-			FOREIGN KEY (`StatName`)
-			REFERENCES `stat`(`StatName`)
+			FOREIGN KEY (StatName)
+			REFERENCES stat(StatName)
 	);
 
-	CREATE TABLE `player_stat` (
-		`StatName` VARCHAR(16),
-		`PlayerID` INT,
+	CREATE TABLE player_stat (
+		StatName VARCHAR(16),
+		PlayerID INT,
 		`Value` INT NOT NULL,
-		PRIMARY KEY (`StatName`, `PlayerID`),
+		PRIMARY KEY (StatName, PlayerID),
 		CONSTRAINT fk_playerstat_player
-			FOREIGN KEY (`PlayerID`)
-			REFERENCES `player`(`PlayerID`),
+			FOREIGN KEY (PlayerID)
+			REFERENCES player(PlayerID),
 		CONSTRAINT fk_playerstat_stat
-			FOREIGN KEY (`StatName`)
-			REFERENCES `stat`(`StatName`)
+			FOREIGN KEY (StatName)
+			REFERENCES stat(StatName)
 	);
 
-	CREATE TABLE `player_ability` (
-		`PickedUp` TIMESTAMP,
-		`AbilityID` INT,
-		`PlayerID` INT,
-		`Dropped` TIMESTAMP,
-		PRIMARY KEY (`PickedUp`, `AbilityID`, `PlayerID`),
+	CREATE TABLE player_ability (
+		PickedUp TIMESTAMP,
+		AbilityID INT,
+		PlayerID INT,
+		Dropped TIMESTAMP,
+		PRIMARY KEY (PickedUp, AbilityID, PlayerID),
 		CONSTRAINT fk_playerability_abilityinstance
-			FOREIGN KEY (`AbilityID`)
-			REFERENCES `abilityinstance`(`AbilityID`)
+			FOREIGN KEY (AbilityID)
+			REFERENCES abilityinstance(AbilityID)
             ON DELETE CASCADE,
 		CONSTRAINT fk_playerability_player
-			FOREIGN KEY (`PlayerID`)
-			REFERENCES `player`(`PlayerID`)
+			FOREIGN KEY (PlayerID)
+			REFERENCES player(PlayerID)
             ON DELETE CASCADE
 	);
 
-	CREATE TABLE `player_tile` (
-		`TileID` INT,
-		`PlayerID` INT,
+	CREATE TABLE player_tile (
+		TileID INT,
+		PlayerID INT,
 		`Timestamp` TIMESTAMP,
-		PRIMARY KEY (`TileID`, `PlayerID`, `Timestamp`),
+		PRIMARY KEY (TileID, PlayerID, `Timestamp`),
 		CONSTRAINT fk_playertile_player
-			FOREIGN KEY (`PlayerID`)
-			REFERENCES `player`(`PlayerID`)
+			FOREIGN KEY (PlayerID)
+			REFERENCES player(PlayerID)
             ON DELETE CASCADE,
 		CONSTRAINT fk_playertile_tile
-			FOREIGN KEY (`TileID`)
-			REFERENCES `tile`(`TileID`)
+			FOREIGN KEY (TileID)
+			REFERENCES tile(TileID)
             ON DELETE CASCADE
 	);
 
-	CREATE TABLE `tile_ability` (
-		`Placed` TIMESTAMP,
-		`TileID` INT,
-		`AbilityID` INT,
-        `Removed` TIMESTAMP,
-		PRIMARY KEY (`Placed`, `TileID`, `AbilityID`),
+	CREATE TABLE tile_ability (
+		Placed TIMESTAMP,
+		TileID INT,
+		AbilityID INT,
+        Removed TIMESTAMP,
+		PRIMARY KEY (Placed, TileID, AbilityID),
 		CONSTRAINT fk_tileability_tile
-			FOREIGN KEY (`TileID`)
-			REFERENCES `tile`(`TileID`)
+			FOREIGN KEY (TileID)
+			REFERENCES tile(TileID)
             ON DELETE CASCADE,
 		CONSTRAINT fk_tileability_abilityinstance
-			FOREIGN KEY (`AbilityID`)
-			REFERENCES `abilityinstance`(`AbilityID`)
+			FOREIGN KEY (AbilityID)
+			REFERENCES abilityinstance(AbilityID)
             ON DELETE CASCADE
 	);
 END //
 
-CREATE PROCEDURE `Create_Test_Data` ()
+CREATE PROCEDURE Create_Test_Data ()
 BEGIN
-	INSERT INTO `account` (`AccountName`, `Password`, `Admin`)
+	INSERT INTO `account` (AccountName, `Password`, `Admin`)
 		VALUES 
 		('John', 'Password123', 1),
 		('Amanda', 'HelloWorld', 0),
@@ -183,15 +183,15 @@ BEGIN
 		('V', 'V3nd3774', 0)
 	;
 
-	INSERT INTO `room` (`RoomName`, `AccountName`)
+	INSERT INTO room (RoomName, AccountName)
 		VALUES ('Test Room', 'Ghostie');
 
-	INSERT INTO `player` (`CurrentEnergy`, `CurrentHealth`, `AccountName`, `RoomID`, `Sprite`)
+	INSERT INTO player (CurrentEnergy, CurrentHealth, AccountName, RoomID, Sprite)
 		VALUES
 		(10, 10, 'Ghostie', 1, './Player.png')
 	;
 
-	INSERT INTO `tile` ( `XPos`, `YPos`, `RoomID`)
+	INSERT INTO tile ( XPos, YPos, RoomID)
 		VALUES
 		(0, 0, 1),
 		(1, 1, 1),
@@ -199,7 +199,7 @@ BEGIN
 		(2, 1, 1)
 	;
 
-	INSERT INTO `ability` (`AbilityName`, `Description`, `Value`, `Cost`, `Combat`, `Damage`, `Sprite`)
+	INSERT INTO ability (AbilityName, `Description`, `Value`, Cost, Combat, Damage, Sprite)
 		VALUES
 		('Teleport', 'Move instantly to a different unoccupied tile.', 15, 6, 0, 0, './Ability.png'),
 		('Overtightened Spring', 'A spring that has somehow been tighened past its normal breaking point.', 8, 0, 0, 0, './Ability.png'),
@@ -207,7 +207,7 @@ BEGIN
 		('Hyper-Shift', 'A gearshift that can switch between gears with minimal slowdown.', 10, 0, 0, 0, './Ability.png')
 	;
 
-	INSERT INTO `abilityinstance` (`AbilityName`)
+	INSERT INTO abilityinstance (AbilityName)
 		VALUES
         ('Teleport'),
         ('Overtightened Spring'),
@@ -215,13 +215,13 @@ BEGIN
         ('Hyper-Shift')
 	;
 
-	INSERT INTO `message` (`PlayerID`, `SendTime`, `Text`)
+	INSERT INTO message (PlayerID, SendTime, Text)
 		VALUES
 		(1, '2026-12-31 12:00:00', 'Hello World!'),
 		(1, '2026-12-31 12:01:00', 'Is this thing on?')
 	;
 
-	INSERT INTO `stat` (`StatName`, `MaxValue`)
+	INSERT INTO stat (StatName, `MaxValue`)
 		VALUES
 		('Health', 200),
 		('Energy', 60),
@@ -229,14 +229,14 @@ BEGIN
 		('Strength', 100)
 	;
 
-	INSERT INTO `statchange` (`AbilityName`, `StatName`, `Amount`)
+	INSERT INTO statchange (AbilityName, StatName, Amount)
 		VALUES
 		('Overtightened Spring', 'Speed', 5),
 		('Overtightened Spring', 'Health', -5),
 		('Hyper-Shift', 'Speed', 10)
 	;
 
-	INSERT INTO `player_stat` (`StatName`, `PlayerID`, `Value`)
+	INSERT INTO player_stat (StatName, PlayerID, `Value`)
 		VALUES
 		('Health', 1, 5),
 		('Energy', 1, 2),
@@ -244,43 +244,43 @@ BEGIN
 		('Strength', 1, 4)
 	;
 
-	INSERT INTO `player_ability` (`PickedUp`, `AbilityID`, `PlayerID`, `Dropped`)
+	INSERT INTO player_ability (PickedUp, AbilityID, PlayerID, Dropped)
 		VALUES
 		('2026-12-31 12:00:00', 1, 1, NULL),
 		('2026-12-31 11:00:00', 2, 1, '2026-12-31 12:00:00')
 	;
 
-	INSERT INTO `player_tile` (`TileID`, `PlayerID`, `Timestamp`)
+	INSERT INTO player_tile (TileID, PlayerID, `Timestamp`)
 		VALUES
 		(1, 1, '2026-12-31 11:00:00'),
 		(2, 1, '2026-12-31 11:01:00'),
 		(1, 1, '2026-12-31 11:02:00')
 	;
 
-	INSERT INTO `tile_ability` (`Timestamp`, `TileID`, `AbilityID`)
+	INSERT INTO tile_ability (Placed, TileID, AbilityID)
 		VALUES
 		('2026-12-31 10:00:00', 2, 1),
 		('2026-12-31 10:00:00', 1, 2)
 	;
 END //
 
-CREATE PROCEDURE `Fetch_Users`()
+CREATE PROCEDURE Fetch_Users()
 BEGIN
 	SELECT * FROM `account`;
 END//
 
-CREATE PROCEDURE `Fetch_Tiles`()
+CREATE PROCEDURE Fetch_Tiles()
 BEGIN
-	SELECT * FROM `tile`;
+	SELECT * FROM tile;
 END//
 
-CREATE PROCEDURE `Fetch_Rooms`()
+CREATE PROCEDURE Fetch_Rooms()
 BEGIN
-	SELECT * FROM `room`;
+	SELECT * FROM room;
 END//
 
 
 DELIMITER ;
 
-CALL `Generate_Database`();
--- CALL `Create_Test_Data`();
+CALL Generate_Database();
+-- CALL Create_Test_Data();
