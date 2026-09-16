@@ -34,12 +34,16 @@ BEGIN
         
     -- Error: If requested password does not match requested username
 	ELSEIF EXISTS (SELECT * FROM `account` WHERE AccountName = In_Username AND `Password` = In_Password) THEN
-		SELECT 'Incorrect Password' AS message;
+		SELECT 'Login Failed' AS message;
         
 		UPDATE `account`
 			SET LoginAttempts = LoginAttempts + 1
 			WHERE AccountName = In_Username;
-        
+	
+    -- Error: If requested account is locked
+    ELSEIF (SELECT `Locked` FROM `account` WHERE AccountName = In_Username LIMIT 1) <> 0 THEN
+		SELECT 'Account Locked' AS message;
+    
 	-- Return the username and reset the login attempts
 	ELSE
 		SELECT AccountName
@@ -77,16 +81,6 @@ BEGIN
     
 END//
 
--- Creating abilities
-CREATE PROCEDURE Create_Abilities()
-BEGIN
-	
-    -- Create all of the games abilities
-    INSERT INTO ability (AbilityName, `Description`, `Value`, Cost, Combat, Sprite)
-		VALUES ('Test Ability', 'This is a test ability', 10, 10, 0, './Test.png');
-
-END//
-
 -- Creating a room and ability instances
 CREATE PROCEDURE Create_Room(
 	IN In_Name VARCHAR(32),
@@ -104,7 +98,7 @@ BEGIN
 			VALUES (In_Name, In_Player);
 		
 		INSERT INTO abilityinstance (AbilityName)
-			VALUES ('Test Ability');
+			VALUES ('Piston Wreck');
 	END IF;
     
 END//
@@ -524,7 +518,6 @@ DELIMITER ;
 
 -- Test Execution
 CALL Login('Test Account', 'Test Password');					-- Try to log in (Expected result: account details for Test Account)
-CALL Create_Abilities();										-- Generate all of the game's abilties
 CALL Create_Room('Test Room', 'Test Account');					-- Create a new room
 CALL Layout_Tiles(1, 5, 5);										-- Layout the tiles in the room
 CALL Place_Ability_On_Tile(1, 1);								-- Place abilities on the tiles

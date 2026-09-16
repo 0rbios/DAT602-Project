@@ -170,6 +170,33 @@ BEGIN
 			REFERENCES abilityinstance(AbilityID)
             ON DELETE CASCADE
 	);
+    
+	-- Create all of the games abilities
+    INSERT INTO ability (AbilityName, `Description`, `Value`, Cost, Damage, Sprite, Glitched, Combat)
+		VALUES ('Iron Core', '+1 Health | -1 Speed\nA forged iron core to increase the durability of a suit.', 5, 0, 0, './Assets/IronCore.png', 0, 0),
+				('Steel Core', '+3 Health | -2 Speed\nA forged steel core to better increase the durability of a suit.', 10, 0, 0, './Assets/SteelCore.png', 0, 0),
+				('Platinum Core', '+5 Health | -3 Speed\nA forged platinum core to greatly increase the durability of a suit.', 15, 0, 0, './Assets/PlatinumCore.png', 0, 0),
+				('Loose Spring', '+1 Health | -1 Strength\nA stretched spring, not very springy but bends easily.', 5, 0, 0, './Assets/LooseSpring.png', 0, 0),
+				('Tight Spring', '+1 Strength | +1 Energy | -2 Health\nA firm spring, plenty of potential energy but not very flexible.', 10, 0, 0, './Assets/TightSpring.png', 0, 0),
+				('Overtightened Spring', '+3 Energy | +2 Strength | -4 Health\nA spring that seems to have somehow been twisted past its usual breaking point. Extremely high potential energy but will not hold up well to stress.', 15, 0, 0, './Assets/OvertightenedSpring.png', 0, 0),
+				('Ping', 'Scan the surrounding area for signals. (Tile inventory will include surrounding tiles as well until player moves)', 12, 5, 0, './Assets/Ping.png', 0, 0),
+				('Piston Wreck', 'Utilise the added force of the pistons in a suit to increase the power of a punch.', 6, 1, 2, './Assets/PistonWreck.png', 0, 1),
+				('Wing Swipe', 'Swipe a suits wing (or arm) with the added assistance of its propulsion jet.', 6, 1, 2, './Assets/WingSwipe.png', 0, 1),
+				('Claw Strike', 'Use a suit’s claws (or fist) to damage a target.', 6, 1, 2, './Assets/ClawStrike.png', 0, 1),
+				('Hyper-Speed Kick', 'Utilise the fast bearings in a suit’s legs to kick a target at increased speed.', 6, 1, 2, './Assets/HyperSpeedKick.png', 0, 1),
+				('Jump-Kick', 'Jump into the air and kick a target.', 10, 4, 5, './Assets/JumpKick.png', 0, 1),
+				('Laser', 'Fire a high-powered laser at a target.', 16, 6, 10, './Assets/Laser.png', 1, 1),
+				('Teleport', 'Phase-shift a suit and its occupant to a different place. (Move to any empty tile on the map)', 30, 10, 0, './Assets/Teleport.png', 1, 0),
+				('Speed Shift', '+5 Speed\nA mechanical switch which makes it substantially faster to shift up (and down) speed levels of a suit.', 25, 0, 0, './Assets/SpeedShift.png', 0, 0),
+				('Iron Plating', '+1 Health | -1 Energy\nForged iron plating for the exterior of a suit. Seems to interfere with energy conduction.', 5, 0, 0, './Assets/IronPlating.png', 0, 0),
+				('Steel Plating', '+3 Health | -2 Energy\nForged steel plating for the exterior of a suit. Seems to interfere with energy conduction.', 10, 0, 0, './Assets/SteelPlating.png', 0, 0),
+				('Platinum Plating', '+5 Health | -3 Energy\nForged platinum plating for the exterior of a suit. Seems to interfere with energy conduction.', 20, 0, 0, './Assets/PlatinumPlating.png', 0, 0),
+				('Overcharge', '+5 Energy\nSend an excess amount of energy around the suit, disregarding component damage.', 28, 0, 0, './Assets/Overcharge.png', 1, 0),
+				('Cell', '+1 Energy | -1 Strength\nAn energy cell to store energy for later use. Seems to bounce off of surfaces easily.', 3, 0, 0, './Assets/Cell.png', 0, 0),
+				('Double-Cell', '+4 Energy | -2 Strength\nTwo energy cells to store more energy for later use. Seem to bounce off of surfaces easily.', 6, 0, 0, './Assets/DoubleCell.png', 0, 0),
+				('Triple-Cell', '+6 Energy | -3 Strength\nThree energy cells to store a lot more energy for later use. Seem to bounce off of surfaces easily.', 12, 0, 0, './Assets/TripleCell.png', 0, 0),
+				('Quad-Cell', '+8 Energy | -5 Strength\nFour energy cells to store an overwhelming amount of energy for later use. Seem to bounce off of surfaces easily. One might question the diminishing returns of so many cells.', 24, 0, 0, './Assets/QuadCell.png', 0, 0);
+        
 END //
 
 CREATE PROCEDURE Create_Test_Data ()
