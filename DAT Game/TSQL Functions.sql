@@ -11,6 +11,7 @@ DROP PROCEDURE IF EXISTS Move_Player;
 DROP PROCEDURE IF EXISTS Glitch_Ability;
 DROP FUNCTION IF EXISTS Random_Tile;
 DROP PROCEDURE IF EXISTS Pickup_Ability;
+DROP PROCEDURE IF EXISTS Drop_Ability;
 DROP PROCEDURE IF EXISTS Update_Score;
 DROP FUNCTION IF EXISTS Get_Score;
 DROP PROCEDURE IF EXISTS Get_Leaderboard;
@@ -343,6 +344,38 @@ BEGIN
     
 END//
 
+-- Player removing inventory
+CREATE PROCEDURE Drop_Ability (
+	IN Player INT,
+    IN AbilityInstance INT
+)
+BEGIN
+
+	-- Error: If requested player doesn't exist
+	IF NOT EXISTS (SELECT * FROM player WHERE PlayerID = Player) THEN
+		SELECT 'Invalid player' AS message;
+    
+    -- Error: If requested ability instance doesn't exist
+	ELSEIF NOT EXISTS (SELECT * FROM abilityinstance WHERE abilityID = AbilityInstance) THEN
+		SELECT 'Invalid ability instance' AS message;
+    
+    -- Error: If player isn't holding ability
+    ELSEIF NOT EXISTS (SELECT * FROM player_ability WHERE AbilityID = AbilityInstance AND PlayerID = Player AND Dropped IS NULL) THEN
+		SELECT 'Player is not holding that ability' AS message;
+    
+    -- Remove the requested item from its current tile and add it to the player's inventory
+    ELSE
+		UPDATE player_ability
+			SET Dropped = CURRENT_TIMESTAMP()
+			WHERE AbilityID = AbilityInstance
+				AND Dropped IS NULL;
+		
+		INSERT INTO tile_ability (TileID, AbilityID, Placed)
+			VALUES ((SELECT TileID FROM player_tile WHERE PlayerID = Player ORDER BY `Timestamp` LIMIT 1), AbilityInstance, CURRENT_TIMESTAMP());
+    END IF;
+    
+END//
+
 -- Update score
 CREATE PROCEDURE Update_Score (
 	IN Player INT
@@ -525,6 +558,12 @@ CALL Create_Player('Test Account', 1);							-- Create a new player in the room
 CALL Move_Player(1, 1, 0, 1, 0);								-- Move the player to 1,0 within radius 1 and disallowing diagonal movement (Expected result: All player tile extries)
 CALL Glitch_Ability(1);											-- Move the ability (Expected result: All tile ability entries)
 CALL Pickup_Ability(1, 1);										-- Make the player pick up the ability
+CALL Update_Score(1);											-- Update the player's score
+SELECT Get_Score(1) AS player_score;							-- Get the player's score (Expected result: The score for the test player)
+CALL Get_Leaderboard(1);										-- Get the room's leaderboard (Expected result: Should be the same as last command)
+CALL Find_Abilities(1);											-- Find the current location of all abilities in the room (Expected result: The current location of the item)
+DO SLEEP(1);
+CALL Drop_Ability(1, 1);										-- Make the player drop the ability
 CALL Update_Score(1);											-- Update the player's score
 SELECT Get_Score(1) AS player_score;							-- Get the player's score (Expected result: The score for the test player)
 CALL Get_Leaderboard(1);										-- Get the room's leaderboard (Expected result: Should be the same as last command)
