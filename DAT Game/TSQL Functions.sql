@@ -22,6 +22,10 @@ DROP PROCEDURE IF EXISTS Delete_Account;
 DROP PROCEDURE IF EXISTS Update_Player;
 DROP PROCEDURE IF EXISTS Send_Message;
 DROP PROCEDURE IF EXISTS Get_Messages;
+DROP PROCEDURE IF EXISTS Engage_Combat;
+DROP PROCEDURE IF EXISTS Disengage_Combat;
+DROP PROCEDURE IF EXISTS Attack;
+DROP PROCEDURE IF EXISTS Resolve_Combat;
 
 DELIMITER //
 
@@ -596,12 +600,6 @@ BEGIN
 
 END//
 
--- Combat Win
-
-
--- Combat Lose
-
-
 -- Update Player Data
 CREATE PROCEDURE Update_Player (
 	IN Player INT,
@@ -627,6 +625,93 @@ BEGIN
 		
 		SELECT * FROM `player`;
 	END IF;
+
+END//
+
+-- Engage Combat
+CREATE PROCEDURE Engage_Combat(
+	IN Player1 INT,
+    IN Player2 INT
+)
+BEGIN
+
+	-- Error: If Player 1 or 2 don't exist
+    IF NOT EXISTS (SELECT * FROM player WHERE PlayerID = Player1 OR PlayerID = Player2) THEN
+		SELECT 'Invalid player(s)' AS message;
+    
+	-- Error: If Player 1 or 2 is already engaged
+    ELSEIF NOT EXISTS (SELECT * FROM player WHERE (PlayerID = Player1 OR PlayerID = Player2) AND Combatant IS NULL) THEN
+		SELECT 'Player(s) already engaged' AS message;
+    
+    -- Error: If Player 1 and Player 2 are the same player
+    ELSEIF Player1 = Player2 THEN
+		SELECT 'Identical player' AS message;
+    
+    -- Error: If Player 1 and Player 2 are not in the same room
+    ELSEIF (SELECT RoomID FROM player WHERE PlayerID = Player1) <> (SELECT RoomID FROM player WHERE PlayerID = Player2) THEN
+		SELECT 'Players are in different rooms' AS message;
+    
+	-- Error: If Player 1 and Player 2 are too many tiles apart    
+    ELSEIF ABS((SELECT t.XPos + t.YPos FROM tile t JOIN player_tile pt ON pt.TileID = t.TileID WHERE pt.PlayerID = Player1 ORDER BY `Timestamp` LIMIT 1) - (SELECT t.XPos + t.YPos FROM tile t JOIN player_tile pt ON pt.TileID = t.TileID WHERE pt.PlayerID = Player2 ORDER BY `Timestamp` LIMIT 1)) <> 1 THEN
+		SELECT 'Players too far apart' AS message;
+    
+    -- Set each other as combatants
+	ELSE
+		UPDATE player
+        SET Combatant = CASE
+			WHEN PlayerID = Player1 THEN Player2
+            WHEN PlayerID = Player2 THEN Player1
+            END;
+
+	END IF;
+
+END//
+
+-- Disengage Combat
+CREATE PROCEDURE Disengage_Combat(
+	IN Player INT
+)
+BEGIN
+
+	-- Error: If player doesn't exist
+	IF NOT EXISTS (SELECT * FROM player WHERE PlayerID = Player) THEN
+		SELECT 'Invalid Player' AS message;
+
+	-- Error: If player is not in combat
+	ELSEIF (SELECT Combatant FROM player WHERE PlayerID = Player) IS NULL THEN
+		SELECT 'Player not in combat' AS messsage;
+
+	-- Set both player's combatant to null
+	ELSE 
+		SET OtherPlayer = (SELECT Combatant FROM player WHERE PlayerID = Player);
+        
+		UPDATE player
+        SET Combatant = NULL
+        WHERE PlayerID = Player
+			OR PlayerID = OtherPlayer;  
+
+	END IF;
+
+END//
+
+-- Attack Combatant
+CREATE PROCEDURE Attack(
+	IN Attacker INT
+)
+BEGIN
+
+
+
+END//
+
+-- Combat Outcome
+CREATE PROCEDURE Resolve_Combat(
+	IN Winner INT,
+    IN Loser INT
+)
+BEGIN
+
+
 
 END//
 
