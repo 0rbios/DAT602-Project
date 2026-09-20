@@ -19,6 +19,9 @@ DROP PROCEDURE IF EXISTS Find_Abilities;
 DROP PROCEDURE IF EXISTS Kill_Room;
 DROP PROCEDURE IF EXISTS Update_Account;
 DROP PROCEDURE IF EXISTS Delete_Account;
+DROP PROCEDURE IF EXISTS Update_Player;
+DROP PROCEDURE IF EXISTS Send_Message;
+DROP PROCEDURE IF EXISTS Get_Messages;
 
 DELIMITER //
 
@@ -279,21 +282,25 @@ BEGIN
     
     -- Remove the requested ability instance from its tile and add it to the player's inventory
     ELSE
-		UPDATE tile_ability
-			SET Removed = CURRENT_TIMESTAMP()
-			WHERE AbilityID = AbilityInstance
-				AND Removed IS NULL;
+        IF NOT EXISTS (SELECT * FROM tile_ability WHERE Placed = CURRENT_TIMESTAMP AND AbilityID = AbilityInstance) THEN
+			
+			UPDATE tile_ability
+				SET Removed = CURRENT_TIMESTAMP()
+				WHERE AbilityID = AbilityInstance
+					AND Removed;
 		
-		INSERT INTO tile_ability (TileID, AbilityID, Placed)
-			VALUE (Random_Tile(
-						(SELECT t.RoomID
-						 FROM tile_ability AS ta
-						 JOIN abilityinstance AS ai
-							ON ai.AbilityID = ta.AbilityID
-						 JOIN tile AS t
-							ON t.TileID = ta.TileID
-						 WHERE ta.AbilityID = AbilityInstance)
-						), AbilityInstance, CURRENT_TIMESTAMP());
+			INSERT INTO tile_ability (TileID, AbilityID, Placed)
+				VALUE (Random_Tile(
+							(SELECT t.RoomID
+							 FROM tile_ability AS ta
+							 JOIN abilityinstance AS ai
+								ON ai.AbilityID = ta.AbilityID
+							 JOIN tile AS t
+								ON t.TileID = ta.TileID
+							 WHERE ta.AbilityID = AbilityInstance)
+							), AbilityInstance, CURRENT_TIMESTAMP());
+                            
+		END IF;
 			
 		SELECT * FROM tile_ability;
 	END IF;
@@ -365,13 +372,17 @@ BEGIN
     
     -- Remove the requested item from its current tile and add it to the player's inventory
     ELSE
-		UPDATE player_ability
-			SET Dropped = CURRENT_TIMESTAMP()
-			WHERE AbilityID = AbilityInstance
-				AND Dropped IS NULL;
+        IF NOT EXISTS (SELECT * FROM tile_ability WHERE Placed = CURRENT_TIMESTAMP AND AbilityID = AbilityInstance) THEN
+			UPDATE player_ability
+				SET Dropped = CURRENT_TIMESTAMP()
+				WHERE AbilityID = AbilityInstance
+					AND Dropped IS NULL;
 		
-		INSERT INTO tile_ability (TileID, AbilityID, Placed)
-			VALUES ((SELECT TileID FROM player_tile WHERE PlayerID = Player ORDER BY `Timestamp` LIMIT 1), AbilityInstance, CURRENT_TIMESTAMP());
+			INSERT INTO tile_ability (TileID, AbilityID, Placed)
+				VALUES ((SELECT TileID FROM player_tile WHERE PlayerID = Player ORDER BY `Timestamp` LIMIT 1), AbilityInstance, CURRENT_TIMESTAMP());
+                
+		END IF;
+        
     END IF;
     
 END//
@@ -509,7 +520,7 @@ CREATE PROCEDURE Update_Account(
 BEGIN
 
 	-- Error: If requested account doesn't exist
-	IF NOT EXISTS (SELECT * FROM account WHERE AccountName = InAccount) THEN
+	IF NOT EXISTS (SELECT * FROM `account` WHERE AccountName = InAccount) THEN
 		SELECT 'Account does not exist' AS message;
     
     -- Update the requested account with the given data
@@ -547,6 +558,78 @@ BEGIN
 
 END//
 
+-- Send Message
+CREATE PROCEDURE Send_Message(
+	IN Message VARCHAR(128),
+    IN Player INT
+)
+BEGIN
+
+	-- Error: If the player ID doesn't exist
+	IF NOT EXISTS (SELECT * FROM player WHERE PlayerID = Player) THEN
+		SELECT 'Invalid Player' AS message;
+        
+	ELSE
+		INSERT INTO message (PlayerID, `Text`, SendTime)
+			VALUES (Player, Message, CURRENT_TIMESTAMP());
+	
+    END IF;
+
+END//
+
+-- Read Messages
+CREATE PROCEDURE Get_Messages(
+	IN Room INT
+)
+BEGIN
+
+	-- Error: If the room doesn't exist
+    IF NOT EXISTS (SELECT * FROM room WHERE RoomID = Room) THEN
+		SELECT 'Invalid Room' AS message;
+	ELSE
+		SELECT m.*
+		FROM message m
+        JOIN player p
+        ON p.PlayerID = m.PlayerID
+        WHERE p.RoomID = Room;
+	END IF;
+
+END//
+
+-- Combat Win
+
+
+-- Combat Lose
+
+
+-- Update Player Data
+CREATE PROCEDURE Update_Player (
+	IN Player INT,
+    IN Score_Current INT,
+    IN Score_High INT,
+    IN InHealth INT,
+    IN InEnergy INT
+)
+BEGIN
+
+	-- Error: If requested player doesn't exist
+	IF NOT EXISTS (SELECT * FROM player WHERE PlayerID = Player) THEN
+		SELECT '{Player does not exist' AS message;
+    
+    -- Update the requested player with the given data
+    ELSE
+		UPDATE `player`
+			SET High_Score = Score_High,
+				Current_Score = Score_Current,
+                Health = InHealth,
+                Energy = InEnergy
+			WHERE PlayerID = Player;
+		
+		SELECT * FROM `player`;
+	END IF;
+
+END//
+
 DELIMITER ;
 
 -- Test Execution
@@ -558,11 +641,12 @@ CALL Create_Player('Test Account', 1);							-- Create a new player in the room
 CALL Move_Player(1, 1, 0, 1, 0);								-- Move the player to 1,0 within radius 1 and disallowing diagonal movement (Expected result: All player tile extries)
 CALL Glitch_Ability(1);											-- Move the ability (Expected result: All tile ability entries)
 CALL Pickup_Ability(1, 1);										-- Make the player pick up the ability
+CALL Send_Message('Test Message', 1);
+CALL Get_Messages(1);
 CALL Update_Score(1);											-- Update the player's score
 SELECT Get_Score(1) AS player_score;							-- Get the player's score (Expected result: The score for the test player)
 CALL Get_Leaderboard(1);										-- Get the room's leaderboard (Expected result: Should be the same as last command)
 CALL Find_Abilities(1);											-- Find the current location of all abilities in the room (Expected result: The current location of the item)
-DO SLEEP(1);
 CALL Drop_Ability(1, 1);										-- Make the player drop the ability
 CALL Update_Score(1);											-- Update the player's score
 SELECT Get_Score(1) AS player_score;							-- Get the player's score (Expected result: The score for the test player)
