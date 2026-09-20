@@ -35,6 +35,7 @@ BEGIN
 		AccountName VARCHAR(32) NOT NULL,
 		RoomID INT NOT NULL,
 		Sprite VARCHAR(32) NOT NULL,
+        Combatant INT UNIQUE,
 		PRIMARY KEY (PlayerID),
 		CONSTRAINT fk_player_account
 			FOREIGN KEY (AccountName)
@@ -43,6 +44,10 @@ BEGIN
 		CONSTRAINT fk_player_room
 			FOREIGN KEY (RoomID)
 			REFERENCES room(RoomID)
+            ON DELETE CASCADE,
+		CONSTRAINT fk_player_player
+			FOREIGN KEY (Combatant)
+            REFERENCES player(PlayerID)
             ON DELETE CASCADE
 	);
 
