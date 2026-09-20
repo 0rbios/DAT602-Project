@@ -25,7 +25,37 @@ BEGIN
 			REFERENCES `account`(AccountName)
             ON DELETE CASCADE
 	);
-
+    
+    CREATE TABLE class (
+		ClassName VARCHAR(32),
+        AbilityName VARCHAR(24),
+        PRIMARY KEY (ClassName),
+        CONSTRAINT fk_class_ability
+			FOREIGN KEY (AbilityName)
+            REFERENCES ability(AbilityName)
+            ON DELETE CASCADE
+    );
+    
+	CREATE TABLE stat (
+		StatName VARCHAR(16),
+		`MaxValue` INT NOT NULL,
+		PRIMARY KEY (StatName)
+	);
+    
+    CREATE TABLE class_stat(
+		ClassName VARCHAR(32),
+        StatisticName VARCHAR(16) NOT NULL,
+        PRIMARY KEY (ClassName, StatisticName),
+        CONSTRAINT fk_class_stat_class
+			FOREIGN KEY (ClassName)
+            REFERENCES class(ClassName)
+            ON DELETE CASCADE,
+        CONSTRAINT fk_class_stat_stat
+			FOREIGN KEY (StatisticName)
+            REFERENCES stat(StatisticName)
+            ON DELETE CASCADE
+    );
+    
 	CREATE TABLE player (
 		PlayerID INT AUTO_INCREMENT,
 		CurrentScore INT NOT NULL DEFAULT 0,
@@ -36,6 +66,7 @@ BEGIN
 		RoomID INT NOT NULL,
 		Sprite VARCHAR(32) NOT NULL,
         Combatant INT UNIQUE,
+        ClassName VARCHAR(32) NOT NULL,
 		PRIMARY KEY (PlayerID),
 		CONSTRAINT fk_player_account
 			FOREIGN KEY (AccountName)
@@ -48,6 +79,10 @@ BEGIN
 		CONSTRAINT fk_player_player
 			FOREIGN KEY (Combatant)
             REFERENCES player(PlayerID)
+            ON DELETE CASCADE,
+		CONSTRAINT fk_player_class
+			FOREIGN KEY (ClassName)
+            REFERENCES class(ClassName)
             ON DELETE CASCADE
 	);
 
@@ -94,12 +129,6 @@ BEGIN
 			FOREIGN KEY (PlayerID)
 			REFERENCES player(PlayerID)
             ON DELETE CASCADE
-	);
-
-	CREATE TABLE stat (
-		StatName VARCHAR(16),
-		`MaxValue` INT NOT NULL,
-		PRIMARY KEY (StatName)
 	);
 
 	CREATE TABLE statchange (
