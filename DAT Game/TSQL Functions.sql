@@ -26,6 +26,7 @@ DROP PROCEDURE IF EXISTS Engage_Combat;
 DROP PROCEDURE IF EXISTS Disengage_Combat;
 DROP PROCEDURE IF EXISTS Attack;
 DROP PROCEDURE IF EXISTS Resolve_Combat;
+DROP PROCEDURE IF EXISTS Find_Ability_Instance;
 
 DELIMITER //
 
@@ -196,8 +197,8 @@ BEGIN
 	
     -- Create a new player with the requested account on the requested room and place them on the tile at 0,0
     ELSE
-		INSERT INTO player (CurrentEnergy, CurrentHealth, AccountName, RoomID, Sprite)
-			VALUES (10, 10, InAccountName, InRoomID, './Player.png');
+		INSERT INTO player (CurrentEnergy, CurrentHealth, AccountName, RoomID, Sprite, ClassName)
+			VALUES (10, 10, InAccountName, InRoomID, './Player.png', 'Gorilla');
 
 		-- Places the player with the given account and room who also has the largest auto_incementing ID onto the tile with position 0,0 on the given table.
 		INSERT INTO player_tile (TileID, PlayerID, `Timestamp`)
@@ -401,17 +402,17 @@ BEGIN
 	IF NOT EXISTS (SELECT * FROM player WHERE PlayerID = Player) THEN
 		SELECT 'Invalid Player ID' AS message;
 
-	-- Default: If there is nothing in the inventory score becomes 0
+	-- Default: If there is nothing in the inventory score is just the battle score
     ELSEIF NOT EXISTS (SELECT * FROM player_ability WHERE PlayerID = Player AND Dropped IS NULL) THEN
 		UPDATE player
-			SET CurrentScore = 0
+			SET CurrentScore = (SELECT BattleScore FROM player WHERE PlayerID = Player)
 			WHERE PlayerID = Player;
 	
-    -- Set the player's score to the sum of the values of all abilities they are currently holding !! THIS IS MISSING THE PLAYERS SCORE FROM COMBAT
+    -- Set the player's score to the sum of the values of all abilities they are currently holding plus their battle score
     ELSE
 		UPDATE player
 			SET CurrentScore = (
-									SELECT SUM(a.`Value`)
+									SELECT (SUM(a.`Value`) + BattleScore)
 									FROM player_ability AS pa
 									JOIN abilityinstance AS ai
 										ON pa.AbilityID = ai.AbilityID
@@ -683,12 +684,12 @@ BEGIN
 
 	-- Set both player's combatant to null
 	ELSE 
-		SET OtherPlayer = (SELECT Combatant FROM player WHERE PlayerID = Player);
+		SET @OtherPlayer = (SELECT Combatant FROM player WHERE PlayerID = Player);
         
 		UPDATE player
         SET Combatant = NULL
         WHERE PlayerID = Player
-			OR PlayerID = OtherPlayer;  
+			OR PlayerID = @OtherPlayer;  
 
 	END IF;
 
@@ -696,11 +697,13 @@ END//
 
 -- Attack Combatant
 CREATE PROCEDURE Attack(
-	IN Attacker INT
+	IN Ability INT
 )
 BEGIN
 
-
+	-- Error: If no one is holding ability
+    
+    -- Error: If attacker has no target
 
 END//
 
@@ -711,32 +714,78 @@ CREATE PROCEDURE Resolve_Combat(
 )
 BEGIN
 
+	-- Error: If one of the player's doesn't exist
+    IF NOT EXISTS (SELECT * FROM player WHERE PlayerID = Winner OR PlayerID = Loser) THEN
+		SELECT 'Player(s) do not exist' AS message;
 
+	ELSE
+		-- Add score increase to winner's battle score and reset the loser's battle score
+		UPDATE player
+		SET BattleScore = CASE
+			WHEN PlayerID = Winner THEN BattleScore + CEIL((SELECT CurrentScore FROM player WHERE PlayerID = Loser) / 10)
+													  +
+													  (SELECT SUM(`Value`) FROM player_stat WHERE PlayerID = Loser)
+			WHEN PlayerID = Loser THEN 0
+            END;
+
+		-- Remove all items from loser's inventory
+		UPDATE player_ability
+        SET Dropped = CURRENT_TIMESTAMP()
+		WHERE PlayerID = Loser
+			AND	Dropped IS NULL;
+        
+		-- Recreate their starting ability instance
+		INSERT INTO abilityinstance (AbilityName)
+			VALUES ((SELECT AbilityName
+					 FROM class c
+                     JOIN player p
+						ON p.ClassName = c.ClassName
+                     WHERE p.PlayerID = Loser)
+					);
+        
+        -- Find the recreated ability id
+        SET @NewInstanceID = (
+								SELECT AbilityID
+								FROM abilityinstance
+								WHERE AbilityID NOT IN (
+															SELECT AbilityID
+															FROM player_tile pa
+															JOIN tile_ability ta
+                                                        )
+									AND AbilityName = (
+														SELECT AbilityName
+                                                        FROM class c
+                                                        JOIN player p
+															ON p.ClassName = c.ClassName
+														WHERE p.PlayerID = Loser
+													  )
+								LIMIT 1
+							);
+        
+		-- Add recreated ability to inventory
+        INSERT INTO player_ability (PlayerID, AbilityID, PickedUp)
+			VALUES (Loser, @NewAbilityID, CURRENT_TIMESTAMP());
+        
+		-- Move the loser to the home tile
+		INSERT INTO player_tile (PlayerID, TileID, `Timestamp`)
+			VALUE (Loser,
+					(SELECT TileID
+					 FROM tile
+                     WHERE RoomID = (
+										SELECT RoomID
+										FROM player
+                                        WHERE PlayerID = Loser
+									)
+						AND  XPos = 0
+                        AND YPos = 0),
+                    CURRENT_TIMESTAMP());
+        
+		-- Update both player's scores 
+		CALL Update_Score(Winner);
+        CALL Update_Score(Loser);
+
+	END IF;
 
 END//
 
 DELIMITER ;
-
--- Test Execution
-CALL Login('Test Account', 'Test Password');					-- Try to log in (Expected result: account details for Test Account)
-CALL Create_Room('Test Room', 'Test Account');					-- Create a new room
-CALL Layout_Tiles(1, 5, 5);										-- Layout the tiles in the room
-CALL Place_Ability_On_Tile(1, 1);								-- Place abilities on the tiles
-CALL Create_Player('Test Account', 1);							-- Create a new player in the room
-CALL Move_Player(1, 1, 0, 1, 0);								-- Move the player to 1,0 within radius 1 and disallowing diagonal movement (Expected result: All player tile extries)
-CALL Glitch_Ability(1);											-- Move the ability (Expected result: All tile ability entries)
-CALL Pickup_Ability(1, 1);										-- Make the player pick up the ability
-CALL Send_Message('Test Message', 1);
-CALL Get_Messages(1);
-CALL Update_Score(1);											-- Update the player's score
-SELECT Get_Score(1) AS player_score;							-- Get the player's score (Expected result: The score for the test player)
-CALL Get_Leaderboard(1);										-- Get the room's leaderboard (Expected result: Should be the same as last command)
-CALL Find_Abilities(1);											-- Find the current location of all abilities in the room (Expected result: The current location of the item)
-CALL Drop_Ability(1, 1);										-- Make the player drop the ability
-CALL Update_Score(1);											-- Update the player's score
-SELECT Get_Score(1) AS player_score;							-- Get the player's score (Expected result: The score for the test player)
-CALL Get_Leaderboard(1);										-- Get the room's leaderboard (Expected result: Should be the same as last command)
-CALL Find_Abilities(1);											-- Find the current location of all abilities in the room (Expected result: The current location of the item)
-CALL Kill_Room(1);												-- Kill the room
-CALL Update_Account('Test Account', 'New Password', 1, 1);		-- Update the account (Expected result: the changed account details)
-CALL Delete_Account('Test Account', 1);							-- Delete the account

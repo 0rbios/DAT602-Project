@@ -26,6 +26,28 @@ BEGIN
             ON DELETE CASCADE
 	);
     
+	CREATE TABLE ability (
+		AbilityName VARCHAR(24),
+		`Description` VARCHAR(255) NOT NULL,
+		`Value` INT(5) NOT NULL,
+		Cost INT(5) NOT NULL,
+		Combat BIT NOT NULL,
+		Damage INT(3),
+		Glitched BIT NOT NULL DEFAULT 0,
+		Sprite VARCHAR(32) NOT NULL,
+		PRIMARY KEY (AbilityName)
+	);
+
+	CREATE TABLE abilityinstance (
+		AbilityID INT AUTO_INCREMENT,
+		AbilityName VARCHAR(24) NOT NULL,
+        PRIMARY KEY (AbilityID),
+        CONSTRAINT fk_abilityinstance_ability
+			FOREIGN KEY (AbilityName)
+            REFERENCES ability(AbilityName)
+            ON DELETE CASCADE
+    );
+    
     CREATE TABLE class (
 		ClassName VARCHAR(32),
         AbilityName VARCHAR(24),
@@ -44,15 +66,16 @@ BEGIN
     
     CREATE TABLE class_stat(
 		ClassName VARCHAR(32),
-        StatisticName VARCHAR(16) NOT NULL,
-        PRIMARY KEY (ClassName, StatisticName),
+        StatName VARCHAR(16) NOT NULL,
+        Amount INT NOT NULL,
+        PRIMARY KEY (ClassName, StatName),
         CONSTRAINT fk_class_stat_class
 			FOREIGN KEY (ClassName)
             REFERENCES class(ClassName)
             ON DELETE CASCADE,
         CONSTRAINT fk_class_stat_stat
-			FOREIGN KEY (StatisticName)
-            REFERENCES stat(StatisticName)
+			FOREIGN KEY (StatName)
+            REFERENCES stat(StatName)
             ON DELETE CASCADE
     );
     
@@ -67,6 +90,7 @@ BEGIN
 		Sprite VARCHAR(32) NOT NULL,
         Combatant INT UNIQUE,
         ClassName VARCHAR(32) NOT NULL,
+        BattleScore INT NOT NULL DEFAULT 0,
 		PRIMARY KEY (PlayerID),
 		CONSTRAINT fk_player_account
 			FOREIGN KEY (AccountName)
@@ -97,28 +121,6 @@ BEGIN
 			REFERENCES room(RoomID)
             ON DELETE CASCADE
 	);
-
-	CREATE TABLE ability (
-		AbilityName VARCHAR(24),
-		`Description` VARCHAR(255) NOT NULL,
-		`Value` INT(5) NOT NULL,
-		Cost INT(5) NOT NULL,
-		Combat BIT NOT NULL,
-		Damage INT(3),
-		Glitched BIT NOT NULL DEFAULT 0,
-		Sprite VARCHAR(32) NOT NULL,
-		PRIMARY KEY (AbilityName)
-	);
-
-	CREATE TABLE abilityinstance (
-		AbilityID INT AUTO_INCREMENT,
-		AbilityName VARCHAR(24) NOT NULL,
-        PRIMARY KEY (AbilityID),
-        CONSTRAINT fk_abilityinstance_ability
-			FOREIGN KEY (AbilityName)
-            REFERENCES ability(AbilityName)
-            ON DELETE CASCADE
-    );
 
 	CREATE TABLE message (
 		PlayerID INT,
@@ -205,6 +207,13 @@ BEGIN
             ON DELETE CASCADE
 	);
     
+    -- Creates the games statistics
+    INSERT INTO stat (StatName, `MaxValue`)
+		VALUES ('Strength', 100),
+			   ('Speed', 100),
+               ('Energy', 100),
+               ('Health', 100);
+    
 	-- Create all of the games abilities
     INSERT INTO ability (AbilityName, `Description`, `Value`, Cost, Damage, Sprite, Glitched, Combat)
 		VALUES ('Iron Core', '+1 Health | -1 Speed\nA forged iron core to increase the durability of a suit.', 5, 0, 0, './Assets/IronCore.png', 0, 0),
@@ -231,6 +240,32 @@ BEGIN
 				('Triple-Cell', '+6 Energy | -3 Strength\nThree energy cells to store a lot more energy for later use. Seem to bounce off of surfaces easily.', 12, 0, 0, './Assets/TripleCell.png', 0, 0),
 				('Quad-Cell', '+8 Energy | -5 Strength\nFour energy cells to store an overwhelming amount of energy for later use. Seem to bounce off of surfaces easily. One might question the diminishing returns of so many cells.', 24, 0, 0, './Assets/QuadCell.png', 0, 0);
         
+    -- Create the games classes
+    INSERT INTO class (ClassName, AbilityName)
+		VALUES ('Gorilla', 'Piston Wreck'),
+			   ('Eagle', 'Wing Swipe'),
+               ('Cheetah', 'Hyper-Speed Kick'),
+               ('Tiger', 'Claw Strike');
+    
+    -- Attaches the classes to statistics
+	INSERT INTO class_stat (ClassName, StatName, Amount)
+		VALUE ('Gorilla', 'Health', 1),
+			  ('Gorilla', 'Strength', 1),
+              ('Gorilla', 'Energy', -1),
+              ('Gorilla', 'Speed', -1),
+              ('Eagle', 'Health', 1),
+			  ('Eagle', 'Strength', -1),
+              ('Eagle', 'Energy', -1),
+              ('Eagle', 'Speed', 1),
+              ('Cheetah', 'Health', -1),
+			  ('Cheetah', 'Strength', -1),
+              ('Cheetah', 'Energy', 1),
+              ('Cheetah', 'Speed', 1),
+              ('Tiger', 'Health', -1),
+			  ('Tiger', 'Strength', 1),
+              ('Tiger', 'Energy', 1),
+              ('Tiger', 'Speed', -1);
+	
 END //
 
 CREATE PROCEDURE Create_Test_Data ()
