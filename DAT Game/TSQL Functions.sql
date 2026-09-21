@@ -701,9 +701,53 @@ CREATE PROCEDURE Attack(
 )
 BEGIN
 
+	-- Find the player that is currently holding the ability
+	SET @attacker = (SELECT PlayerID FROM player_ability WHERE AbilityID = Ability AND Dropped IS NULL);
+
 	-- Error: If no one is holding ability
+    IF @attacker IS NULL THEN
+		SELECT 'Ability not being held' AS message;
+    
+	-- Error: If the ability can't be used in combat
+    ELSEIF (SELECT Combat FROM ability WHERE AbilityName = (SELECT AbilityName FROM abilityinstance WHERE AbilityID = Ability)) = 0 THEN
+		SELECT 'Combat cannot be used in combat' AS message;
     
     -- Error: If attacker has no target
+	ELSEIF (SELECT Combatant FROM player WHERE PlayerID = @attacker) IS NULL THEN
+		SELECT 'No target' AS message;
+	
+    -- Check: Does attacker have enough energy
+    ELSEIF (SELECT Cost FROM ability WHERE AbilityName = (SELECT AbilityName FROM abilityinstance WHERE AbilityID = Ability))
+			>
+            (SELECT CurrentEnergy FROM player WHERE PlayerID = @attacker) THEN
+		SELECT 'Not enough energy' AS message;
+        
+	ELSE
+		-- Get target player's id
+        SET @target = (SELECT Combatant FROM player WHERE PlayerID = @attacker);
+		
+		-- Calculate damage output
+        SET @damage = FLOOR(
+						(SELECT `Value` FROM player_stat WHERE StatName = 'Strength' AND PlayerID = @attacker) *
+						(SELECT Damage FROM ability WHERE AbilityName = (SELECT AbilityName FROM abilityinstance WHERE AbilityID = Ability))
+                      );
+        
+		-- Reduce target health
+		UPDATE player
+        SET CurrentHealth = CurrentHealth - @damage
+        WHERE PlayerID = @target;
+        
+		-- Reduce attacker energy
+		UPDATE player
+        SET CurrentEnergy = CurrentEnergy - (SELECT Cost FROM ability WHERE AbilityName = (SELECT AbilityName FROM abilityinstance WHERE AbilityID = Ability))
+        WHERE PlayerID = @attacker;
+        
+		-- Check target health
+		IF (SELECT CurrentHealth FROM player WHERE PlayerID = @target) <= 0 THEN
+			CALL Resolve_Combat(@attacker, @target);
+		END IF;
+
+	END IF;
 
 END//
 
