@@ -26,7 +26,7 @@ DROP PROCEDURE IF EXISTS Engage_Combat;
 DROP PROCEDURE IF EXISTS Disengage_Combat;
 DROP PROCEDURE IF EXISTS Attack;
 DROP PROCEDURE IF EXISTS Resolve_Combat;
-DROP PROCEDURE IF EXISTS Find_Ability_Instance;
+DROP FUNCTION IF EXISTS Get_Instance;
 
 DELIMITER //
 
@@ -55,16 +55,16 @@ BEGIN
     
 	-- Return the username and reset the login attempts
 	ELSE
+		UPDATE `account`
+			SET LoginAttempts = 0
+			WHERE EXISTS (SELECT * FROM `account` WHERE AccountName = In_Username);
+            
 		SELECT AccountName
 		FROM `account`
 		WHERE EXISTS (
 						SELECT *
                         FROM `account`
                         WHERE AccountName = In_Username);
-		
-		UPDATE `account`
-			SET LoginAttempts = 0
-			WHERE EXISTS (SELECT * FROM `account` WHERE AccountName = In_Username);
 	END IF;
 	
 END//
@@ -80,12 +80,12 @@ BEGIN
 	IF EXISTS (SELECT * FROM `account` WHERE AccountName = IN_Username) THEN
 		SELECT 'Account name already exists' AS message;
 	
-    -- Create the new account with the requested username and password
+    -- Create the new account with the requested username and password and log in to it
 	ELSE
 		INSERT INTO `account` (AccountName, `Password`)
 			VALUES (IN_Username, IN_Password);
             
-		SELECT * FROM `account`;
+		CALL Login(IN_Username, IN_Password);
 	END IF;
     
 END//
@@ -106,8 +106,12 @@ BEGIN
 		INSERT INTO room (RoomName, AccountName)
 			VALUES (In_Name, In_Player);
 		
-		INSERT INTO abilityinstance (AbilityName)
-			VALUES ('Piston Wreck');
+        SET @NewRoomID = (SELECT RoomID FROM room WHERE AccountName = In_Player LIMIT 1);
+        
+        CALL Layout_Tiles(@NewRoodID, 10, 10);
+        
+        CALL Place_Ability_On_Tile("Piston Wreck", 1);
+        
 	END IF;
     
 END//
@@ -159,7 +163,7 @@ END//
 
 -- Placing an ability on a tile
 CREATE PROCEDURE Place_Ability_On_Tile(
-	IN InAbilityInstance INT,
+	IN InAbility VARCHAR(24),
     IN InTile INT
 )
 BEGIN
@@ -169,13 +173,16 @@ BEGIN
 		SELECT 'Tile does not exist' AS message;
 	
     -- Error: If requested ability instance doesn't exist
-	ELSEIF NOT EXISTS (SELECT * FROM abilityinstance WHERE AbilityID = InAbilityInstance) THEN
-			SELECT 'Ability instance does not exist' AS message;
+	ELSEIF NOT EXISTS (SELECT * FROM ability WHERE AbilityName = InAbility) THEN
+			SELECT 'Ability does not exist' AS message;
 	
-    -- Put item on tile
+    -- Create the item instance and put it on the tile
 	ELSE
+		INSERT INTO abilityinstance (AbilityName)
+			VALUES (InAbility);
+            
 		INSERT INTO Tile_Ability (Placed, TileID, AbilityID)
-			VALUES (CURRENT_TIMESTAMP(), InTile, InAbilityInstance);
+			VALUES (CURRENT_TIMESTAMP(), InTile, (SELECT Get_Instance(AbilityName)));
 	END IF;
 
 END//
@@ -183,7 +190,8 @@ END//
 -- Create player and place on home tile
 CREATE PROCEDURE Create_Player(
 	IN InAccountName VARCHAR(32),
-    IN InRoomID INT
+    IN InRoomID INT,
+    IN Class VARCHAR(32)
 )
 BEGIN
 
@@ -195,18 +203,32 @@ BEGIN
     ELSEIF NOT EXISTS (SELECT * FROM room WHERE RoomID = InRoomID) THEN
 		SELECT 'Room does not exist' AS message;
 	
-    -- Create a new player with the requested account on the requested room and place them on the tile at 0,0
+    -- Error: If the class doesn't exist
+    ELSEIF NOT EXISTS (SELECT * FROM class WHERE ClassName = Class) THEN
+		SELECT 'Invalid class' AS message;
+    
     ELSE
-		INSERT INTO player (CurrentEnergy, CurrentHealth, AccountName, RoomID, Sprite, ClassName)
-			VALUES (10, 10, InAccountName, InRoomID, './Player.png', 'Gorilla');
+		-- Attempt to place the player back on their last tile
+		IF EXISTS (SELECT * FROM player WHERE RoomID = InRoomID AND PlayerID) THEN
+			UPDATE player
+			SET `Active` = 1
+            WHERE AccountName = InAccountName
+				AND RoomID = InRoomID;
+    
+		-- Create a new player with the requested account on the requested room and place them on the tile at 0,0
+        ELSE
+			INSERT INTO player (CurrentEnergy, CurrentHealth, AccountName, RoomID, ClassName)
+				VALUES (10, 10, InAccountName, InRoomID, Class);
 
-		-- Places the player with the given account and room who also has the largest auto_incementing ID onto the tile with position 0,0 on the given table.
-		INSERT INTO player_tile (TileID, PlayerID, `Timestamp`)
-			VALUES (
-					(SELECT TileID FROM tile WHERE RoomID = InRoomID AND XPos = 0 AND YPos = 0),
-					(SELECT PlayerID FROM player WHERE AccountName = InAccountName AND RoomID = InRoomID ORDER BY PlayerID LIMIT 1),
-					CURRENT_TIMESTAMP()
-					);
+			-- Places the player with the given account and room onto the tile with position 0,0 on the given table.
+			INSERT INTO player_tile (TileID, PlayerID, `Timestamp`)
+				VALUES (
+						(SELECT TileID FROM tile WHERE RoomID = InRoomID AND XPos = 0 AND YPos = 0),
+						(SELECT PlayerID FROM player WHERE AccountName = InAccountName AND RoomID = InRoomID),
+						CURRENT_TIMESTAMP()
+						);
+		END IF;
+                        
 	END IF;
 
 END//
@@ -262,11 +284,9 @@ BEGIN
 		
         -- Place the requested player on the requested tile
         ELSE
-			INSERT INTO player_tile (TileID, PlayerID, Timestamp)
+			INSERT INTO player_tile (TileID, PlayerID, `Timestamp`)
 				VALUES ((SELECT TileID FROM tile WHERE XPos = MoveX AND YPos = MoveY), Player, CURRENT_TIMESTAMP());
-			
-			SELECT * FROM player_tile;
-            
+                
 		END IF;
 	END IF;
 END//
@@ -307,7 +327,6 @@ BEGIN
                             
 		END IF;
 			
-		SELECT * FROM tile_ability;
 	END IF;
 
 END//
@@ -352,6 +371,9 @@ BEGIN
 		
 		INSERT INTO player_ability (PlayerID, AbilityID, PickedUp)
 			VALUES (Player, AbilityInstance, CURRENT_TIMESTAMP());
+            
+		CALL Update_Score(Player);
+        
     END IF;
     
 END//
@@ -385,7 +407,9 @@ BEGIN
 		
 			INSERT INTO tile_ability (TileID, AbilityID, Placed)
 				VALUES ((SELECT TileID FROM player_tile WHERE PlayerID = Player ORDER BY `Timestamp` LIMIT 1), AbilityInstance, CURRENT_TIMESTAMP());
-                
+			
+            CALL Update_Score(Player);
+            
 		END IF;
         
     END IF;
@@ -494,6 +518,7 @@ BEGIN
 			WHERE player.RoomID = Room
 		)
 		SELECT * FROM ability_locations WHERE removed IS NULL;
+        
 	END IF;
 
 END//
@@ -511,6 +536,7 @@ BEGIN
     -- Delete the requested room
     ELSE
 		DELETE FROM room WHERE RoomID = Room;
+        
 	END IF;
 
 END//
@@ -536,7 +562,6 @@ BEGIN
 				`Locked` = IsLocked
 			WHERE AccountName = InAccount;
 		
-		SELECT * FROM `account`;
 	END IF;
 
 END//
@@ -559,6 +584,7 @@ BEGIN
     -- Delete the requested account
     ELSE
 		DELETE FROM `account` WHERE AccountName = InAccount;
+        
 	END IF;
 
 END//
@@ -591,12 +617,14 @@ BEGIN
 	-- Error: If the room doesn't exist
     IF NOT EXISTS (SELECT * FROM room WHERE RoomID = Room) THEN
 		SELECT 'Invalid Room' AS message;
+        
 	ELSE
 		SELECT m.*
 		FROM message m
         JOIN player p
         ON p.PlayerID = m.PlayerID
         WHERE p.RoomID = Room;
+        
 	END IF;
 
 END//
@@ -624,7 +652,6 @@ BEGIN
                 Energy = InEnergy
 			WHERE PlayerID = Player;
 		
-		SELECT * FROM `player`;
 	END IF;
 
 END//
@@ -787,28 +814,13 @@ BEGIN
                      WHERE p.PlayerID = Loser)
 					);
         
-        -- Find the recreated ability id
-        SET @NewInstanceID = (
-								SELECT AbilityID
-								FROM abilityinstance
-								WHERE AbilityID NOT IN (
-															SELECT AbilityID
-															FROM player_tile pa
-															JOIN tile_ability ta
-                                                        )
-									AND AbilityName = (
-														SELECT AbilityName
-                                                        FROM class c
-                                                        JOIN player p
-															ON p.ClassName = c.ClassName
-														WHERE p.PlayerID = Loser
-													  )
-								LIMIT 1
-							);
-        
 		-- Add recreated ability to inventory
         INSERT INTO player_ability (PlayerID, AbilityID, PickedUp)
-			VALUES (Loser, @NewAbilityID, CURRENT_TIMESTAMP());
+			VALUES (Loser, (SELECT Get_Instance((SELECT AbilityName
+													FROM class c
+                                                    JOIN player p
+														ON p.ClassName = c.ClassName
+													WHERE p.PlayerID = Loser))), CURRENT_TIMESTAMP());
         
 		-- Move the loser to the home tile
 		INSERT INTO player_tile (PlayerID, TileID, `Timestamp`)
@@ -830,6 +842,24 @@ BEGIN
 
 	END IF;
 
+END//
+
+-- Get a free instance of a given ability
+CREATE FUNCTION Get_Instance(In_Ability VARCHAR(24))
+RETURNS INT
+BEGIN
+	-- Find an unused ability instance for the given ability
+	RETURN (
+			SELECT AbilityID
+			FROM abilityinstance
+			WHERE AbilityID NOT IN (
+									SELECT AbilityID
+									FROM player_tile pa
+									JOIN tile_ability ta
+									)
+				AND AbilityName = In_Ability
+			LIMIT 1
+			);
 END//
 
 DELIMITER ;

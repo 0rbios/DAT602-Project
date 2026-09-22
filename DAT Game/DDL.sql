@@ -51,6 +51,7 @@ BEGIN
     CREATE TABLE class (
 		ClassName VARCHAR(32),
         AbilityName VARCHAR(24),
+		Sprite VARCHAR(32) NOT NULL,
         PRIMARY KEY (ClassName),
         CONSTRAINT fk_class_ability
 			FOREIGN KEY (AbilityName)
@@ -81,13 +82,13 @@ BEGIN
     
 	CREATE TABLE player (
 		PlayerID INT AUTO_INCREMENT,
+        `Active` BIT DEFAULT 1 NOT NULL,
 		CurrentScore INT NOT NULL DEFAULT 0,
 		HighScore INT NOT NULL DEFAULT 0,
 		CurrentEnergy INT NOT NULL,
 		CurrentHealth INT NOT NULL,
 		AccountName VARCHAR(32) NOT NULL,
 		RoomID INT NOT NULL,
-		Sprite VARCHAR(32) NOT NULL,
         Combatant INT UNIQUE,
         ClassName VARCHAR(32) NOT NULL,
         BattleScore INT NOT NULL DEFAULT 0,
@@ -241,11 +242,11 @@ BEGIN
 				('Quad-Cell', '+8 Energy | -5 Strength\nFour energy cells to store an overwhelming amount of energy for later use. Seem to bounce off of surfaces easily. One might question the diminishing returns of so many cells.', 24, 0, 0, './Assets/QuadCell.png', 0, 0);
         
     -- Create the games classes
-    INSERT INTO class (ClassName, AbilityName)
-		VALUES ('Gorilla', 'Piston Wreck'),
-			   ('Eagle', 'Wing Swipe'),
-               ('Cheetah', 'Hyper-Speed Kick'),
-               ('Tiger', 'Claw Strike');
+    INSERT INTO class (ClassName, AbilityName, Sprite)
+		VALUES ('Gorilla', 'Piston Wreck', './Gorilla.png'),
+			   ('Eagle', 'Wing Swipe', './Eagle.png'),
+               ('Cheetah', 'Hyper-Speed Kick', './Cheetah.png'),
+               ('Tiger', 'Claw Strike', './Tiger.png');
     
     -- Attaches the classes to statistics
 	INSERT INTO class_stat (ClassName, StatName, Amount)
