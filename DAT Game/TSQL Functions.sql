@@ -4,6 +4,7 @@ DROP PROCEDURE IF EXISTS Login;
 DROP PROCEDURE IF EXISTS Create_Account;
 DROP PROCEDURE IF EXISTS Create_Abilities;
 DROP PROCEDURE IF EXISTS Create_Room;
+DROP PROCEDURE IF EXISTS Join_Room;
 DROP PROCEDURE IF EXISTS Layout_Tiles;
 DROP PROCEDURE IF EXISTS Place_Ability_On_Tile;
 DROP PROCEDURE IF EXISTS Create_Player;
@@ -27,6 +28,7 @@ DROP PROCEDURE IF EXISTS Disengage_Combat;
 DROP PROCEDURE IF EXISTS Attack;
 DROP PROCEDURE IF EXISTS Resolve_Combat;
 DROP FUNCTION IF EXISTS Get_Instance;
+DROP PROCEDURE IF EXISTS Exit_Room;
 
 DELIMITER //
 
@@ -42,8 +44,8 @@ BEGIN
 		CALL Create_Account(In_Username, In_Password);
         
     -- Error: If requested password does not match requested username
-	ELSEIF EXISTS (SELECT * FROM `account` WHERE AccountName = In_Username AND `Password` = In_Password) THEN
-		SELECT 'Login Failed' AS message;
+	ELSEIF NOT EXISTS (SELECT * FROM `account` WHERE AccountName = In_Username AND `Password` = In_Password) THEN
+		SELECT 'Login failed' AS message;
         
 		UPDATE `account`
 			SET LoginAttempts = LoginAttempts + 1
@@ -51,20 +53,18 @@ BEGIN
 	
     -- Error: If requested account is locked
     ELSEIF (SELECT `Locked` FROM `account` WHERE AccountName = In_Username LIMIT 1) <> 0 THEN
-		SELECT 'Account Locked' AS message;
+		SELECT 'Account locked' AS message;
     
 	-- Return the username and reset the login attempts
 	ELSE
 		UPDATE `account`
-			SET LoginAttempts = 0
-			WHERE EXISTS (SELECT * FROM `account` WHERE AccountName = In_Username);
+		SET LoginAttempts = 0
+		WHERE AccountName = In_Username;
             
 		SELECT AccountName
 		FROM `account`
-		WHERE EXISTS (
-						SELECT *
-                        FROM `account`
-                        WHERE AccountName = In_Username);
+		WHERE AccountName = In_Username;
+        
 	END IF;
 	
 END//
@@ -84,7 +84,7 @@ BEGIN
 	ELSE
 		INSERT INTO `account` (AccountName, `Password`)
 			VALUES (IN_Username, IN_Password);
-            
+		
 		CALL Login(IN_Username, IN_Password);
 	END IF;
     
@@ -99,7 +99,7 @@ BEGIN
 	
     -- Error: Requested room owner account name doesn't exist
     IF NOT EXISTS (SELECT * FROM `account` WHERE AccountName = In_Player) THEN
-		SELECT 'Invalid Account Name' AS message;
+		SELECT 'Invalid account name' AS message;
 	
     -- Create the new room with the requested name and owner, then create new ability instances
     ELSE
@@ -108,7 +108,7 @@ BEGIN
 		
         SET @NewRoomID = (SELECT RoomID FROM room WHERE AccountName = In_Player LIMIT 1);
         
-        CALL Layout_Tiles(@NewRoodID, 10, 10);
+        CALL Layout_Tiles(@NewRoomID, 10, 10);
         
         CALL Place_Ability_On_Tile("Piston Wreck", 1);
         
@@ -126,10 +126,10 @@ BEGIN
 
     DECLARE tx INT DEFAULT 0;
     DECLARE ty INT DEFAULT 0;
-    
+
     -- Error: If requested room doesn't exist
-    IF NOT EXISTS (SELECT * FROM room WHERE RoomID = INRoom) THEN
-		SELECT 'Room Does Not Exist' AS message;
+    IF NOT EXISTS (SELECT * FROM room WHERE RoomID = InRoom) THEN
+		SELECT 'Room does not exist' AS message;
 	
     -- Loop across and then down the x and y of the grid, creating each tile
 	ELSE
@@ -180,15 +180,15 @@ BEGIN
 	ELSE
 		INSERT INTO abilityinstance (AbilityName)
 			VALUES (InAbility);
-            
+        
 		INSERT INTO Tile_Ability (Placed, TileID, AbilityID)
-			VALUES (CURRENT_TIMESTAMP(), InTile, (SELECT Get_Instance(AbilityName)));
+			VALUES (CURRENT_TIMESTAMP(), InTile, (SELECT Get_Instance(InAbility)));
 	END IF;
 
 END//
 
 -- Create player and place on home tile
-CREATE PROCEDURE Create_Player(
+CREATE PROCEDURE Join_Room(
 	IN InAccountName VARCHAR(32),
     IN InRoomID INT,
     IN Class VARCHAR(32)
@@ -208,20 +208,39 @@ BEGIN
 		SELECT 'Invalid class' AS message;
     
     ELSE
-		-- Attempt to place the player back on their last tile
-		IF EXISTS (SELECT * FROM player WHERE RoomID = InRoomID AND PlayerID) THEN
-			UPDATE player
-			SET `Active` = 1
-            WHERE AccountName = InAccountName
-				AND RoomID = InRoomID;
-    
+		-- Attempt to place the player back on their last tile if they are already in the room
+		IF EXISTS (SELECT * FROM player WHERE RoomID = InRoomID AND AccountName = InAccountName) THEN
+        
+			-- 	If someone else is currently on the tile which the player was on when they left then !!DO SOMETHING!!
+			IF (SELECT COUNT(PlayerID)
+				FROM player_tile
+				WHERE TileID = (SELECT TileID
+								FROM player_tile
+								WHERE PlayerID = (SELECT PlayerID
+													FROM player
+													WHERE AccountName = InAccountName)
+									AND MovedOff IS NULL)
+					AND MovedOff IS NULL
+                    AND PlayerID IN (SELECT PlayerID FROM player WHERE `Active` = 1)
+				ORDER BY MovedOn) > 0 THEN
+                    SELECT 'Tile occupied';
+			ELSE
+				-- Get only the entries from this of which the player does not have a newer player_tile entry
+					
+				UPDATE player
+				SET `Active` = 1
+				WHERE AccountName = InAccountName
+					AND RoomID = InRoomID;
+			
+            END IF;
+            
 		-- Create a new player with the requested account on the requested room and place them on the tile at 0,0
         ELSE
 			INSERT INTO player (CurrentEnergy, CurrentHealth, AccountName, RoomID, ClassName)
 				VALUES (10, 10, InAccountName, InRoomID, Class);
 
 			-- Places the player with the given account and room onto the tile with position 0,0 on the given table.
-			INSERT INTO player_tile (TileID, PlayerID, `Timestamp`)
+			INSERT INTO player_tile (TileID, PlayerID, MovedOn)
 				VALUES (
 						(SELECT TileID FROM tile WHERE RoomID = InRoomID AND XPos = 0 AND YPos = 0),
 						(SELECT PlayerID FROM player WHERE AccountName = InAccountName AND RoomID = InRoomID),
@@ -247,24 +266,22 @@ BEGIN
 	DECLARE playerY INT;
 
 	-- Error: If procedure tries to move diagonally without diagonal flag
-	IF AllowDiagonal = 0 THEN
-		IF MoveX AND MoveY <> 0 THEN
+	IF AllowDiagonal = 0 AND (MoveX <> 0 AND MoveY <> 0) THEN
 			SELECT 'Diagonal movement on non-diagonal check' AS message;
-		END IF;
             
 	-- Error: If requested radius is too small
     ELSEIF SearchRadius < 1 THEN
 		SELECT 'Search radius too small' AS message;
 	
     -- Error: If requested player doesn't exist
-	ELSEIF NOT EXISTS (SELECT * FROM player WHERE PlayerID = Player) THEN
+	ELSEIF NOT EXISTS (SELECT * FROM player WHERE PlayerID = Player AND `Active` = 1) THEN
 		SELECT 'Player not found' AS message;
     
     ELSE
     
 		-- Get the player's current position
-		SET playerX = (SELECT XPos FROM tile WHERE TileID = (SELECT TileID FROM player_tile WHERE PlayerID = Player ORDER BY `Timestamp` LIMIT 1));
-		SET playerY = (SELECT YPos FROM tile WHERE TileID = (SELECT TileID FROM player_tile WHERE PlayerID = Player ORDER BY `Timestamp` LIMIT 1));
+		SET playerX = (SELECT XPos FROM tile WHERE TileID = (SELECT TileID FROM player_tile WHERE PlayerID = Player AND MovedOff IS NULL));
+		SET playerY = (SELECT YPos FROM tile WHERE TileID = (SELECT TileID FROM player_tile WHERE PlayerID = Player AND MovedOff IS NULL));
 
 		-- Error: Requested tile is out of range
 		IF NOT EXISTS (WITH surroundingtiles AS 
@@ -282,12 +299,17 @@ BEGIN
 			
             SELECT 'Tile out of range' AS message;
 		
-        -- Place the requested player on the requested tile
+        -- Place the requested player on the requested tile and remove them from the previous tile
         ELSE
-			INSERT INTO player_tile (TileID, PlayerID, `Timestamp`)
+			UPDATE player_tile
+            SET MovedOFF = CURRENT_TIMESTAMP()
+            WHERE MovedOff IS NULL
+				AND PlayerID = Player;
+        
+			INSERT INTO player_tile (TileID, PlayerID, MovedOn)
 				VALUES ((SELECT TileID FROM tile WHERE XPos = MoveX AND YPos = MoveY), Player, CURRENT_TIMESTAMP());
-                
 		END IF;
+        
 	END IF;
 END//
 
@@ -355,7 +377,7 @@ CREATE PROCEDURE Pickup_Ability (
 BEGIN
 
 	-- Error: If requested player doesn't exist
-	IF NOT EXISTS (SELECT * FROM player WHERE PlayerID = Player) THEN
+	IF NOT EXISTS (SELECT * FROM player WHERE PlayerID = Player AND `Active` = 1) THEN
 		SELECT 'Invalid player' AS message;
     
     -- Error: If requested ability instance doesn't exist
@@ -386,7 +408,7 @@ CREATE PROCEDURE Drop_Ability (
 BEGIN
 
 	-- Error: If requested player doesn't exist
-	IF NOT EXISTS (SELECT * FROM player WHERE PlayerID = Player) THEN
+	IF NOT EXISTS (SELECT * FROM player WHERE PlayerID = Player AND `Active` = 1) THEN
 		SELECT 'Invalid player' AS message;
     
     -- Error: If requested ability instance doesn't exist
@@ -406,7 +428,7 @@ BEGIN
 					AND Dropped IS NULL;
 		
 			INSERT INTO tile_ability (TileID, AbilityID, Placed)
-				VALUES ((SELECT TileID FROM player_tile WHERE PlayerID = Player ORDER BY `Timestamp` LIMIT 1), AbilityInstance, CURRENT_TIMESTAMP());
+				VALUES ((SELECT TileID FROM player_tile WHERE PlayerID = Player AND MovedOff IS NULL), AbilityInstance, CURRENT_TIMESTAMP());
 			
             CALL Update_Score(Player);
             
@@ -423,8 +445,8 @@ CREATE PROCEDURE Update_Score (
 BEGIN
 
 	-- Error: If requested player doesn't exist
-	IF NOT EXISTS (SELECT * FROM player WHERE PlayerID = Player) THEN
-		SELECT 'Invalid Player ID' AS message;
+	IF NOT EXISTS (SELECT * FROM player WHERE PlayerID = Player AND `Active` = 1) THEN
+		SELECT 'Invalid player id' AS message;
 
 	-- Default: If there is nothing in the inventory score is just the battle score
     ELSEIF NOT EXISTS (SELECT * FROM player_ability WHERE PlayerID = Player AND Dropped IS NULL) THEN
@@ -481,7 +503,7 @@ BEGIN
 
 	-- Error: If requested room doesn't exist
 	IF NOT EXISTS (SELECT * FROM room WHERE RoomID = Room) THEN
-		SELECT 'Invalid Room' AS message;
+		SELECT 'Invalid room' AS message;
 
 	-- Get the player names and high scores from the requested room
 	ELSE
@@ -575,7 +597,7 @@ BEGIN
 
 	-- Error: If the account deletion wasn't confirmed
 	IF Confirm <> 1 THEN
-		SELECT 'Account Deletion Cancelled' AS message;
+		SELECT 'Account deletion cancelled' AS message;
     
     -- Error: If the requested account doesn't exist
     ELSEIF NOT EXISTS (SELECT * FROM `account` WHERE AccountName = InAccount) THEN
@@ -597,8 +619,8 @@ CREATE PROCEDURE Send_Message(
 BEGIN
 
 	-- Error: If the player ID doesn't exist
-	IF NOT EXISTS (SELECT * FROM player WHERE PlayerID = Player) THEN
-		SELECT 'Invalid Player' AS message;
+	IF NOT EXISTS (SELECT * FROM player WHERE PlayerID = Player AND `Active` = 1) THEN
+		SELECT 'Invalid player' AS message;
         
 	ELSE
 		INSERT INTO message (PlayerID, `Text`, SendTime)
@@ -616,7 +638,7 @@ BEGIN
 
 	-- Error: If the room doesn't exist
     IF NOT EXISTS (SELECT * FROM room WHERE RoomID = Room) THEN
-		SELECT 'Invalid Room' AS message;
+		SELECT 'Invalid room' AS message;
         
 	ELSE
 		SELECT m.*
@@ -640,7 +662,7 @@ CREATE PROCEDURE Update_Player (
 BEGIN
 
 	-- Error: If requested player doesn't exist
-	IF NOT EXISTS (SELECT * FROM player WHERE PlayerID = Player) THEN
+	IF NOT EXISTS (SELECT * FROM player WHERE PlayerID = Player AND `Active` = 1) THEN
 		SELECT '{Player does not exist' AS message;
     
     -- Update the requested player with the given data
@@ -664,7 +686,7 @@ CREATE PROCEDURE Engage_Combat(
 BEGIN
 
 	-- Error: If Player 1 or 2 don't exist
-    IF NOT EXISTS (SELECT * FROM player WHERE PlayerID = Player1 OR PlayerID = Player2) THEN
+    IF NOT EXISTS (SELECT * FROM player WHERE (PlayerID = Player1 OR PlayerID = Player2) AND `Active` = 1) THEN
 		SELECT 'Invalid player(s)' AS message;
     
 	-- Error: If Player 1 or 2 is already engaged
@@ -680,7 +702,7 @@ BEGIN
 		SELECT 'Players are in different rooms' AS message;
     
 	-- Error: If Player 1 and Player 2 are too many tiles apart    
-    ELSEIF ABS((SELECT t.XPos + t.YPos FROM tile t JOIN player_tile pt ON pt.TileID = t.TileID WHERE pt.PlayerID = Player1 ORDER BY `Timestamp` LIMIT 1) - (SELECT t.XPos + t.YPos FROM tile t JOIN player_tile pt ON pt.TileID = t.TileID WHERE pt.PlayerID = Player2 ORDER BY `Timestamp` LIMIT 1)) <> 1 THEN
+    ELSEIF ABS((SELECT t.XPos + t.YPos FROM tile t JOIN player_tile pt ON pt.TileID = t.TileID WHERE pt.PlayerID = Player1 AND MovedOff IS NULL) - (SELECT t.XPos + t.YPos FROM tile t JOIN player_tile pt ON pt.TileID = t.TileID WHERE pt.PlayerID = Player2 AND MovedOff IS NULL)) <> 1 THEN
 		SELECT 'Players too far apart' AS message;
     
     -- Set each other as combatants
@@ -702,8 +724,8 @@ CREATE PROCEDURE Disengage_Combat(
 BEGIN
 
 	-- Error: If player doesn't exist
-	IF NOT EXISTS (SELECT * FROM player WHERE PlayerID = Player) THEN
-		SELECT 'Invalid Player' AS message;
+	IF NOT EXISTS (SELECT * FROM player WHERE PlayerID = Player AND `Active` = 1) THEN
+		SELECT 'Invalid player' AS message;
 
 	-- Error: If player is not in combat
 	ELSEIF (SELECT Combatant FROM player WHERE PlayerID = Player) IS NULL THEN
@@ -786,7 +808,7 @@ CREATE PROCEDURE Resolve_Combat(
 BEGIN
 
 	-- Error: If one of the player's doesn't exist
-    IF NOT EXISTS (SELECT * FROM player WHERE PlayerID = Winner OR PlayerID = Loser) THEN
+    IF NOT EXISTS (SELECT * FROM player WHERE (PlayerID = Winner OR PlayerID = Loser) AND `Active` = 1) THEN
 		SELECT 'Player(s) do not exist' AS message;
 
 	ELSE
@@ -823,7 +845,11 @@ BEGIN
 													WHERE p.PlayerID = Loser))), CURRENT_TIMESTAMP());
         
 		-- Move the loser to the home tile
-		INSERT INTO player_tile (PlayerID, TileID, `Timestamp`)
+        UPDATE player_tile
+        SET MovedOff = CURRENT_TIMESTAMP()
+        WHERE MovedOff IS NULL;
+        
+		INSERT INTO player_tile (PlayerID, TileID, MovedOn)
 			VALUE (Loser,
 					(SELECT TileID
 					 FROM tile
@@ -846,7 +872,7 @@ END//
 
 -- Get a free instance of a given ability
 CREATE FUNCTION Get_Instance(In_Ability VARCHAR(24))
-RETURNS INT
+RETURNS INT DETERMINISTIC
 BEGIN
 	-- Find an unused ability instance for the given ability
 	RETURN (
@@ -862,4 +888,39 @@ BEGIN
 			);
 END//
 
-DELIMITER ;
+-- Exiting room
+CREATE PROCEDURE Exit_Room (
+	IN ExitPlayer INT
+)
+BEGIN
+	
+    -- Error: If player doesn't currently exist
+    IF NOT EXISTS (SELECT * FROM player WHERE PlayerID = ExitPlayer AND `Active` = 1) THEN
+		SELECT 'Invalid player' AS message;
+    
+    -- Change player active status
+    ELSE
+		UPDATE player
+		SET `Active` = 0
+        WHERE PlayerID = ExitPlayer;
+    
+    END IF;
+    
+END//
+
+CALL Create_Account("Test", "1");
+CALL Create_Account("Gulg", "2");
+
+CALL Create_Room("Room", "Test");
+
+CALL Join_Room("Test", 1, "Gorilla");
+
+CALL Exit_Room(1);
+
+CALL Join_Room("Gulg", 1, "Eagle");
+
+CALL Exit_Room(2);
+
+-- CALL Move_Player(2, 0, 1, 1, 0);
+
+CALL Join_Room("Test", 1, "Gorilla");

@@ -180,8 +180,9 @@ BEGIN
 	CREATE TABLE player_tile (
 		TileID INT,
 		PlayerID INT,
-		`Timestamp` TIMESTAMP,
-		PRIMARY KEY (TileID, PlayerID, `Timestamp`),
+		MovedOn TIMESTAMP,
+		MovedOff TIMESTAMP,
+		PRIMARY KEY (TileID, PlayerID, MovedOn),
 		CONSTRAINT fk_playertile_player
 			FOREIGN KEY (PlayerID)
 			REFERENCES player(PlayerID)
