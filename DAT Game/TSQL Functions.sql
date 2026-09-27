@@ -29,6 +29,7 @@ DROP PROCEDURE IF EXISTS Attack;
 DROP PROCEDURE IF EXISTS Resolve_Combat;
 DROP FUNCTION IF EXISTS Get_Instance;
 DROP PROCEDURE IF EXISTS Exit_Room;
+DROP PROCEDURE IF EXISTS Rejoin_At;
 
 DELIMITER //
 
@@ -211,7 +212,7 @@ BEGIN
 		-- Attempt to place the player back on their last tile if they are already in the room
 		IF EXISTS (SELECT * FROM player WHERE RoomID = InRoomID AND AccountName = InAccountName) THEN
         
-			-- 	If someone else is currently on the tile which the player was on when they left then !!DO SOMETHING!!
+			-- 	If someone else is currently on the tile which the player was on when they left then return a message to the caller
 			IF (SELECT COUNT(PlayerID)
 				FROM player_tile
 				WHERE TileID = (SELECT TileID
@@ -225,8 +226,8 @@ BEGIN
 				ORDER BY MovedOn) > 0 THEN
                     SELECT 'Tile occupied';
 			ELSE
-				-- Get only the entries from this of which the player does not have a newer player_tile entry
-					
+				
+                -- Reactivate the player on that tile
 				UPDATE player
 				SET `Active` = 1
 				WHERE AccountName = InAccountName
@@ -905,8 +906,61 @@ BEGIN
         WHERE PlayerID = ExitPlayer;
     
     END IF;
+
+END//
+
+-- Rejoin at a new location
+CREATE PROCEDURE Rejoin_At (
+	IN NewLocation INT,
+    IN Player INT
+)
+BEGIN
+
+	-- Error: If tile does not exist
+    IF NOT EXISTS (SELECT * FROM tile WHERE TileID = NewLocation) THEN
+		SELECT 'Tile does not exist' AS message;
+    
+    -- Error: If player does not exist
+    ELSEIF NOT EXISTS (SELECT * FROM player WHERE PlayerID = Player) THEN
+		SELECT 'Player does not exist' AS message;
+    
+    -- Error: If the player is active
+    ELSEIF (SELECT `active` FROM player WHERE PlayerID = Player) = 1 THEN
+		SELECT 'Player already in game' AS message;
+    
+    -- Error: If tile is not in player's room
+    ELSEIF (SELECT RoomID FROM tile WHERE TileID = NewLocation) <> (SELECT RoomID FROM player WHERE PlayerID = Player) THEN
+		SELECT 'Tile not in players room' AS message;
+    
+    -- Error: If tile is occupied
+    ELSEIF (SELECT COUNT(PlayerID)
+				FROM player_tile
+				WHERE TileID = (SELECT TileID
+								FROM player_tile
+								WHERE PlayerID = (SELECT PlayerID
+													FROM player
+													WHERE AccountName = InAccountName)
+									AND MovedOff IS NULL)
+					AND MovedOff IS NULL
+                    AND PlayerID IN (SELECT PlayerID FROM player WHERE `Active` = 1)
+				ORDER BY MovedOn) > 0 THEN
+		SELECT 'Tile already occupied' AS message;
+    
+    -- Move player to tile and reactivate them
+	ELSE
+		UPDATE player_tile
+        SET MovedOff = CURRENT_TIMESTAMP()
+        WHERE MovedOff = NULL
+			AND PlayerID = Player;
+            
+		INSERT INTO player_tile (PlayerID, TileID, MovedOn)
+			VALUES (Player, NewLocation, CURRENT_TIMESTAMP());
+    
+    END IF;
     
 END//
+
+DELIMITER ;
 
 CALL Create_Account("Test", "1");
 CALL Create_Account("Gulg", "2");
