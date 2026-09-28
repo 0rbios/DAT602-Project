@@ -1,0 +1,71 @@
+[gd_scene format=3 uid="uid://cw3vk7k7nm5jc"]
+
+[node name="Room Select" type="Control" unique_id=843991667]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=1916764273]
+
+[node name="Columns" type="HBoxContainer" parent="CanvasLayer" unique_id=1753782163]
+offset_left = 10.0
+offset_top = 10.0
+offset_right = 1270.0
+offset_bottom = 710.0
+
+[node name="Column 1" type="VBoxContainer" parent="CanvasLayer/Columns" unique_id=713170584]
+custom_minimum_size = Vector2(200, 0)
+custom_maximum_size = Vector2(200, -1)
+layout_mode = 2
+theme_override_constants/separation = 522
+
+[node name="btnBack" type="Button" parent="CanvasLayer/Columns/Column 1" unique_id=945687654]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Back to menu"
+
+[node name="Options Column" type="VBoxContainer" parent="CanvasLayer/Columns/Column 1" unique_id=482887513]
+layout_mode = 2
+
+[node name="btnAdmin" type="Button" parent="CanvasLayer/Columns/Column 1/Options Column" unique_id=1806816655]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Admin Centre"
+
+[node name="btnNewRoom" type="Button" parent="CanvasLayer/Columns/Column 1/Options Column" unique_id=955779721]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "New Room"
+
+[node name="btnAccount" type="Button" parent="CanvasLayer/Columns/Column 1/Options Column" unique_id=1507447338]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Account"
+
+[node name="Column 2" type="VBoxContainer" parent="CanvasLayer/Columns" unique_id=1018176210]
+custom_minimum_size = Vector2(852, 0)
+custom_maximum_size = Vector2(852, -1)
+layout_mode = 2
+
+[node name="lblPlayerName" type="Label" parent="CanvasLayer/Columns/Column 2" unique_id=1661030994]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 35
+text = "[Player Name]"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Column 3" type="VBoxContainer" parent="CanvasLayer/Columns" unique_id=1958562658]
+custom_minimum_size = Vector2(200, 0)
+custom_maximum_size = Vector2(200, -1)
+layout_mode = 2
+
+[node name="Scroll Bar" type="ScrollContainer" parent="CanvasLayer/Columns/Column 3" unique_id=1894088587]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Room List" type="VBoxContainer" parent="CanvasLayer/Columns/Column 3/Scroll Bar" unique_id=1169401557]
+layout_mode = 2

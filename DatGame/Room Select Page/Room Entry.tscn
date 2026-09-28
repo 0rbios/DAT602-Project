@@ -1,0 +1,29 @@
+[gd_scene format=3 uid="uid://ctkhqrc1c411"]
+
+[node name="Room Entry" type="Panel" unique_id=1914323145]
+custom_minimum_size = Vector2(200, 95)
+custom_maximum_size = Vector2(200, 95)
+offset_right = 200.0
+offset_bottom = 95.0
+
+[node name="Container" type="VBoxContainer" parent="." unique_id=2021628555]
+layout_mode = 0
+offset_left = 5.0
+offset_top = 5.0
+offset_right = 195.0
+offset_bottom = 90.0
+
+[node name="lblName" type="Label" parent="Container" unique_id=2016116019]
+layout_mode = 2
+text = "[Room Name]"
+
+[node name="lblPlayers" type="Label" parent="Container" unique_id=897344151]
+layout_mode = 2
+text = "[Player #] Players"
+
+[node name="btnJoin" type="Button" parent="Container" unique_id=163073717]
+custom_minimum_size = Vector2(65, 0)
+custom_maximum_size = Vector2(65, -1)
+layout_mode = 2
+size_flags_horizontal = 8
+text = "Join"

@@ -1,0 +1,52 @@
+[gd_scene format=3 uid="uid://c0gnprbebskng"]
+
+[ext_resource type="PackedScene" uid="uid://dr2cr7t47hrrn" path="res://Class Select Page/Class Button.tscn" id="1_7lryc"]
+
+[node name="Class Select" type="Control" unique_id=1924723105]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=1643195702]
+
+[node name="Rows" type="VBoxContainer" parent="CanvasLayer" unique_id=855375201]
+offset_left = 10.0
+offset_top = 10.0
+offset_right = 1270.0
+offset_bottom = 710.0
+theme_override_constants/separation = 52
+
+[node name="btnBack" type="Button" parent="CanvasLayer/Rows" unique_id=703592756]
+custom_minimum_size = Vector2(200, 0)
+custom_maximum_size = Vector2(200, -1)
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Back to menu"
+
+[node name="lblRoomName" type="Label" parent="CanvasLayer/Rows" unique_id=2023170753]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 28
+text = "[Room Name]"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Classes" type="HBoxContainer" parent="CanvasLayer/Rows" unique_id=1219367683]
+layout_mode = 2
+theme_override_constants/separation = 30
+alignment = 1
+
+[node name="btnGorilla" parent="CanvasLayer/Rows/Classes" unique_id=1839782545 instance=ExtResource("1_7lryc")]
+layout_mode = 2
+
+[node name="btnEagle" parent="CanvasLayer/Rows/Classes" unique_id=1807868896 instance=ExtResource("1_7lryc")]
+layout_mode = 2
+
+[node name="btnCheetah" parent="CanvasLayer/Rows/Classes" unique_id=990266742 instance=ExtResource("1_7lryc")]
+layout_mode = 2
+
+[node name="btnTiger" parent="CanvasLayer/Rows/Classes" unique_id=301917994 instance=ExtResource("1_7lryc")]
+layout_mode = 2

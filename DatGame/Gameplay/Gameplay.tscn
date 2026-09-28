@@ -1,0 +1,94 @@
+[gd_scene format=3 uid="uid://c0wjmj13cg6u2"]
+
+[node name="Gameplay" type="Control" unique_id=939557805]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=1962369925]
+
+[node name="Columns" type="HBoxContainer" parent="CanvasLayer" unique_id=616942783]
+offset_left = 10.0
+offset_top = 10.0
+offset_right = 1270.0
+offset_bottom = 710.0
+
+[node name="Column 1" type="VBoxContainer" parent="CanvasLayer/Columns" unique_id=1334697283]
+layout_mode = 2
+
+[node name="Top Box" type="VBoxContainer" parent="CanvasLayer/Columns/Column 1" unique_id=1825072927]
+layout_mode = 2
+
+[node name="btnBack" type="Button" parent="CanvasLayer/Columns/Column 1/Top Box" unique_id=308931627]
+custom_minimum_size = Vector2(200, 0)
+custom_maximum_size = Vector2(200, -1)
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Back to menu"
+
+[node name="rlblStats" type="RichTextLabel" parent="CanvasLayer/Columns/Column 1/Top Box" unique_id=395168746]
+custom_minimum_size = Vector2(0, 195.22)
+layout_mode = 2
+theme_override_colors/default_color = Color(0, 0, 0, 1)
+text = "Stats:
+	Strength: [#]
+	Speed: [#]
+	Energy: [#]
+
+Score: [#]
+
+HP: [#]/[#]"
+
+[node name="Bottom Box" type="HBoxContainer" parent="CanvasLayer/Columns/Column 1" unique_id=1222683993]
+layout_mode = 2
+theme_override_constants/separation = 14
+alignment = 1
+
+[node name="Ability" type="VBoxContainer" parent="CanvasLayer/Columns/Column 1/Bottom Box" unique_id=1935974592]
+layout_mode = 2
+
+[node name="lblAbility" type="Label" parent="CanvasLayer/Columns/Column 1/Bottom Box/Ability" unique_id=834983974]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 24
+text = "Ability"
+
+[node name="Combat" type="VBoxContainer" parent="CanvasLayer/Columns/Column 1/Bottom Box" unique_id=822143988]
+layout_mode = 2
+
+[node name="lblCombat" type="Label" parent="CanvasLayer/Columns/Column 1/Bottom Box/Combat" unique_id=1865024647]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 24
+text = "Combat"
+
+[node name="Column 2" type="VBoxContainer" parent="CanvasLayer/Columns" unique_id=1112447959]
+layout_mode = 2
+
+[node name="Inventory" type="VBoxContainer" parent="CanvasLayer/Columns/Column 2" unique_id=1431266407]
+layout_mode = 2
+size_flags_vertical = 10
+
+[node name="Abilties" type="HBoxContainer" parent="CanvasLayer/Columns/Column 2/Inventory" unique_id=69006018]
+layout_mode = 2
+
+[node name="lblEnergy" type="Label" parent="CanvasLayer/Columns/Column 2/Inventory/Abilties" unique_id=172635544]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 24
+text = "[#]/[#]"
+
+[node name="Scroll bar" type="ScrollContainer" parent="CanvasLayer/Columns/Column 2/Inventory" unique_id=573420406]
+layout_mode = 2
+
+[node name="Items" type="GridContainer" parent="CanvasLayer/Columns/Column 2/Inventory/Scroll bar" unique_id=311878189]
+layout_mode = 2
+
+[node name="Column 3" type="VBoxContainer" parent="CanvasLayer/Columns" unique_id=1622871578]
+layout_mode = 2
+
+[node name="Leaderboard" type="VBoxContainer" parent="CanvasLayer/Columns/Column 3" unique_id=2080110100]
+layout_mode = 2

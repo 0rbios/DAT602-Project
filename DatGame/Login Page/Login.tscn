@@ -1,0 +1,68 @@
+[gd_scene format=3 uid="uid://f2up6d8qgqi0"]
+
+[node name="Login" type="Control" unique_id=579585906]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=1347223738]
+
+[node name="Container" type="VBoxContainer" parent="CanvasLayer" unique_id=972565791]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -172.49988
+offset_top = -360.0
+offset_right = 172.50012
+offset_bottom = 360.0
+grow_horizontal = 2
+grow_vertical = 2
+alignment = 1
+
+[node name="lblTitle" type="Label" parent="CanvasLayer/Container" unique_id=288912733]
+custom_minimum_size = Vector2(0, 190)
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 82
+text = "DAT Game"
+horizontal_alignment = 1
+
+[node name="txtboxUsername" type="LineEdit" parent="CanvasLayer/Container" unique_id=2090833930]
+custom_minimum_size = Vector2(300, 0)
+custom_maximum_size = Vector2(300, -1)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 24
+placeholder_text = "Username"
+max_length = 32
+
+[node name="txtboxPassword" type="LineEdit" parent="CanvasLayer/Container" unique_id=1995453854]
+custom_minimum_size = Vector2(300, 0)
+custom_maximum_size = Vector2(300, -1)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 24
+placeholder_text = "Password"
+max_length = 32
+secret = true
+
+[node name="btnSubmit" type="Button" parent="CanvasLayer/Container" unique_id=2071157552]
+custom_minimum_size = Vector2(150, 0)
+custom_maximum_size = Vector2(150, -1)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 24
+text = "Submit"
+
+[node name="lblAttempts" type="Label" parent="CanvasLayer/Container" unique_id=2108210978]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.5256065, 0.5256065, 0.5256065, 1)
+theme_override_font_sizes/font_size = 15
+text = "Attempt 0/5"
+horizontal_alignment = 1
+vertical_alignment = 1

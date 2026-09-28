@@ -961,20 +961,3 @@ BEGIN
 END//
 
 DELIMITER ;
-
-CALL Create_Account("Test", "1");
-CALL Create_Account("Gulg", "2");
-
-CALL Create_Room("Room", "Test");
-
-CALL Join_Room("Test", 1, "Gorilla");
-
-CALL Exit_Room(1);
-
-CALL Join_Room("Gulg", 1, "Eagle");
-
-CALL Exit_Room(2);
-
--- CALL Move_Player(2, 0, 1, 1, 0);
-
-CALL Join_Room("Test", 1, "Gorilla");

@@ -1,0 +1,67 @@
+[gd_scene format=3 uid="uid://xoflvj7tyykx"]
+
+[node name="Admin Centre" type="Control" unique_id=1794301969]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=249810735]
+
+[node name="Columns" type="HBoxContainer" parent="CanvasLayer" unique_id=1096734256]
+offset_left = 10.0
+offset_top = 10.0
+offset_right = 1270.0
+offset_bottom = 710.0
+
+[node name="Column 1" type="VBoxContainer" parent="CanvasLayer/Columns" unique_id=195307083]
+layout_mode = 2
+
+[node name="btnBack" type="Button" parent="CanvasLayer/Columns/Column 1" unique_id=501681228]
+custom_minimum_size = Vector2(200, 0)
+custom_maximum_size = Vector2(200, -1)
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Back to menu"
+
+[node name="lblAccount" type="Label" parent="CanvasLayer/Columns/Column 1" unique_id=1141998437]
+custom_maximum_size = Vector2(200, -1)
+layout_mode = 2
+size_flags_vertical = 10
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 24
+text = "[Account Name]"
+text_overrun_behavior = 5
+
+[node name="Column 3" type="VBoxContainer" parent="CanvasLayer/Columns" unique_id=1697345709]
+layout_mode = 2
+size_flags_horizontal = 10
+
+[node name="Scroll Bar" type="ScrollContainer" parent="CanvasLayer/Columns/Column 3" unique_id=1161039991]
+layout_mode = 2
+
+[node name="Name List" type="VBoxContainer" parent="CanvasLayer/Columns/Column 3/Scroll Bar" unique_id=1033089635]
+custom_minimum_size = Vector2(200, 653.61)
+custom_maximum_size = Vector2(200, -1)
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="View Toggles" type="HBoxContainer" parent="CanvasLayer/Columns/Column 3" unique_id=79534300]
+layout_mode = 2
+size_flags_vertical = 10
+
+[node name="btnPlayers" type="Button" parent="CanvasLayer/Columns/Column 3/View Toggles" unique_id=355552961]
+custom_minimum_size = Vector2(98, 0)
+custom_maximum_size = Vector2(98, -1)
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Players"
+
+[node name="btnRooms" type="Button" parent="CanvasLayer/Columns/Column 3/View Toggles" unique_id=614896586]
+custom_minimum_size = Vector2(98, 0)
+custom_maximum_size = Vector2(98, -1)
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Rooms"
