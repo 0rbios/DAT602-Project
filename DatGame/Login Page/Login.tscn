@@ -1,5 +1,7 @@
 [gd_scene format=3 uid="uid://f2up6d8qgqi0"]
 
+[ext_resource type="Script" uid="uid://cdfx8sl4mvl42" path="res://Login Page/Login_Handler.cs" id="1_48ekt"]
+
 [node name="Login" type="Control" unique_id=579585906]
 layout_mode = 3
 anchors_preset = 15
@@ -7,6 +9,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+script = ExtResource("1_48ekt")
 
 [node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=1347223738]
 
@@ -66,3 +69,5 @@ theme_override_font_sizes/font_size = 15
 text = "Attempt 0/5"
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[connection signal="pressed" from="CanvasLayer/Container/btnSubmit" to="." method="_Submit_Button_Clicked"]

@@ -284,9 +284,9 @@ BEGIN
 	INSERT INTO room (RoomName, AccountName)
 		VALUES ('Test Room', 'Ghostie');
 
-	INSERT INTO player (CurrentEnergy, CurrentHealth, AccountName, RoomID, Sprite)
+	INSERT INTO player (CurrentEnergy, CurrentHealth, AccountName, RoomID, ClassName)
 		VALUES
-		(10, 10, 'Ghostie', 1, './Player.png')
+		(10, 10, 'Ghostie', 1, 'Gorilla')
 	;
 
 	INSERT INTO tile ( XPos, YPos, RoomID)
@@ -297,41 +297,25 @@ BEGIN
 		(2, 1, 1)
 	;
 
-	INSERT INTO ability (AbilityName, `Description`, `Value`, Cost, Combat, Damage, Sprite)
-		VALUES
-		('Teleport', 'Move instantly to a different unoccupied tile.', 15, 6, 0, 0, './Ability.png'),
-		('Overtightened Spring', 'A spring that has somehow been tighened past its normal breaking point.', 8, 0, 0, 0, './Ability.png'),
-		('Piston Wreck', 'Use the pistons in your suit to hit a target even harder.', 1, 1, 1, 5, './Ability.png'),
-		('Hyper-Shift', 'A gearshift that can switch between gears with minimal slowdown.', 10, 0, 0, 0, './Ability.png')
-	;
-
 	INSERT INTO abilityinstance (AbilityName)
 		VALUES
         ('Teleport'),
         ('Overtightened Spring'),
         ('Piston Wreck'),
-        ('Hyper-Shift')
+        ('Speed Shift')
 	;
 
-	INSERT INTO message (PlayerID, SendTime, Text)
+	INSERT INTO message (PlayerID, SendTime, `Text`)
 		VALUES
 		(1, '2026-12-31 12:00:00', 'Hello World!'),
 		(1, '2026-12-31 12:01:00', 'Is this thing on?')
-	;
-
-	INSERT INTO stat (StatName, `MaxValue`)
-		VALUES
-		('Health', 200),
-		('Energy', 60),
-		('Speed', 50),
-		('Strength', 100)
 	;
 
 	INSERT INTO statchange (AbilityName, StatName, Amount)
 		VALUES
 		('Overtightened Spring', 'Speed', 5),
 		('Overtightened Spring', 'Health', -5),
-		('Hyper-Shift', 'Speed', 10)
+		('Speed Shift', 'Speed', 10)
 	;
 
 	INSERT INTO player_stat (StatName, PlayerID, `Value`)
@@ -348,7 +332,7 @@ BEGIN
 		('2026-12-31 11:00:00', 2, 1, '2026-12-31 12:00:00')
 	;
 
-	INSERT INTO player_tile (TileID, PlayerID, `Timestamp`)
+	INSERT INTO player_tile (TileID, PlayerID, MovedOn)
 		VALUES
 		(1, 1, '2026-12-31 11:00:00'),
 		(2, 1, '2026-12-31 11:01:00'),
@@ -381,4 +365,4 @@ END//
 DELIMITER ;
 
 CALL Generate_Database();
--- CALL Create_Test_Data();
+CALL Create_Test_Data();
