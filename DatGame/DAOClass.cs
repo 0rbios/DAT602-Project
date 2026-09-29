@@ -1,11 +1,10 @@
 using Godot;
 using System.Text;
-using System.Diagnostics;
 using MySql.Data.MySqlClient;
 
 namespace DATGame
 {
-    internal partial class DAOClass : Godot.Node
+    internal partial class DAOClass : Node
     {
         /*
             * MySQL Connection String Construction Guide:
@@ -24,64 +23,43 @@ namespace DATGame
             */
 
         /*
-            * MySQL Connection Authorization Modes:
-            * 
-            * 1. Standard / Caching SHA-2 Password (caching_sha2_password):
-            *    The default authentication plugin for MySQL 8.0+, utilizing SHA-256 hashing.
+            * Standard / Caching SHA-2 Password (caching_sha2_password):
+            * The default authentication plugin for MySQL 8.0+, utilizing SHA-256 hashing.
             */
-        protected static readonly string _connectionStringSha2 =
-            "Server=127.0.0.1;Database=gamedb;Uid=root;Pwd=Password123;";
+        protected static readonly string _connectionStringSha2 = "Server=127.0.0.1;Database=gamedb;Uid=root;Pwd=Password123;";
 
         protected MySqlConnection _connection;
 
         public DAOClass()
         {
-            // The active connection string is selected based on the required enterprise authorization architecture.
             _connection = new MySqlConnection(_connectionStringSha2);
         }
+
     }
 
     internal partial class UserDAO : DAOClass
     {
-        public UserDAO() : base()
-        {
-            // The base class constructor executes automatically, 
-            // instantiating the _connection object using the selected connection string.
-        }
 
-        public string FetchUsers()
+        public string Login(string username, string password)
         {
             try
             {
                 _connection.Open();
 
+                string response = "!-~-ERR-~-!";
+
                 // Specialized database operations utilizing the inherited _connection object occur here
-                MySqlCommand command = new MySqlCommand("CALL Get_Messages(1);", _connection);
+                MySqlCommand command = new MySqlCommand($"CALL Login('{username}', '{password}');", _connection);
 
                 using (MySqlDataReader reader = command.ExecuteReader())
                 {
-
-                    string output = "";
-
                     while (reader.Read())
                     {
-                        // Dynamically iterate through all columns in the current row for debug output
-                        StringBuilder rowData = new StringBuilder();
-
-                        for (int i = 0; i < reader.FieldCount; i++)
-                        {
-                            string columnName = reader.GetName(i);
-                            object columnValue = reader.GetValue(i);
-                            rowData.Append($"{columnName}: {columnValue} | ");
-                        }
-
-                        // Output the constructed string to the diagnostic trace listener
-                        output += $"Row Data -> {rowData.ToString()}\n";
-
+                        response = reader.GetValue(0).ToString();
                     }
-
-                    return output;
                 }
+
+                return response;
             }
 
             finally
@@ -90,5 +68,6 @@ namespace DATGame
                 _connection.Close();
             }
         }
+
     }
 }

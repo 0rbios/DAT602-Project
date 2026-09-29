@@ -42,15 +42,15 @@ BEGIN
 
 	-- Redirect: If requested account name doesn't exist
 	IF NOT EXISTS (SELECT * FROM `account` WHERE AccountName = In_Username) THEN
-		CALL Create_Account(In_Username, In_Password);
+		SELECT 'Account not found' AS message;
         
     -- Error: If requested password does not match requested username
 	ELSEIF NOT EXISTS (SELECT * FROM `account` WHERE AccountName = In_Username AND `Password` = In_Password) THEN
-		SELECT 'Login failed' AS message;
-        
 		UPDATE `account`
-			SET LoginAttempts = LoginAttempts + 1
-			WHERE AccountName = In_Username;
+		SET LoginAttempts = LoginAttempts + 1
+		WHERE AccountName = In_Username;
+    
+		SELECT 'Login failed' AS message;
 	
     -- Error: If requested account is locked
     ELSEIF (SELECT `Locked` FROM `account` WHERE AccountName = In_Username LIMIT 1) <> 0 THEN
@@ -62,9 +62,7 @@ BEGIN
 		SET LoginAttempts = 0
 		WHERE AccountName = In_Username;
             
-		SELECT AccountName
-		FROM `account`
-		WHERE AccountName = In_Username;
+		SELECT 'Login sucess' AS message;
         
 	END IF;
 	
@@ -85,8 +83,9 @@ BEGIN
 	ELSE
 		INSERT INTO `account` (AccountName, `Password`)
 			VALUES (IN_Username, IN_Password);
-		
-		CALL Login(IN_Username, IN_Password);
+            
+		SELECT 'Account created successfully' AS message;
+        
 	END IF;
     
 END//

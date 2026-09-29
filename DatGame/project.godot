@@ -13,6 +13,7 @@ config_version=5
 config/name="DATGame"
 run/main_scene="uid://f2up6d8qgqi0"
 config/features=PackedStringArray("4.8", "C#", "Forward Plus")
+config/icon="uid://j5beh0ocisq1"
 
 [display]
 
