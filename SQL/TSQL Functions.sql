@@ -62,7 +62,7 @@ BEGIN
 		SET LoginAttempts = 0
 		WHERE AccountName = In_Username;
             
-		SELECT 'Login sucess' AS message;
+		SELECT 'Login success' AS message;
         
 	END IF;
 	

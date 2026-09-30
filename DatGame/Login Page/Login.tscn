@@ -19,23 +19,25 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -172.49988
-offset_top = -360.0
-offset_right = 172.50012
+offset_left = -207.49988
+offset_top = -189.0
+offset_right = 207.50012
 offset_bottom = 360.0
 grow_horizontal = 2
 grow_vertical = 2
-alignment = 1
 
 [node name="lblTitle" type="Label" parent="CanvasLayer/Container" unique_id=288912733]
-custom_minimum_size = Vector2(0, 190)
+custom_minimum_size = Vector2(0, 200)
 layout_mode = 2
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_font_sizes/font_size = 82
 text = "DAT Game"
 horizontal_alignment = 1
 
-[node name="txtboxUsername" type="LineEdit" parent="CanvasLayer/Container" unique_id=2090833930]
+[node name="Login Controls" type="VBoxContainer" parent="CanvasLayer/Container" unique_id=1308280129]
+layout_mode = 2
+
+[node name="txtboxUsername" type="LineEdit" parent="CanvasLayer/Container/Login Controls" unique_id=2090833930]
 custom_minimum_size = Vector2(300, 0)
 custom_maximum_size = Vector2(300, -1)
 layout_mode = 2
@@ -44,7 +46,7 @@ theme_override_font_sizes/font_size = 24
 placeholder_text = "Username"
 max_length = 32
 
-[node name="txtboxPassword" type="LineEdit" parent="CanvasLayer/Container" unique_id=1995453854]
+[node name="txtboxPassword" type="LineEdit" parent="CanvasLayer/Container/Login Controls" unique_id=1995453854]
 custom_minimum_size = Vector2(300, 0)
 custom_maximum_size = Vector2(300, -1)
 layout_mode = 2
@@ -54,7 +56,7 @@ placeholder_text = "Password"
 max_length = 32
 secret = true
 
-[node name="btnSubmit" type="Button" parent="CanvasLayer/Container" unique_id=2071157552]
+[node name="btnSubmit" type="Button" parent="CanvasLayer/Container/Login Controls" unique_id=2071157552]
 custom_minimum_size = Vector2(150, 0)
 custom_maximum_size = Vector2(150, -1)
 layout_mode = 2
@@ -62,7 +64,7 @@ size_flags_horizontal = 4
 theme_override_font_sizes/font_size = 24
 text = "Submit"
 
-[node name="lblAttempts" type="Label" parent="CanvasLayer/Container" unique_id=2108210978]
+[node name="lblAttempts" type="Label" parent="CanvasLayer/Container/Login Controls" unique_id=2108210978]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.5256065, 0.5256065, 0.5256065, 1)
 theme_override_font_sizes/font_size = 15
@@ -70,4 +72,47 @@ text = "Attempt 0/5"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[connection signal="pressed" from="CanvasLayer/Container/btnSubmit" to="." method="_Submit_Button_Clicked"]
+[node name="lblWarning" type="Label" parent="CanvasLayer/Container/Login Controls" unique_id=1741634877]
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0, 0, 1)
+text = "Incorrect username or password"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Lockout Message" type="VBoxContainer" parent="CanvasLayer/Container" unique_id=665510264]
+layout_mode = 2
+
+[node name="New Account Controls" type="VBoxContainer" parent="CanvasLayer/Container" unique_id=2076124097]
+visible = false
+layout_mode = 2
+
+[node name="lblMessage" type="Label" parent="CanvasLayer/Container/New Account Controls" unique_id=288479025]
+custom_minimum_size = Vector2(0, 100)
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 24
+text = "The account name does not exist.
+Create a new account?"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Buttons" type="HBoxContainer" parent="CanvasLayer/Container/New Account Controls" unique_id=1941294449]
+layout_mode = 2
+alignment = 1
+
+[node name="btnConfirm" type="Button" parent="CanvasLayer/Container/New Account Controls/Buttons" unique_id=593927507]
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Confirm"
+
+[node name="btnCancel" type="Button" parent="CanvasLayer/Container/New Account Controls/Buttons" unique_id=388670494]
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Cancel"
+
+[connection signal="pressed" from="CanvasLayer/Container/Login Controls/btnSubmit" to="." method="_Submit_Button_Clicked"]
+[connection signal="pressed" from="CanvasLayer/Container/New Account Controls/Buttons/btnConfirm" to="." method="_Create_Confirm_Clicked"]
+[connection signal="pressed" from="CanvasLayer/Container/New Account Controls/Buttons/btnCancel" to="." method="_Cancel_Creation"]
