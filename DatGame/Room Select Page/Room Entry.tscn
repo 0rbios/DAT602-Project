@@ -1,10 +1,13 @@
 [gd_scene format=3 uid="uid://ctkhqrc1c411"]
 
+[ext_resource type="Script" uid="uid://bldfgbkj7e07d" path="res://Room Select Page/Room_Config.cs" id="1_gm2d4"]
+
 [node name="Room Entry" type="Panel" unique_id=1914323145]
 custom_minimum_size = Vector2(200, 95)
 custom_maximum_size = Vector2(200, 95)
 offset_right = 200.0
 offset_bottom = 95.0
+script = ExtResource("1_gm2d4")
 
 [node name="Container" type="VBoxContainer" parent="." unique_id=2021628555]
 layout_mode = 0

@@ -167,5 +167,82 @@ namespace DATGame
 				_connection.Close();
 			}
 		}
+
+		public void DeleteAccount(string username)
+		{
+			try
+			{
+				_connection.Open();
+
+				MySqlCommand command = new MySqlCommand($"CALL Delete_Account('{username}', 1);", _connection);
+				command.ExecuteNonQuery();
+			}
+
+			finally
+			{
+				_connection.Close();
+			}
+		}
+
 	}
+
+	// Any database calls related to room management
+	internal partial class RoomDAO : DAOClass
+	{
+
+		public Godot.Collections.Array GetRooms()
+		{
+			Godot.Collections.Array output = new Godot.Collections.Array();
+
+			try
+			{
+				_connection.Open();
+
+				MySqlCommand command = new MySqlCommand("CALL Get_Rooms()", _connection);
+				
+				using (MySqlDataReader reader = command.ExecuteReader())
+				{
+					while (reader.Read())
+                    {
+						Dictionary room = new Dictionary();
+						
+						for (int i = 0; i < reader.FieldCount; i++)
+						{
+							if (reader.GetValue(i) is int vali)
+                            {
+                                room[reader.GetName(i)] = Variant.From(vali);
+                            }
+
+							else if (reader.GetValue(i) is Int64 vali64)
+                            {
+                                room[reader.GetName(i)] = Variant.From(vali64);
+                            }
+
+							else if (reader.GetValue(i) is string vals)
+                            {
+                                room[reader.GetName(i)] = Variant.From(vals);
+                            }
+
+							else
+							{
+								GD.Print($"Unrecognised data type for column: {reader.GetName(i)} | TYPE ({reader.GetValue(i).GetType()})");
+							}
+
+						}
+
+						output.Add(room);
+					}
+				}
+			}
+
+			finally
+			{
+				_connection.Close();
+			}
+
+			return output;
+		}
+
+	}
+
 }

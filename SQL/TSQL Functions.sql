@@ -30,6 +30,7 @@ DROP PROCEDURE IF EXISTS Resolve_Combat;
 DROP FUNCTION IF EXISTS Get_Instance;
 DROP PROCEDURE IF EXISTS Exit_Room;
 DROP PROCEDURE IF EXISTS Rejoin_At;
+DROP PROCEDURE IF EXISTS Get_Rooms;
 
 DELIMITER //
 
@@ -50,7 +51,7 @@ BEGIN
 		SET LoginAttempts = LoginAttempts + 1
 		WHERE AccountName = In_Username;
     
-		IF (SELECT LoginAttempts FROM `account` WHERE AccountName = In_Username) THEN
+		IF (SELECT LoginAttempts FROM `account` WHERE AccountName = In_Username) > 5 THEN
 			UPDATE `account`
             SET `Locked` = 1
             WHERE AccountName = In_Username;
@@ -963,6 +964,18 @@ BEGIN
     
     END IF;
     
+END//
+
+CREATE PROCEDURE Get_Rooms()
+BEGIN
+
+	SELECT r.RoomID, r.RoomName, COUNT(p.PlayerID) AS PlayerCount
+    FROM room r
+    JOIN player p
+		ON p.RoomID = r.RoomID
+			AND p.`Active` = 1
+	GROUP BY r.RoomID, r.RoomName;
+
 END//
 
 DELIMITER ;

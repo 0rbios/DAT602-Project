@@ -2,6 +2,9 @@
 
 [ext_resource type="Script" uid="uid://byek0x1fic0p1" path="res://Room Select Page/Room_Select_Config.cs" id="1_l4egs"]
 [ext_resource type="Script" uid="uid://c4rr5746bjevh" path="res://Room Select Page/Back_Button.cs" id="2_5gooj"]
+[ext_resource type="Script" uid="uid://c051gpmr3iloa" path="res://Room Select Page/Admin_Button.cs" id="3_d7e8d"]
+[ext_resource type="Script" uid="uid://bkj601nwchawi" path="res://Room Select Page/Account_Button.cs" id="4_3x05j"]
+[ext_resource type="Script" uid="uid://bd3iytwtd60es" path="res://Room Select Page/Room_Getter.cs" id="5_tc5h1"]
 
 [node name="Room Select" type="Control" unique_id=843991667]
 layout_mode = 3
@@ -24,7 +27,6 @@ offset_bottom = 710.0
 custom_minimum_size = Vector2(200, 0)
 custom_maximum_size = Vector2(200, -1)
 layout_mode = 2
-theme_override_constants/separation = 522
 
 [node name="btnBack" type="Button" parent="CanvasLayer/Columns/Column 1" unique_id=945687654]
 layout_mode = 2
@@ -34,21 +36,56 @@ script = ExtResource("2_5gooj")
 
 [node name="Options Column" type="VBoxContainer" parent="CanvasLayer/Columns/Column 1" unique_id=482887513]
 layout_mode = 2
+size_flags_vertical = 10
+alignment = 2
 
 [node name="btnAdmin" type="Button" parent="CanvasLayer/Columns/Column 1/Options Column" unique_id=1806816655]
 layout_mode = 2
 theme_override_font_sizes/font_size = 24
 text = "Admin Centre"
+script = ExtResource("3_d7e8d")
 
 [node name="btnNewRoom" type="Button" parent="CanvasLayer/Columns/Column 1/Options Column" unique_id=955779721]
 layout_mode = 2
 theme_override_font_sizes/font_size = 24
 text = "New Room"
 
-[node name="btnAccount" type="Button" parent="CanvasLayer/Columns/Column 1/Options Column" unique_id=1507447338]
+[node name="Confirmation" type="VBoxContainer" parent="CanvasLayer/Columns/Column 1/Options Column" unique_id=1635832634]
+visible = false
+layout_mode = 2
+
+[node name="lblConfirm" type="Label" parent="CanvasLayer/Columns/Column 1/Options Column/Confirmation" unique_id=1610424792]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 24
+text = "Are you sure?"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="btnYes" type="Button" parent="CanvasLayer/Columns/Column 1/Options Column/Confirmation" unique_id=382153682]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Yes"
+
+[node name="btnNo" type="Button" parent="CanvasLayer/Columns/Column 1/Options Column/Confirmation" unique_id=1274658663]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "No"
+
+[node name="Account" type="VBoxContainer" parent="CanvasLayer/Columns/Column 1/Options Column" unique_id=1083831867]
+layout_mode = 2
+
+[node name="btnDelete" type="Button" parent="CanvasLayer/Columns/Column 1/Options Column/Account" unique_id=353541100]
+visible = false
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Delete Account"
+
+[node name="btnAccount" type="Button" parent="CanvasLayer/Columns/Column 1/Options Column/Account" unique_id=1626391722]
 layout_mode = 2
 theme_override_font_sizes/font_size = 24
 text = "Account"
+script = ExtResource("4_3x05j")
 
 [node name="Column 2" type="VBoxContainer" parent="CanvasLayer/Columns" unique_id=1018176210]
 custom_minimum_size = Vector2(852, 0)
@@ -74,5 +111,11 @@ size_flags_vertical = 3
 
 [node name="Room List" type="VBoxContainer" parent="CanvasLayer/Columns/Column 3/Scroll Bar" unique_id=1169401557]
 layout_mode = 2
+script = ExtResource("5_tc5h1")
 
 [connection signal="pressed" from="CanvasLayer/Columns/Column 1/btnBack" to="CanvasLayer/Columns/Column 1/btnBack" method="_Back_Button_Clicked"]
+[connection signal="pressed" from="CanvasLayer/Columns/Column 1/Options Column/btnAdmin" to="CanvasLayer/Columns/Column 1/Options Column/btnAdmin" method="_Admin_Button_Clicked"]
+[connection signal="pressed" from="CanvasLayer/Columns/Column 1/Options Column/Confirmation/btnYes" to="CanvasLayer/Columns/Column 1/Options Column/Account/btnAccount" method="_Confirm_Delete_Clicked"]
+[connection signal="pressed" from="CanvasLayer/Columns/Column 1/Options Column/Confirmation/btnNo" to="CanvasLayer/Columns/Column 1/Options Column/Account/btnAccount" method="_Cancel_Delete_Clicked"]
+[connection signal="pressed" from="CanvasLayer/Columns/Column 1/Options Column/Account/btnDelete" to="CanvasLayer/Columns/Column 1/Options Column/Account/btnAccount" method="_Delete_Button_Clicked"]
+[connection signal="pressed" from="CanvasLayer/Columns/Column 1/Options Column/Account/btnAccount" to="CanvasLayer/Columns/Column 1/Options Column/Account/btnAccount" method="_Account_Button_Clicked"]
