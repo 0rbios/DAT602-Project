@@ -3,12 +3,12 @@ using Godot;
 public partial class Main : Node
 {
 	private string _account;
-    public string Account { get => _account; set => _account = value; }
+	public string Account { get => _account; set => _account = value; }
 
-    public override void _Ready()
+	public override void _Ready()
 	{
 		SwitchScene("res://Login Page/Login.tscn");
-    }
+	}
 
 	public void SwitchScene(string scenepath)
 	{
@@ -17,13 +17,13 @@ public partial class Main : Node
 		}
 
 		try
-        {
-            Node switchscene = GD.Load<PackedScene>(scenepath).Instantiate();
-            AddChild(switchscene);
-        }
+		{
+			Node switchscene = GD.Load<PackedScene>(scenepath).Instantiate();
+			AddChild(switchscene);
+		}
 		catch
 		{
 			GD.Print("Scene Switch Failed");
 		}
-    }
+	}
 }

@@ -81,7 +81,21 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="Lockout Message" type="VBoxContainer" parent="CanvasLayer/Container" unique_id=665510264]
+visible = false
 layout_mode = 2
+
+[node name="lblLockMessage" type="Label" parent="CanvasLayer/Container/Lockout Message" unique_id=134080915]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+text = "Account Locked
+
+This account has been failed to access too many 
+times and has been locked.
+
+Please contact an administrator to unlock it.
+totally.real@email.com"
+horizontal_alignment = 1
+vertical_alignment = 1
 
 [node name="New Account Controls" type="VBoxContainer" parent="CanvasLayer/Container" unique_id=2076124097]
 visible = false

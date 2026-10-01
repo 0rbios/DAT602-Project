@@ -1,4 +1,5 @@
 using Godot;
+using Godot.Collections;
 
 namespace DATGame
 {
@@ -6,13 +7,51 @@ namespace DATGame
     {
         private UserDAO dao = new UserDAO();
 
+        VBoxContainer logincontrols;
+        VBoxContainer lock_msg;
+        Label attempt_text;
+
+        private string _attemptedaccount = "";
+
+        public override void _Ready()
+        {
+            base._Ready();
+
+            Main main = GetNode<Main>("/root/Main");
+
+            Control head = GetNode<Control>("CanvasLayer/Container");
+
+            logincontrols = head.GetNode<VBoxContainer>("Login Controls");
+
+            lock_msg = head.GetNode<VBoxContainer>("Lockout Message");
+            attempt_text = logincontrols.GetNode<Label>("lblAttempts");
+        }
+
+        public override void _Process(double delta)
+        {
+            base._Process(delta);
+
+            Dictionary attempteduserdetails = dao.GetAccount(_attemptedaccount);
+
+            if (attempteduserdetails.Keys.Count == 1)
+            {
+                return;
+            }
+
+            if ((bool)attempteduserdetails["Locked"] == true){
+                lock_msg.Visible = true;
+                logincontrols.Visible = false;
+            }
+
+            attempt_text.Text = $"Attempt {(int)attempteduserdetails["LoginAttempts"]}/5";
+        }
+
         internal void _Submit_Button_Clicked()
         {
             Main main = GetNode<Main>("/root/Main");
 
             Control head = GetNode<Control>("CanvasLayer/Container");
 
-            VBoxContainer logincontrols = head.GetNode<VBoxContainer>("Login Controls");
             VBoxContainer accountpopup = head.GetNode<VBoxContainer>("New Account Controls");
 
             string uname = logincontrols.GetNode<LineEdit>("txtboxUsername").Text;
@@ -20,6 +59,8 @@ namespace DATGame
 
             Label warninglabel = logincontrols.GetNode<Label>("lblWarning");
             Label message = accountpopup.GetNode<Label>("lblMessage");
+
+            _attemptedaccount = uname;
 
             string login_result = dao.Login(uname, pword);
             switch (login_result)

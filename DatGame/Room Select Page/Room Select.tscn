@@ -1,5 +1,8 @@
 [gd_scene format=3 uid="uid://cw3vk7k7nm5jc"]
 
+[ext_resource type="Script" uid="uid://byek0x1fic0p1" path="res://Room Select Page/Room_Select_Config.cs" id="1_l4egs"]
+[ext_resource type="Script" uid="uid://c4rr5746bjevh" path="res://Room Select Page/Back_Button.cs" id="2_5gooj"]
+
 [node name="Room Select" type="Control" unique_id=843991667]
 layout_mode = 3
 anchors_preset = 15
@@ -7,6 +10,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+script = ExtResource("1_l4egs")
 
 [node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=1916764273]
 
@@ -26,6 +30,7 @@ theme_override_constants/separation = 522
 layout_mode = 2
 theme_override_font_sizes/font_size = 24
 text = "Back to menu"
+script = ExtResource("2_5gooj")
 
 [node name="Options Column" type="VBoxContainer" parent="CanvasLayer/Columns/Column 1" unique_id=482887513]
 layout_mode = 2
@@ -69,3 +74,5 @@ size_flags_vertical = 3
 
 [node name="Room List" type="VBoxContainer" parent="CanvasLayer/Columns/Column 3/Scroll Bar" unique_id=1169401557]
 layout_mode = 2
+
+[connection signal="pressed" from="CanvasLayer/Columns/Column 1/btnBack" to="CanvasLayer/Columns/Column 1/btnBack" method="_Back_Button_Clicked"]

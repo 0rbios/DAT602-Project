@@ -50,6 +50,12 @@ BEGIN
 		SET LoginAttempts = LoginAttempts + 1
 		WHERE AccountName = In_Username;
     
+		IF (SELECT LoginAttempts FROM `account` WHERE AccountName = In_Username) THEN
+			UPDATE `account`
+            SET `Locked` = 1
+            WHERE AccountName = In_Username;
+		END IF;
+    
 		SELECT 'Login failed' AS message;
 	
     -- Error: If requested account is locked
