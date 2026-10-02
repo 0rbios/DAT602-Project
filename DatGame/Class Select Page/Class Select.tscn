@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://c0gnprbebskng"]
 
-[ext_resource type="PackedScene" uid="uid://dr2cr7t47hrrn" path="res://Class Select Page/Class Button.tscn" id="1_7lryc"]
+[ext_resource type="Script" uid="uid://yywaukqgup38" path="res://Class Select Page/Class_Button_Generator.cs" id="1_7lryc"]
+[ext_resource type="Script" uid="uid://buy3312h6gqfk" path="res://Class Select Page/Class_Select_Config.cs" id="1_febvv"]
 
 [node name="Class Select" type="Control" unique_id=1924723105]
 layout_mode = 3
@@ -9,6 +10,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+script = ExtResource("1_febvv")
 
 [node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=1643195702]
 
@@ -34,19 +36,15 @@ text = "[Room Name]"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Classes" type="HBoxContainer" parent="CanvasLayer/Rows" unique_id=1219367683]
+[node name="Scrollbar" type="ScrollContainer" parent="CanvasLayer/Rows" unique_id=1663025734]
 layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Classes" type="HBoxContainer" parent="CanvasLayer/Rows/Scrollbar" unique_id=1219367683]
+layout_mode = 2
+size_flags_horizontal = 3
 theme_override_constants/separation = 30
 alignment = 1
+script = ExtResource("1_7lryc")
 
-[node name="btnGorilla" parent="CanvasLayer/Rows/Classes" unique_id=1839782545 instance=ExtResource("1_7lryc")]
-layout_mode = 2
-
-[node name="btnEagle" parent="CanvasLayer/Rows/Classes" unique_id=1807868896 instance=ExtResource("1_7lryc")]
-layout_mode = 2
-
-[node name="btnCheetah" parent="CanvasLayer/Rows/Classes" unique_id=990266742 instance=ExtResource("1_7lryc")]
-layout_mode = 2
-
-[node name="btnTiger" parent="CanvasLayer/Rows/Classes" unique_id=301917994 instance=ExtResource("1_7lryc")]
-layout_mode = 2
+[connection signal="pressed" from="CanvasLayer/Rows/btnBack" to="." method="_Back_Button_Clicked"]

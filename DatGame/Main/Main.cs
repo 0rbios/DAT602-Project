@@ -3,9 +3,14 @@ using Godot;
 public partial class Main : Node
 {
 	private string _account;
-	public string Account { get => _account; set => _account = value; }
+	private int _roomID;
+	private string _roomName;
 
-	public override void _Ready()
+	public string Account { get => _account; set => _account = value; }
+    public int Room { get => _roomID; set => _roomID = value; }
+    public string RoomName { get => _roomName; set => _roomName = value; }
+
+    public override void _Ready()
 	{
 		SwitchScene("res://Login Page/Login.tscn");
 	}

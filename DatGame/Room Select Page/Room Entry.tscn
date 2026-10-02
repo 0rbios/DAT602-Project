@@ -30,3 +30,5 @@ custom_maximum_size = Vector2(65, -1)
 layout_mode = 2
 size_flags_horizontal = 8
 text = "Join"
+
+[connection signal="pressed" from="Container/btnJoin" to="." method="_Join_Button_Clicked"]

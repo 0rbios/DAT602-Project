@@ -245,4 +245,63 @@ namespace DATGame
 
 	}
 
+	// Any database calls that manage player entries
+	internal partial class PlayerDAO : DAOClass
+	{
+		public void JoinGame(string account, int room, string classname)
+		{
+			try
+			{
+				_connection.Open();
+
+				MySqlCommand command = new MySqlCommand($"CALL Join_Room('{account}', {room}, '{classname}');", _connection);
+
+				command.ExecuteNonQuery();
+			}
+
+			finally
+			{
+				_connection.Close();
+			}
+		}
+	}
+
+	// Any database calls to get system/base information
+	internal partial class GameDAO : DAOClass
+	{
+		public Godot.Collections.Array GetClasses()
+		{
+			Godot.Collections.Array output = new Godot.Collections.Array();
+
+			try
+			{
+				_connection.Open();
+
+				MySqlCommand command = new MySqlCommand("SELECT * FROM class;", _connection);
+
+				using (MySqlDataReader reader = command.ExecuteReader())
+				{
+					while (reader.Read())
+					{
+						Dictionary info = new Dictionary();
+
+                        for (int i = 0; i < reader.FieldCount; i++)
+                        {
+                            info[reader.GetName(i)] = Variant.From((string)reader.GetValue(i));
+                        }
+
+						output.Add(info);
+					}
+				}
+			}
+
+			finally
+			{
+				_connection.Close();
+			}
+
+			return output;
+		}
+	}
+
 }

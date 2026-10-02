@@ -244,10 +244,10 @@ BEGIN
         
     -- Create the games classes
     INSERT INTO class (ClassName, AbilityName, Sprite)
-		VALUES ('Gorilla', 'Piston Wreck', './Gorilla.png'),
-			   ('Eagle', 'Wing Swipe', './Eagle.png'),
-               ('Cheetah', 'Hyper-Speed Kick', './Cheetah.png'),
-               ('Tiger', 'Claw Strike', './Tiger.png');
+		VALUES ('Gorilla', 'Piston Wreck', 'Gorilla Token'),
+			   ('Eagle', 'Wing Swipe', 'Eagle Token'),
+               ('Cheetah', 'Hyper-Speed Kick', 'Cheetah Token'),
+               ('Tiger', 'Claw Strike', 'Tiger Token');
     
     -- Attaches the classes to statistics
 	INSERT INTO class_stat (ClassName, StatName, Amount)

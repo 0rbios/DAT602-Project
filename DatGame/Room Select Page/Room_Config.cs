@@ -18,5 +18,15 @@ namespace DATGame
             GetNode<Label>("Container/lblPlayers").Text = $"{_playercount} Players";
         }
 
+        public void _Join_Button_Clicked()
+        {
+            Main head = GetNode<Main>("/root/Main");
+
+            head.Room = _id;
+            head.RoomName = _roomname;
+
+            head.SwitchScene("res://Class Select Page/Class Select.tscn");
+        }
+
     }
 }
