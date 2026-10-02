@@ -31,6 +31,7 @@ DROP FUNCTION IF EXISTS Get_Instance;
 DROP PROCEDURE IF EXISTS Exit_Room;
 DROP PROCEDURE IF EXISTS Rejoin_At;
 DROP PROCEDURE IF EXISTS Get_Rooms;
+DROP PROCEDURE IF EXISTS Get_Owned_Rooms;
 
 DELIMITER //
 
@@ -966,7 +967,7 @@ BEGIN
     
 END//
 
-CREATE PROCEDURE Get_Rooms()
+CREATE PROCEDURE Get_Rooms ()
 BEGIN
 
 	SELECT r.RoomID, r.RoomName, COUNT(p.PlayerID) AS PlayerCount
@@ -976,6 +977,27 @@ BEGIN
 			AND p.`Active` = 1
 	GROUP BY r.RoomID, r.RoomName;
 
+END//
+
+CREATE PROCEDURE Get_Owned_Rooms (
+	IN `User` VARCHAR(32)
+)
+BEGIN
+	
+    -- Error: If the account doesn't exist
+    IF NOT EXISTS (SELECT * FROM `account` WHERE AccountName = `User`) THEN
+		SELECT 'Account not found';
+	ELSE
+		SELECT r.RoomName, COUNT(p.PlayerID) AS PlayerCount
+        FROM room r
+		JOIN player p
+			ON p.RoomID = r.RoomID
+				AND p.`Active` = 1
+        WHERE r.AccountName = `User`
+		GROUP BY r.RoomName;
+        
+	END IF;
+    
 END//
 
 DELIMITER ;

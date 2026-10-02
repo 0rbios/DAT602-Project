@@ -100,6 +100,166 @@ text = "[Player Name]"
 horizontal_alignment = 1
 vertical_alignment = 1
 
+[node name="pnlRoomBox" type="Panel" parent="CanvasLayer/Columns/Column 2" unique_id=1416120271]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="RoomInfo" type="VBoxContainer" parent="CanvasLayer/Columns/Column 2/pnlRoomBox" unique_id=548624371]
+visible = false
+layout_mode = 0
+offset_right = 852.0
+offset_bottom = 647.0
+theme_override_constants/separation = 36
+alignment = 1
+
+[node name="lblName" type="Label" parent="CanvasLayer/Columns/Column 2/pnlRoomBox/RoomInfo" unique_id=1011778617]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "[Room Name]"
+horizontal_alignment = 1
+
+[node name="lblPlayers" type="Label" parent="CanvasLayer/Columns/Column 2/pnlRoomBox/RoomInfo" unique_id=638308442]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Player Count"
+horizontal_alignment = 1
+
+[node name="lblLeaders" type="RichTextLabel" parent="CanvasLayer/Columns/Column 2/pnlRoomBox/RoomInfo" unique_id=252513637]
+custom_minimum_size = Vector2(0, 110)
+layout_mode = 2
+theme_override_font_sizes/normal_font_size = 18
+text = "Leaderboard:
+	1 | name
+	2 | name
+	3 | name"
+horizontal_alignment = 1
+
+[node name="Buttons" type="HBoxContainer" parent="CanvasLayer/Columns/Column 2/pnlRoomBox/RoomInfo" unique_id=715698778]
+layout_mode = 2
+alignment = 1
+
+[node name="btnJoin" type="Button" parent="CanvasLayer/Columns/Column 2/pnlRoomBox/RoomInfo/Buttons" unique_id=30881479]
+custom_minimum_size = Vector2(200, 0)
+custom_maximum_size = Vector2(200, -1)
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Join"
+
+[node name="btnKill" type="Button" parent="CanvasLayer/Columns/Column 2/pnlRoomBox/RoomInfo/Buttons" unique_id=297903062]
+custom_minimum_size = Vector2(200, 0)
+custom_maximum_size = Vector2(200, -1)
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Kill"
+
+[node name="RoomCreation" type="VBoxContainer" parent="CanvasLayer/Columns/Column 2/pnlRoomBox" unique_id=1670590552]
+visible = false
+layout_mode = 0
+offset_right = 852.0
+offset_bottom = 647.0
+theme_override_constants/separation = 36
+alignment = 1
+
+[node name="lblMessage" type="Label" parent="CanvasLayer/Columns/Column 2/pnlRoomBox/RoomCreation" unique_id=1239218423]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "Create new room"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="txtNameInput" type="LineEdit" parent="CanvasLayer/Columns/Column 2/pnlRoomBox/RoomCreation" unique_id=1081877304]
+custom_minimum_size = Vector2(500, 0)
+custom_maximum_size = Vector2(500, -1)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 24
+placeholder_text = "Room Name"
+
+[node name="Buttons" type="HBoxContainer" parent="CanvasLayer/Columns/Column 2/pnlRoomBox/RoomCreation" unique_id=1789410936]
+layout_mode = 2
+alignment = 1
+
+[node name="btnCancel" type="Button" parent="CanvasLayer/Columns/Column 2/pnlRoomBox/RoomCreation/Buttons" unique_id=254011203]
+custom_minimum_size = Vector2(200, 0)
+custom_maximum_size = Vector2(200, -1)
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Cancel"
+
+[node name="btnConfirm" type="Button" parent="CanvasLayer/Columns/Column 2/pnlRoomBox/RoomCreation/Buttons" unique_id=1952807442]
+custom_minimum_size = Vector2(200, 0)
+custom_maximum_size = Vector2(200, -1)
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Confirm"
+
+[node name="RoomKill" type="VBoxContainer" parent="CanvasLayer/Columns/Column 2/pnlRoomBox" unique_id=1618487368]
+visible = false
+layout_mode = 0
+offset_right = 852.0
+offset_bottom = 647.0
+theme_override_constants/separation = 53
+alignment = 1
+
+[node name="lblMessage" type="Label" parent="CanvasLayer/Columns/Column 2/pnlRoomBox/RoomKill" unique_id=954228970]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "Kill current room?"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Buttons" type="HBoxContainer" parent="CanvasLayer/Columns/Column 2/pnlRoomBox/RoomKill" unique_id=396777793]
+layout_mode = 2
+alignment = 1
+
+[node name="btnYes" type="Button" parent="CanvasLayer/Columns/Column 2/pnlRoomBox/RoomKill/Buttons" unique_id=1683275833]
+custom_minimum_size = Vector2(200, 0)
+custom_maximum_size = Vector2(200, -1)
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Yes"
+
+[node name="btnNo" type="Button" parent="CanvasLayer/Columns/Column 2/pnlRoomBox/RoomKill/Buttons" unique_id=889578663]
+custom_minimum_size = Vector2(200, 0)
+custom_maximum_size = Vector2(200, -1)
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "No"
+
+[node name="RoomReplace" type="VBoxContainer" parent="CanvasLayer/Columns/Column 2/pnlRoomBox" unique_id=2041294182]
+visible = false
+layout_mode = 0
+offset_right = 852.0
+offset_bottom = 647.0
+theme_override_constants/separation = 36
+alignment = 1
+
+[node name="lblMessage" type="Label" parent="CanvasLayer/Columns/Column 2/pnlRoomBox/RoomReplace" unique_id=1081155399]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Existing room must be killed before new room can be created.
+
+Kill current room?"
+horizontal_alignment = 1
+
+[node name="Buttons" type="HBoxContainer" parent="CanvasLayer/Columns/Column 2/pnlRoomBox/RoomReplace" unique_id=949822165]
+layout_mode = 2
+alignment = 1
+
+[node name="btnYes" type="Button" parent="CanvasLayer/Columns/Column 2/pnlRoomBox/RoomReplace/Buttons" unique_id=780909701]
+custom_minimum_size = Vector2(200, 0)
+custom_maximum_size = Vector2(200, -1)
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Yes"
+
+[node name="btnNo" type="Button" parent="CanvasLayer/Columns/Column 2/pnlRoomBox/RoomReplace/Buttons" unique_id=563323773]
+custom_minimum_size = Vector2(200, 0)
+custom_maximum_size = Vector2(200, -1)
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "No"
+
 [node name="Column 3" type="VBoxContainer" parent="CanvasLayer/Columns" unique_id=1958562658]
 custom_minimum_size = Vector2(200, 0)
 custom_maximum_size = Vector2(200, -1)
@@ -115,6 +275,7 @@ script = ExtResource("5_tc5h1")
 
 [connection signal="pressed" from="CanvasLayer/Columns/Column 1/btnBack" to="CanvasLayer/Columns/Column 1/btnBack" method="_Back_Button_Clicked"]
 [connection signal="pressed" from="CanvasLayer/Columns/Column 1/Options Column/btnAdmin" to="CanvasLayer/Columns/Column 1/Options Column/btnAdmin" method="_Admin_Button_Clicked"]
+[connection signal="pressed" from="CanvasLayer/Columns/Column 1/Options Column/btnNewRoom" to="." method="_Create_Room_Clicked"]
 [connection signal="pressed" from="CanvasLayer/Columns/Column 1/Options Column/Confirmation/btnYes" to="CanvasLayer/Columns/Column 1/Options Column/Account/btnAccount" method="_Confirm_Delete_Clicked"]
 [connection signal="pressed" from="CanvasLayer/Columns/Column 1/Options Column/Confirmation/btnNo" to="CanvasLayer/Columns/Column 1/Options Column/Account/btnAccount" method="_Cancel_Delete_Clicked"]
 [connection signal="pressed" from="CanvasLayer/Columns/Column 1/Options Column/Account/btnDelete" to="CanvasLayer/Columns/Column 1/Options Column/Account/btnAccount" method="_Delete_Button_Clicked"]

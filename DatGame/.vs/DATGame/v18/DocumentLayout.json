@@ -3,6 +3,10 @@
   "WorkspaceRootPath": "E:\\DAT602-Project\\DatGame\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{711F3FF0-1DEB-4209-9E08-FE17DF1E52E1}|DATGame.csproj|e:\\dat602-project\\datgame\\room select page\\room_select_config.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{711F3FF0-1DEB-4209-9E08-FE17DF1E52E1}|DATGame.csproj|solutionrelative:room select page\\room_select_config.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{711F3FF0-1DEB-4209-9E08-FE17DF1E52E1}|DATGame.csproj|e:\\dat602-project\\datgame\\daoclass.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{711F3FF0-1DEB-4209-9E08-FE17DF1E52E1}|DATGame.csproj|solutionrelative:daoclass.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
@@ -19,12 +23,25 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
+              "Title": "Room_Select_Config.cs",
+              "DocumentMoniker": "E:\\DAT602-Project\\DatGame\\Room Select Page\\Room_Select_Config.cs",
+              "RelativeDocumentMoniker": "Room Select Page\\Room_Select_Config.cs",
+              "ToolTip": "E:\\DAT602-Project\\DatGame\\Room Select Page\\Room_Select_Config.cs",
+              "RelativeToolTip": "Room Select Page\\Room_Select_Config.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAADkAAAANAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-02T02:34:51.788Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
               "Title": "DAOClass.cs",
               "DocumentMoniker": "E:\\DAT602-Project\\DatGame\\DAOClass.cs",
               "RelativeDocumentMoniker": "DAOClass.cs",
               "ToolTip": "E:\\DAT602-Project\\DatGame\\DAOClass.cs",
               "RelativeToolTip": "DAOClass.cs",
-              "ViewState": "AgIAAO0AAAAAAAAAAAAAAAEBAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAALkAAAAAAAAAAAAmwHEBAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-10-02T01:00:38.763Z",
               "EditorCaption": ""
