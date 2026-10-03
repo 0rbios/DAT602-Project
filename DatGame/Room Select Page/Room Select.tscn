@@ -4,6 +4,7 @@
 [ext_resource type="Script" uid="uid://c4rr5746bjevh" path="res://Room Select Page/Back_Button.cs" id="2_5gooj"]
 [ext_resource type="Script" uid="uid://c051gpmr3iloa" path="res://Room Select Page/Admin_Button.cs" id="3_d7e8d"]
 [ext_resource type="Script" uid="uid://bkj601nwchawi" path="res://Room Select Page/Account_Button.cs" id="4_3x05j"]
+[ext_resource type="Script" uid="uid://dyk0mlopdjpv1" path="res://Room Select Page/Room_Box_Controls.cs" id="5_5hble"]
 [ext_resource type="Script" uid="uid://bd3iytwtd60es" path="res://Room Select Page/Room_Getter.cs" id="5_tc5h1"]
 
 [node name="Room Select" type="Control" unique_id=843991667]
@@ -103,6 +104,7 @@ vertical_alignment = 1
 [node name="pnlRoomBox" type="Panel" parent="CanvasLayer/Columns/Column 2" unique_id=1416120271]
 layout_mode = 2
 size_flags_vertical = 3
+script = ExtResource("5_5hble")
 
 [node name="RoomInfo" type="VBoxContainer" parent="CanvasLayer/Columns/Column 2/pnlRoomBox" unique_id=548624371]
 visible = false
@@ -273,6 +275,9 @@ size_flags_vertical = 3
 layout_mode = 2
 script = ExtResource("5_tc5h1")
 
+[node name="List Refresh" type="Timer" parent="CanvasLayer/Columns/Column 3/Scroll Bar" unique_id=1772720888]
+autostart = true
+
 [connection signal="pressed" from="CanvasLayer/Columns/Column 1/btnBack" to="CanvasLayer/Columns/Column 1/btnBack" method="_Back_Button_Clicked"]
 [connection signal="pressed" from="CanvasLayer/Columns/Column 1/Options Column/btnAdmin" to="CanvasLayer/Columns/Column 1/Options Column/btnAdmin" method="_Admin_Button_Clicked"]
 [connection signal="pressed" from="CanvasLayer/Columns/Column 1/Options Column/btnNewRoom" to="." method="_Create_Room_Clicked"]
@@ -280,3 +285,12 @@ script = ExtResource("5_tc5h1")
 [connection signal="pressed" from="CanvasLayer/Columns/Column 1/Options Column/Confirmation/btnNo" to="CanvasLayer/Columns/Column 1/Options Column/Account/btnAccount" method="_Cancel_Delete_Clicked"]
 [connection signal="pressed" from="CanvasLayer/Columns/Column 1/Options Column/Account/btnDelete" to="CanvasLayer/Columns/Column 1/Options Column/Account/btnAccount" method="_Delete_Button_Clicked"]
 [connection signal="pressed" from="CanvasLayer/Columns/Column 1/Options Column/Account/btnAccount" to="CanvasLayer/Columns/Column 1/Options Column/Account/btnAccount" method="_Account_Button_Clicked"]
+[connection signal="pressed" from="CanvasLayer/Columns/Column 2/pnlRoomBox/RoomInfo/Buttons/btnJoin" to="CanvasLayer/Columns/Column 2/pnlRoomBox" method="_Join_Room_Clicked"]
+[connection signal="pressed" from="CanvasLayer/Columns/Column 2/pnlRoomBox/RoomInfo/Buttons/btnKill" to="CanvasLayer/Columns/Column 2/pnlRoomBox" method="_Kill_Room_Clicked"]
+[connection signal="pressed" from="CanvasLayer/Columns/Column 2/pnlRoomBox/RoomCreation/Buttons/btnCancel" to="CanvasLayer/Columns/Column 2/pnlRoomBox" method="_Cancel_Creation_Clicked"]
+[connection signal="pressed" from="CanvasLayer/Columns/Column 2/pnlRoomBox/RoomCreation/Buttons/btnConfirm" to="CanvasLayer/Columns/Column 2/pnlRoomBox" method="_Confirm_Creation_Clicked"]
+[connection signal="pressed" from="CanvasLayer/Columns/Column 2/pnlRoomBox/RoomKill/Buttons/btnYes" to="CanvasLayer/Columns/Column 2/pnlRoomBox" method="_Confirm_Kill_Clicked"]
+[connection signal="pressed" from="CanvasLayer/Columns/Column 2/pnlRoomBox/RoomKill/Buttons/btnNo" to="CanvasLayer/Columns/Column 2/pnlRoomBox" method="_Cancel_Kill_Clicked"]
+[connection signal="pressed" from="CanvasLayer/Columns/Column 2/pnlRoomBox/RoomReplace/Buttons/btnYes" to="CanvasLayer/Columns/Column 2/pnlRoomBox" method="_Confirm_Replace_Clicked"]
+[connection signal="pressed" from="CanvasLayer/Columns/Column 2/pnlRoomBox/RoomReplace/Buttons/btnNo" to="CanvasLayer/Columns/Column 2/pnlRoomBox" method="_Cancel_Kill_Clicked"]
+[connection signal="timeout" from="CanvasLayer/Columns/Column 3/Scroll Bar/List Refresh" to="CanvasLayer/Columns/Column 3/Scroll Bar/Room List" method="RefreshRooms"]

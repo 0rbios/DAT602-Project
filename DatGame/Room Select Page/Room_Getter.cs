@@ -5,11 +5,20 @@ namespace DATGame
 {
     public partial class Room_Getter : VBoxContainer
     {
-        // Called when the node enters the scene tree for the first time.
         public override void _Ready()
+        {
+            RefreshRooms();
+        }
+
+        public void RefreshRooms()
         {
             RoomDAO dao = new RoomDAO();
             Main head = GetNode<Main>("/root/Main");
+
+            foreach (Node child in GetChildren())
+            {
+                child.QueueFree();
+            }
 
             Array rooms = dao.GetRooms();
 

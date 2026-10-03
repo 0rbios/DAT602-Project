@@ -271,7 +271,7 @@ namespace DATGame
 			{
 				_connection.Open();
 
-				MySqlCommand command = new MySqlCommand("CALL Get_Rooms()", _connection);
+				MySqlCommand command = new MySqlCommand("CALL Get_Rooms();", _connection);
 				
 				using (MySqlDataReader reader = command.ExecuteReader())
 				{
@@ -314,6 +314,40 @@ namespace DATGame
 			}
 
 			return output;
+		}
+
+		public void CreateRoom(string roomname, string accountname)
+		{
+            try
+            {
+                _connection.Open();
+
+                MySqlCommand command = new MySqlCommand($"CALL Create_Room('{roomname}', '{accountname}');", _connection);
+
+				command.ExecuteNonQuery();
+            }
+
+            finally
+            {
+                _connection.Close();
+            }
+        }
+
+		public void KillRoom(int roomid)
+		{
+			try
+			{
+				_connection.Open();
+
+				MySqlCommand command = new MySqlCommand($"CALL Kill_Room({roomid})", _connection);
+
+                command.ExecuteNonQuery();
+            }
+
+			finally
+			{
+				_connection.Close();
+			}
 		}
 
 	}

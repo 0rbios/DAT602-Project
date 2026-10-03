@@ -146,6 +146,7 @@ BEGIN
 		CONSTRAINT fk_statchange_stat
 			FOREIGN KEY (StatName)
 			REFERENCES stat(StatName)
+            ON DELETE CASCADE
 	);
 
 	CREATE TABLE player_stat (
@@ -155,10 +156,12 @@ BEGIN
 		PRIMARY KEY (StatName, PlayerID),
 		CONSTRAINT fk_playerstat_player
 			FOREIGN KEY (PlayerID)
-			REFERENCES player(PlayerID),
+			REFERENCES player(PlayerID)
+            ON DELETE CASCADE,
 		CONSTRAINT fk_playerstat_stat
 			FOREIGN KEY (StatName)
 			REFERENCES stat(StatName)
+            ON DELETE CASCADE
 	);
 
 	CREATE TABLE player_ability (

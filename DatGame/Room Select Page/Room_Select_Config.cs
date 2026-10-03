@@ -12,7 +12,7 @@ namespace DATGame
 		private VBoxContainer _killpanel;
 		private VBoxContainer _replacepanel;
 
-		public override void _Ready()
+        public override void _Ready()
 		{
 			_head = GetNode<Main>("/root/Main");
 			_panels = GetNode<HBoxContainer>("CanvasLayer/Columns");
@@ -30,6 +30,9 @@ namespace DATGame
 			if (rdao.HasRooms(_head.Account))
             {
                 Dictionary room_details = rdao.GetRoom(_head.Account);
+
+				_head.Room = (int)room_details["RoomID"];
+				_head.RoomName = (string)room_details["RoomName"];
 
 				_infopanel.Visible = true;
 				_infopanel.GetNode<Label>("lblName").Text = (string)room_details["RoomName"];

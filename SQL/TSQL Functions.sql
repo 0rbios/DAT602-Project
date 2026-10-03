@@ -118,7 +118,7 @@ BEGIN
         
         CALL Layout_Tiles(@NewRoomID, 10, 10);
         
-        CALL Place_Ability_On_Tile("Piston Wreck", 1);
+        CALL Place_Ability_On_Tile("Piston Wreck", @NewRoomID, 0, 0);
         
 	END IF;
     
@@ -172,14 +172,20 @@ END//
 -- Placing an ability on a tile
 CREATE PROCEDURE Place_Ability_On_Tile(
 	IN InAbility VARCHAR(24),
-    IN InTile INT
+    IN InRoom INT,
+    IN InXPos INT,
+    In InYPos INT
 )
 BEGIN
 
-	-- Error: If requested tile doesn't exist
-	IF NOT EXISTS (SELECT * FROM tile WHERE TileID = InTile) THEN
-		SELECT 'Tile does not exist' AS message;
+	-- Error: If requested room doesn't exist
+	IF NOT EXISTS (SELECT * FROM room WHERE RoomID = InRoom) THEN
+		SELECT 'Room does not exist' AS message;
 	
+    -- Error: If the given x/y doesn't exist in the given room
+    ELSEIF NOT EXISTS (SELECT * FROM tile WHERE RoomID = InRoom AND XPos = InXPos AND YPos = InYPos) THEN
+		SELECT 'Tile does not exist' AS message;
+    
     -- Error: If requested ability instance doesn't exist
 	ELSEIF NOT EXISTS (SELECT * FROM ability WHERE AbilityName = InAbility) THEN
 			SELECT 'Ability does not exist' AS message;
@@ -189,8 +195,15 @@ BEGIN
 		INSERT INTO abilityinstance (AbilityName)
 			VALUES (InAbility);
         
+        SET @tiletoplace = (SELECT TileID
+							FROM tile
+                            WHERE RoomID = InRoom
+								AND XPos = InXPos
+								AND YPos = InYPos
+							LIMIT 1);
+        
 		INSERT INTO Tile_Ability (Placed, TileID, AbilityID)
-			VALUES (CURRENT_TIMESTAMP(), InTile, (SELECT Get_Instance(InAbility)));
+			VALUES (CURRENT_TIMESTAMP(), @tiletoplace, (SELECT Get_Instance(InAbility)));
 	END IF;
 
 END//
@@ -972,7 +985,7 @@ BEGIN
 
 	SELECT r.RoomID, r.RoomName, COUNT(p.PlayerID) AS PlayerCount
     FROM room r
-    JOIN player p
+    LEFT JOIN player p
 		ON p.RoomID = r.RoomID
 			AND p.`Active` = 1
 	GROUP BY r.RoomID, r.RoomName;
@@ -988,13 +1001,13 @@ BEGIN
     IF NOT EXISTS (SELECT * FROM `account` WHERE AccountName = `User`) THEN
 		SELECT 'Account not found';
 	ELSE
-		SELECT r.RoomName, COUNT(p.PlayerID) AS PlayerCount
+		SELECT r.RoomID, r.RoomName, COUNT(p.PlayerID) AS PlayerCount
         FROM room r
-		JOIN player p
+		LEFT JOIN player p
 			ON p.RoomID = r.RoomID
 				AND p.`Active` = 1
         WHERE r.AccountName = `User`
-		GROUP BY r.RoomName;
+		GROUP BY r.RoomID, r.RoomName;
         
 	END IF;
     
