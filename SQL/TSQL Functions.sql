@@ -32,6 +32,7 @@ DROP PROCEDURE IF EXISTS Exit_Room;
 DROP PROCEDURE IF EXISTS Rejoin_At;
 DROP PROCEDURE IF EXISTS Get_Rooms;
 DROP PROCEDURE IF EXISTS Get_Owned_Rooms;
+DROP PROCEDURE IF EXISTS Get_Players;
 
 DELIMITER //
 
@@ -1011,6 +1012,16 @@ BEGIN
         
 	END IF;
     
+END//
+
+CREATE PROCEDURE Get_Players()
+BEGIN
+
+	SELECT p.AccountName, r.RoomName
+    FROM player p
+	JOIN room r
+	ON p.RoomID = r.RoomID;
+
 END//
 
 DELIMITER ;

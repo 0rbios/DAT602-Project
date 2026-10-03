@@ -1,5 +1,8 @@
 [gd_scene format=3 uid="uid://xoflvj7tyykx"]
 
+[ext_resource type="Script" uid="uid://bkla47strylm7" path="res://Admin Page/Admin_Centre_Config.cs" id="1_u08nm"]
+[ext_resource type="Script" uid="uid://cba54k7w4jb8d" path="res://Admin Page/Entry_Select_Filler.cs" id="2_iteps"]
+
 [node name="Admin Centre" type="Control" unique_id=1794301969]
 layout_mode = 3
 anchors_preset = 15
@@ -7,6 +10,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+script = ExtResource("1_u08nm")
 
 [node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=249810735]
 
@@ -35,33 +39,290 @@ theme_override_font_sizes/font_size = 24
 text = "[Account Name]"
 text_overrun_behavior = 5
 
+[node name="Column 2" type="VBoxContainer" parent="CanvasLayer/Columns" unique_id=692768747]
+layout_mode = 2
+size_flags_horizontal = 19
+alignment = 1
+
+[node name="Account Edit" type="VBoxContainer" parent="CanvasLayer/Columns/Column 2" unique_id=411470549]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Room Panel" type="Panel" parent="CanvasLayer/Columns/Column 2/Account Edit" unique_id=1138264580]
+custom_minimum_size = Vector2(0, 300)
+custom_maximum_size = Vector2(-1, 300)
+layout_mode = 2
+
+[node name="Room Info" type="VBoxContainer" parent="CanvasLayer/Columns/Column 2/Account Edit/Room Panel" unique_id=127301488]
+custom_minimum_size = Vector2(850, 300)
+custom_maximum_size = Vector2(850, 300)
+layout_mode = 0
+offset_right = 848.0
+offset_bottom = 300.0
+theme_override_constants/separation = 21
+alignment = 1
+
+[node name="lblName" type="Label" parent="CanvasLayer/Columns/Column 2/Account Edit/Room Panel/Room Info" unique_id=87847716]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Selected Account | Account Name"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="lblLocked" type="Label" parent="CanvasLayer/Columns/Column 2/Account Edit/Room Panel/Room Info" unique_id=1486670377]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Locked? | Bool"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="lblAdmin" type="Label" parent="CanvasLayer/Columns/Column 2/Account Edit/Room Panel/Room Info" unique_id=1051576241]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Admin? | Bool"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Buttons" type="HBoxContainer" parent="CanvasLayer/Columns/Column 2/Account Edit" unique_id=1409576885]
+layout_mode = 2
+alignment = 2
+
+[node name="btnUpdate" type="Button" parent="CanvasLayer/Columns/Column 2/Account Edit/Buttons" unique_id=1519102593]
+custom_minimum_size = Vector2(200, 0)
+custom_maximum_size = Vector2(200, -1)
+layout_mode = 2
+size_flags_horizontal = 8
+theme_override_font_sizes/font_size = 24
+text = "Update Data"
+
+[node name="btnDelete" type="Button" parent="CanvasLayer/Columns/Column 2/Account Edit/Buttons" unique_id=1072999545]
+custom_minimum_size = Vector2(200, 0)
+custom_maximum_size = Vector2(200, -1)
+layout_mode = 2
+size_flags_horizontal = 8
+theme_override_font_sizes/font_size = 24
+text = "Delete Player"
+
+[node name="Create Panel" type="Panel" parent="CanvasLayer/Columns/Column 2/Account Edit" unique_id=2123018091]
+custom_minimum_size = Vector2(600, 200)
+custom_maximum_size = Vector2(-1, 300)
+layout_mode = 2
+size_flags_horizontal = 8
+size_flags_vertical = 26
+
+[node name="Account Creator" type="VBoxContainer" parent="CanvasLayer/Columns/Column 2/Account Edit/Create Panel" unique_id=609280620]
+custom_minimum_size = Vector2(600, 200)
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+theme_override_constants/separation = 24
+alignment = 1
+
+[node name="Line 1" type="HBoxContainer" parent="CanvasLayer/Columns/Column 2/Account Edit/Create Panel/Account Creator" unique_id=1991574373]
+layout_mode = 2
+theme_override_constants/separation = 24
+alignment = 1
+
+[node name="txtUsername" type="LineEdit" parent="CanvasLayer/Columns/Column 2/Account Edit/Create Panel/Account Creator/Line 1" unique_id=163626139]
+custom_minimum_size = Vector2(200, 0)
+custom_maximum_size = Vector2(200, -1)
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+placeholder_text = "Username"
+max_length = 32
+
+[node name="btnConfirm" type="Button" parent="CanvasLayer/Columns/Column 2/Account Edit/Create Panel/Account Creator/Line 1" unique_id=853703396]
+custom_minimum_size = Vector2(200, 0)
+custom_maximum_size = Vector2(200, -1)
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Confirm"
+
+[node name="Line 2" type="HBoxContainer" parent="CanvasLayer/Columns/Column 2/Account Edit/Create Panel/Account Creator" unique_id=575472695]
+layout_mode = 2
+theme_override_constants/separation = 24
+alignment = 1
+
+[node name="txtPassword" type="LineEdit" parent="CanvasLayer/Columns/Column 2/Account Edit/Create Panel/Account Creator/Line 2" unique_id=1065286381]
+custom_minimum_size = Vector2(200, 0)
+custom_maximum_size = Vector2(200, -1)
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+placeholder_text = "Password"
+max_length = 32
+
+[node name="btnCancel" type="Button" parent="CanvasLayer/Columns/Column 2/Account Edit/Create Panel/Account Creator/Line 2" unique_id=1945564329]
+custom_minimum_size = Vector2(200, 0)
+custom_maximum_size = Vector2(200, -1)
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Cancel"
+
+[node name="btnCreate" type="Button" parent="CanvasLayer/Columns/Column 2/Account Edit" unique_id=771859238]
+custom_minimum_size = Vector2(200, 0)
+custom_maximum_size = Vector2(200, -1)
+layout_mode = 2
+size_flags_horizontal = 8
+size_flags_vertical = 10
+theme_override_font_sizes/font_size = 24
+text = "New Account
+"
+
+[node name="Player Edit" type="VBoxContainer" parent="CanvasLayer/Columns/Column 2" unique_id=835696815]
+visible = false
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Room Panel" type="Panel" parent="CanvasLayer/Columns/Column 2/Player Edit" unique_id=168893663]
+custom_minimum_size = Vector2(0, 300)
+custom_maximum_size = Vector2(-1, 300)
+layout_mode = 2
+
+[node name="Room Info" type="VBoxContainer" parent="CanvasLayer/Columns/Column 2/Player Edit/Room Panel" unique_id=1197338743]
+custom_minimum_size = Vector2(850, 300)
+custom_maximum_size = Vector2(850, 300)
+layout_mode = 0
+offset_right = 848.0
+offset_bottom = 300.0
+theme_override_constants/separation = 21
+alignment = 1
+
+[node name="lblName" type="Label" parent="CanvasLayer/Columns/Column 2/Player Edit/Room Panel/Room Info" unique_id=730850137]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Selected Player | Player Name"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="lblRoom" type="Label" parent="CanvasLayer/Columns/Column 2/Player Edit/Room Panel/Room Info" unique_id=1331588223]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Room | Room Name"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="lblHigh" type="Label" parent="CanvasLayer/Columns/Column 2/Player Edit/Room Panel/Room Info" unique_id=642991109]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "High Score | Number"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="lblCurrent" type="Label" parent="CanvasLayer/Columns/Column 2/Player Edit/Room Panel/Room Info" unique_id=1080830033]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Current Score | Number"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Buttons" type="HBoxContainer" parent="CanvasLayer/Columns/Column 2/Player Edit" unique_id=2090104465]
+layout_mode = 2
+alignment = 2
+
+[node name="btnUpdate" type="Button" parent="CanvasLayer/Columns/Column 2/Player Edit/Buttons" unique_id=307636021]
+custom_minimum_size = Vector2(200, 0)
+custom_maximum_size = Vector2(200, -1)
+layout_mode = 2
+size_flags_horizontal = 8
+theme_override_font_sizes/font_size = 24
+text = "Update Data"
+
+[node name="btnDelete" type="Button" parent="CanvasLayer/Columns/Column 2/Player Edit/Buttons" unique_id=1931345971]
+custom_minimum_size = Vector2(200, 0)
+custom_maximum_size = Vector2(200, -1)
+layout_mode = 2
+size_flags_horizontal = 8
+theme_override_font_sizes/font_size = 24
+text = "Delete Player"
+
+[node name="Room Edit" type="VBoxContainer" parent="CanvasLayer/Columns/Column 2" unique_id=1843169356]
+visible = false
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Room Panel" type="Panel" parent="CanvasLayer/Columns/Column 2/Room Edit" unique_id=944321478]
+custom_minimum_size = Vector2(0, 300)
+custom_maximum_size = Vector2(-1, 300)
+layout_mode = 2
+
+[node name="Room Info" type="VBoxContainer" parent="CanvasLayer/Columns/Column 2/Room Edit/Room Panel" unique_id=1947892632]
+custom_minimum_size = Vector2(850, 300)
+custom_maximum_size = Vector2(850, 300)
+layout_mode = 0
+offset_right = 848.0
+offset_bottom = 300.0
+theme_override_constants/separation = 21
+alignment = 1
+
+[node name="lblName" type="Label" parent="CanvasLayer/Columns/Column 2/Room Edit/Room Panel/Room Info" unique_id=1688385339]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Selected Room | Room Name"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="lblTop" type="Label" parent="CanvasLayer/Columns/Column 2/Room Edit/Room Panel/Room Info" unique_id=2087944208]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Top Player | Player Name"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="btnKill" type="Button" parent="CanvasLayer/Columns/Column 2/Room Edit" unique_id=1150737963]
+custom_minimum_size = Vector2(200, 0)
+custom_maximum_size = Vector2(200, -1)
+layout_mode = 2
+size_flags_horizontal = 8
+theme_override_font_sizes/font_size = 24
+text = "Kill Room"
+
 [node name="Column 3" type="VBoxContainer" parent="CanvasLayer/Columns" unique_id=1697345709]
 layout_mode = 2
 size_flags_horizontal = 10
 
 [node name="Scroll Bar" type="ScrollContainer" parent="CanvasLayer/Columns/Column 3" unique_id=1161039991]
 layout_mode = 2
+size_flags_vertical = 19
 
 [node name="Name List" type="VBoxContainer" parent="CanvasLayer/Columns/Column 3/Scroll Bar" unique_id=1033089635]
-custom_minimum_size = Vector2(200, 653.61)
-custom_maximum_size = Vector2(200, -1)
+custom_minimum_size = Vector2(201, 653.61)
+custom_maximum_size = Vector2(201, -1)
 layout_mode = 2
 size_flags_vertical = 3
+script = ExtResource("2_iteps")
+
+[node name="Refresh Timer" type="Timer" parent="CanvasLayer/Columns/Column 3/Scroll Bar" unique_id=222907686]
+autostart = true
 
 [node name="View Toggles" type="HBoxContainer" parent="CanvasLayer/Columns/Column 3" unique_id=79534300]
+custom_minimum_size = Vector2(201, 0)
+custom_maximum_size = Vector2(201, -1)
 layout_mode = 2
 size_flags_vertical = 10
 
-[node name="btnPlayers" type="Button" parent="CanvasLayer/Columns/Column 3/View Toggles" unique_id=355552961]
-custom_minimum_size = Vector2(98, 0)
-custom_maximum_size = Vector2(98, -1)
+[node name="btnAccounts" type="Button" parent="CanvasLayer/Columns/Column 3/View Toggles" unique_id=1333191910]
+custom_minimum_size = Vector2(67, 0)
+custom_maximum_size = Vector2(67, -1)
 layout_mode = 2
 theme_override_font_sizes/font_size = 24
-text = "Players"
+text = "A/C"
+
+[node name="btnPlayers" type="Button" parent="CanvasLayer/Columns/Column 3/View Toggles" unique_id=355552961]
+custom_minimum_size = Vector2(67, 0)
+custom_maximum_size = Vector2(67, -1)
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "P/L"
 
 [node name="btnRooms" type="Button" parent="CanvasLayer/Columns/Column 3/View Toggles" unique_id=614896586]
-custom_minimum_size = Vector2(98, 0)
-custom_maximum_size = Vector2(98, -1)
+custom_minimum_size = Vector2(67, 0)
+custom_maximum_size = Vector2(67, -1)
 layout_mode = 2
 theme_override_font_sizes/font_size = 24
-text = "Rooms"
+text = "R/M"
+
+[connection signal="pressed" from="CanvasLayer/Columns/Column 1/btnBack" to="." method="_Back_Button_Clicked"]
+[connection signal="timeout" from="CanvasLayer/Columns/Column 3/Scroll Bar/Refresh Timer" to="CanvasLayer/Columns/Column 3/Scroll Bar/Name List" method="LoadNames"]
+[connection signal="pressed" from="CanvasLayer/Columns/Column 3/View Toggles/btnAccounts" to="." method="_Account_View_Clicked"]
+[connection signal="pressed" from="CanvasLayer/Columns/Column 3/View Toggles/btnPlayers" to="." method="_Player_View_Clicked"]
+[connection signal="pressed" from="CanvasLayer/Columns/Column 3/View Toggles/btnRooms" to="." method="_Room_View_Clicked"]
