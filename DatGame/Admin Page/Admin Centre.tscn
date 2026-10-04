@@ -72,19 +72,35 @@ text = "Selected Account | Account Name"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="lblLocked" type="Label" parent="CanvasLayer/Columns/Column 2/Account Edit/Account Panel/Account Info" unique_id=1486670377]
+[node name="Locked" type="HBoxContainer" parent="CanvasLayer/Columns/Column 2/Account Edit/Account Panel/Account Info" unique_id=295949498]
+layout_mode = 2
+alignment = 1
+
+[node name="lblLocked" type="Label" parent="CanvasLayer/Columns/Column 2/Account Edit/Account Panel/Account Info/Locked" unique_id=1486670377]
 layout_mode = 2
 theme_override_font_sizes/font_size = 24
 text = "Locked? | Bool"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="lblAdmin" type="Label" parent="CanvasLayer/Columns/Column 2/Account Edit/Account Panel/Account Info" unique_id=1051576241]
+[node name="tglLocked" type="CheckButton" parent="CanvasLayer/Columns/Column 2/Account Edit/Account Panel/Account Info/Locked" unique_id=1764216838]
+visible = false
+layout_mode = 2
+
+[node name="Admin" type="HBoxContainer" parent="CanvasLayer/Columns/Column 2/Account Edit/Account Panel/Account Info" unique_id=1650636069]
+layout_mode = 2
+alignment = 1
+
+[node name="lblAdmin" type="Label" parent="CanvasLayer/Columns/Column 2/Account Edit/Account Panel/Account Info/Admin" unique_id=1051576241]
 layout_mode = 2
 theme_override_font_sizes/font_size = 24
 text = "Admin? | Bool"
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="tglAdmin" type="CheckButton" parent="CanvasLayer/Columns/Column 2/Account Edit/Account Panel/Account Info/Admin" unique_id=909686096]
+visible = false
+layout_mode = 2
 
 [node name="Buttons" type="HBoxContainer" parent="CanvasLayer/Columns/Column 2/Account Edit" unique_id=1409576885]
 layout_mode = 2
@@ -104,7 +120,7 @@ custom_maximum_size = Vector2(200, -1)
 layout_mode = 2
 size_flags_horizontal = 8
 theme_override_font_sizes/font_size = 24
-text = "Delete Player"
+text = "Delete Account"
 
 [node name="Create Panel" type="Panel" parent="CanvasLayer/Columns/Column 2/Account Edit" unique_id=2123018091]
 visible = false
@@ -216,19 +232,39 @@ text = "Room | Room Name"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="lblHigh" type="Label" parent="CanvasLayer/Columns/Column 2/Player Edit/Player Panel/Player Info" unique_id=642991109]
+[node name="HighScore" type="HBoxContainer" parent="CanvasLayer/Columns/Column 2/Player Edit/Player Panel/Player Info" unique_id=1136804857]
+layout_mode = 2
+theme_override_constants/separation = 30
+alignment = 1
+
+[node name="lblHigh" type="Label" parent="CanvasLayer/Columns/Column 2/Player Edit/Player Panel/Player Info/HighScore" unique_id=642991109]
 layout_mode = 2
 theme_override_font_sizes/font_size = 24
 text = "High Score | Number"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="lblCurrent" type="Label" parent="CanvasLayer/Columns/Column 2/Player Edit/Player Panel/Player Info" unique_id=1080830033]
+[node name="numHigh" type="SpinBox" parent="CanvasLayer/Columns/Column 2/Player Edit/Player Panel/Player Info/HighScore" unique_id=1849475400]
+visible = false
+layout_mode = 2
+max_value = 999999.0
+
+[node name="CurrentScore" type="HBoxContainer" parent="CanvasLayer/Columns/Column 2/Player Edit/Player Panel/Player Info" unique_id=763818950]
+layout_mode = 2
+theme_override_constants/separation = 30
+alignment = 1
+
+[node name="lblCurrent" type="Label" parent="CanvasLayer/Columns/Column 2/Player Edit/Player Panel/Player Info/CurrentScore" unique_id=1080830033]
 layout_mode = 2
 theme_override_font_sizes/font_size = 24
 text = "Current Score | Number"
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="numCurrent" type="SpinBox" parent="CanvasLayer/Columns/Column 2/Player Edit/Player Panel/Player Info/CurrentScore" unique_id=384884635]
+visible = false
+layout_mode = 2
+max_value = 999999.0
 
 [node name="Buttons" type="HBoxContainer" parent="CanvasLayer/Columns/Column 2/Player Edit" unique_id=2090104465]
 layout_mode = 2
@@ -291,6 +327,52 @@ size_flags_horizontal = 8
 theme_override_font_sizes/font_size = 24
 text = "Kill Room"
 
+[node name="Delete Confirm" type="VBoxContainer" parent="CanvasLayer/Columns/Column 2" unique_id=1938230493]
+visible = false
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Delete Panel" type="Panel" parent="CanvasLayer/Columns/Column 2/Delete Confirm" unique_id=915496299]
+custom_minimum_size = Vector2(0, 300)
+custom_maximum_size = Vector2(-1, 300)
+layout_mode = 2
+
+[node name="Delete Stuff" type="VBoxContainer" parent="CanvasLayer/Columns/Column 2/Delete Confirm/Delete Panel" unique_id=852104139]
+custom_minimum_size = Vector2(850, 300)
+custom_maximum_size = Vector2(850, 300)
+layout_mode = 0
+offset_right = 848.0
+offset_bottom = 300.0
+theme_override_constants/separation = 21
+alignment = 1
+
+[node name="lblMessage" type="Label" parent="CanvasLayer/Columns/Column 2/Delete Confirm/Delete Panel/Delete Stuff" unique_id=1777229589]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Are you sure you want to delete?"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Buttons" type="HBoxContainer" parent="CanvasLayer/Columns/Column 2/Delete Confirm/Delete Panel/Delete Stuff" unique_id=1974389543]
+layout_mode = 2
+alignment = 1
+
+[node name="btnNo" type="Button" parent="CanvasLayer/Columns/Column 2/Delete Confirm/Delete Panel/Delete Stuff/Buttons" unique_id=1213968628]
+custom_minimum_size = Vector2(200, 0)
+custom_maximum_size = Vector2(200, -1)
+layout_mode = 2
+size_flags_horizontal = 8
+theme_override_font_sizes/font_size = 24
+text = "Cancel"
+
+[node name="btnYes" type="Button" parent="CanvasLayer/Columns/Column 2/Delete Confirm/Delete Panel/Delete Stuff/Buttons" unique_id=881252283]
+custom_minimum_size = Vector2(200, 0)
+custom_maximum_size = Vector2(200, -1)
+layout_mode = 2
+size_flags_horizontal = 8
+theme_override_font_sizes/font_size = 24
+text = "Confirm"
+
 [node name="Column 3" type="VBoxContainer" parent="CanvasLayer/Columns" unique_id=1697345709]
 layout_mode = 2
 size_flags_horizontal = 10
@@ -337,9 +419,16 @@ theme_override_font_sizes/font_size = 24
 text = "R/M"
 
 [connection signal="pressed" from="CanvasLayer/Columns/Column 1/btnBack" to="." method="_Back_Button_Clicked"]
+[connection signal="pressed" from="CanvasLayer/Columns/Column 2/Account Edit/Buttons/btnUpdate" to="CanvasLayer/Columns/Column 2" method="_Update_Clicked"]
+[connection signal="pressed" from="CanvasLayer/Columns/Column 2/Account Edit/Buttons/btnDelete" to="." method="_Delete_Clicked"]
 [connection signal="pressed" from="CanvasLayer/Columns/Column 2/Account Edit/Create Panel/Account Creator/Line 1/btnConfirm" to="CanvasLayer/Columns/Column 2/Account Edit/Create Panel" method="_Confirm_Create_Clicked"]
 [connection signal="pressed" from="CanvasLayer/Columns/Column 2/Account Edit/Create Panel/Account Creator/Line 2/btnCancel" to="CanvasLayer/Columns/Column 2/Account Edit/Create Panel" method="_Cancel_Create_Clicked"]
 [connection signal="pressed" from="CanvasLayer/Columns/Column 2/Account Edit/btnCreate" to="CanvasLayer/Columns/Column 2/Account Edit/Create Panel" method="_Open_Create_Clicked"]
+[connection signal="pressed" from="CanvasLayer/Columns/Column 2/Player Edit/Buttons/btnUpdate" to="CanvasLayer/Columns/Column 2" method="_Update_Clicked"]
+[connection signal="pressed" from="CanvasLayer/Columns/Column 2/Player Edit/Buttons/btnDelete" to="." method="_Delete_Clicked"]
+[connection signal="pressed" from="CanvasLayer/Columns/Column 2/Room Edit/btnKill" to="." method="_Delete_Clicked"]
+[connection signal="pressed" from="CanvasLayer/Columns/Column 2/Delete Confirm/Delete Panel/Delete Stuff/Buttons/btnNo" to="." method="_Cancel_Clicked"]
+[connection signal="pressed" from="CanvasLayer/Columns/Column 2/Delete Confirm/Delete Panel/Delete Stuff/Buttons/btnYes" to="." method="_Confirm_Delete_Clicked"]
 [connection signal="timeout" from="CanvasLayer/Columns/Column 3/Scroll Bar/Refresh Timer" to="CanvasLayer/Columns/Column 3/Scroll Bar/Name List" method="LoadNames"]
 [connection signal="pressed" from="CanvasLayer/Columns/Column 3/View Toggles/btnAccounts" to="." method="_Account_View_Clicked"]
 [connection signal="pressed" from="CanvasLayer/Columns/Column 3/View Toggles/btnPlayers" to="." method="_Player_View_Clicked"]

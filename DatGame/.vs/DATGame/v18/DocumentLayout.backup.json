@@ -3,16 +3,16 @@
   "WorkspaceRootPath": "E:\\DAT602-Project\\DatGame\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{711F3FF0-1DEB-4209-9E08-FE17DF1E52E1}|DATGame.csproj|e:\\dat602-project\\datgame\\admin page\\admin_centre_config.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{711F3FF0-1DEB-4209-9E08-FE17DF1E52E1}|DATGame.csproj|solutionrelative:admin page\\admin_centre_config.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|E:\\DAT602-Project\\DatGame\\Admin Page\\Entry_Select_Filler.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Admin Page\\Entry_Select_Filler.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|E:\\DAT602-Project\\DatGame\\Admin Page\\Data_Display.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Admin Page\\Data_Display.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{711F3FF0-1DEB-4209-9E08-FE17DF1E52E1}|DATGame.csproj|e:\\dat602-project\\datgame\\daoclass.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{711F3FF0-1DEB-4209-9E08-FE17DF1E52E1}|DATGame.csproj|solutionrelative:daoclass.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{711F3FF0-1DEB-4209-9E08-FE17DF1E52E1}|DATGame.csproj|e:\\dat602-project\\datgame\\admin page\\entry_select_filler.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{711F3FF0-1DEB-4209-9E08-FE17DF1E52E1}|DATGame.csproj|solutionrelative:admin page\\entry_select_filler.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -26,41 +26,41 @@
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 2,
               "Title": "Entry_Select_Filler.cs",
               "DocumentMoniker": "E:\\DAT602-Project\\DatGame\\Admin Page\\Entry_Select_Filler.cs",
               "RelativeDocumentMoniker": "Admin Page\\Entry_Select_Filler.cs",
               "ToolTip": "E:\\DAT602-Project\\DatGame\\Admin Page\\Entry_Select_Filler.cs",
               "RelativeToolTip": "Admin Page\\Entry_Select_Filler.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAB4AAAAAAAAAAAAYwC8AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-10-03T21:31:46.834Z",
+              "WhenOpened": "2026-10-04T01:53:54.782Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "Admin_Centre_Config.cs",
-              "DocumentMoniker": "E:\\DAT602-Project\\DatGame\\Admin Page\\Admin_Centre_Config.cs",
-              "RelativeDocumentMoniker": "Admin Page\\Admin_Centre_Config.cs",
-              "ToolTip": "E:\\DAT602-Project\\DatGame\\Admin Page\\Admin_Centre_Config.cs",
-              "RelativeToolTip": "Admin Page\\Admin_Centre_Config.cs",
-              "ViewState": "AgIAACQAAAAAAAAAAAAIwEAAAAAqAAAAAAAAAA==",
+              "Title": "Data_Display.cs",
+              "DocumentMoniker": "E:\\DAT602-Project\\DatGame\\Admin Page\\Data_Display.cs",
+              "RelativeDocumentMoniker": "Admin Page\\Data_Display.cs",
+              "ToolTip": "E:\\DAT602-Project\\DatGame\\Admin Page\\Data_Display.cs",
+              "RelativeToolTip": "Admin Page\\Data_Display.cs",
+              "ViewState": "AgIAAFAAAAAAAAAAAAAcwHQAAAAXAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-10-03T21:17:26.111Z",
+              "WhenOpened": "2026-10-04T00:44:41.277Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 1,
               "Title": "DAOClass.cs",
               "DocumentMoniker": "E:\\DAT602-Project\\DatGame\\DAOClass.cs",
               "RelativeDocumentMoniker": "DAOClass.cs",
               "ToolTip": "E:\\DAT602-Project\\DatGame\\DAOClass.cs",
               "RelativeToolTip": "DAOClass.cs",
-              "ViewState": "AgIAALoAAAAAAAAAAAAmwMQAAABIAAAAAAAAAA==",
+              "ViewState": "AgIAANMBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-10-02T01:00:38.763Z",
+              "WhenOpened": "2026-10-04T01:54:39.854Z",
               "EditorCaption": ""
             }
           ]

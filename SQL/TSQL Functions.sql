@@ -35,6 +35,7 @@ DROP PROCEDURE IF EXISTS Get_Owned_Rooms;
 DROP PROCEDURE IF EXISTS Get_Players;
 DROP PROCEDURE IF EXISTS Get_Room;
 DROP PROCEDURE IF EXISTS Get_Player;
+DROP PROCEDURE IF EXISTS Delete_Player;
 
 DELIMITER //
 
@@ -590,7 +591,6 @@ END//
 -- Update data of an account
 CREATE PROCEDURE Update_Account(
 	IN InAccount VARCHAR(32),
-    IN NewPassword VARCHAR(32),
     IN IsAdmin BIT,
     IN IsLocked BIT
 )
@@ -603,8 +603,7 @@ BEGIN
     -- Update the requested account with the given data
     ELSE
 		UPDATE `account`
-			SET `Password` = NewPassword,
-				`Admin`= IsAdmin,
+			SET `Admin`= IsAdmin,
 				`Locked` = IsLocked
 			WHERE AccountName = InAccount;
 		
@@ -677,26 +676,25 @@ END//
 
 -- Update Player Data
 CREATE PROCEDURE Update_Player (
-	IN Player INT,
+	IN InAccount VARCHAR(32),
+	IN Room INT,
     IN Score_Current INT,
-    IN Score_High INT,
-    IN InHealth INT,
-    IN InEnergy INT
+    IN Score_High INT
 )
 BEGIN
 
+	SET @player = (SELECT PlayerID FROM player WHERE RoomID = Room AND AccountName = InAccount);
+
 	-- Error: If requested player doesn't exist
-	IF NOT EXISTS (SELECT * FROM player WHERE PlayerID = Player AND `Active` = 1) THEN
+	IF NOT EXISTS (SELECT * FROM player WHERE PlayerID = @player AND `Active` = 1) THEN
 		SELECT '{Player does not exist' AS message;
     
     -- Update the requested player with the given data
     ELSE
 		UPDATE `player`
 			SET High_Score = Score_High,
-				Current_Score = Score_Current,
-                Health = InHealth,
-                Energy = InEnergy
-			WHERE PlayerID = Player;
+				Current_Score = Score_Current
+			WHERE PlayerID = @player;
 		
 	END IF;
 
@@ -1069,6 +1067,27 @@ BEGIN
 		WHERE p.AccountName = InAccount
 			AND r.RoomID = InRoom;
 	
+    END IF;
+
+END//
+
+CREATE PROCEDURE Delete_Player (
+	IN InAccount VARCHAR(32),
+    IN InRoom INT
+)
+BEGIN
+
+	-- Error: If the account doesn't exist
+    IF NOT EXISTS (SELECT * FROM `account` WHERE AccountName = InAccount) THEN
+		SELECT 'Account not found' AS message;
+    
+    -- Error: If the room doesn't exist
+	ELSEIF NOT EXISTS (SELECT * FROM room WHERE RoomID = InRoom) THEN
+		SELECT 'Room not found' AS message;
+        
+	ELSE
+		DELETE FROM player WHERE AccountName = InAccount AND RoomID = InRoom;
+
     END IF;
 
 END//

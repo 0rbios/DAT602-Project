@@ -227,6 +227,35 @@ namespace DATGame
             return output;
         }
 
+        public void UpdateAccount(string username, bool admin, bool locked)
+        {
+            try
+            {
+                _connection.Open();
+
+				int admini = 0;
+				int lockedi = 0;
+
+				if (admin == true)
+				{
+					admini = 1;
+				}
+
+				if (locked == true)
+				{
+					lockedi = 1;
+				}
+
+                MySqlCommand command = new MySqlCommand($"CALL Update_Account('{username}', {admini}, {lockedi});", _connection);
+                command.ExecuteNonQuery();
+            }
+
+            finally
+            {
+                _connection.Close();
+            }
+        }
+
     }
 
 	// Any database calls related to room management
@@ -425,7 +454,7 @@ namespace DATGame
             }
         }
 
-		public void KillRoom(int roomid)
+        public void KillRoom(int roomid)
 		{
 			try
 			{
@@ -447,7 +476,41 @@ namespace DATGame
 	// Any database calls that manage player entries
 	internal partial class PlayerDAO : DAOClass
 	{
-		public void JoinGame(string account, int room, string classname)
+        public void UpdatePlayer(string account, int room, int highscore, int currentscore)
+        {
+            try
+            {
+                _connection.Open();
+
+                MySqlCommand command = new MySqlCommand($"CALL Update_Player('{account}', {room}, {currentscore}, {highscore});", _connection);
+
+                command.ExecuteNonQuery();
+            }
+
+            finally
+            {
+                _connection.Close();
+            }
+        }
+
+        public void DeletePlayer(string account, int room)
+        {
+            try
+            {
+                _connection.Open();
+
+                MySqlCommand command = new MySqlCommand($"CALL Delete_Player('{account}', {room});", _connection);
+
+                command.ExecuteNonQuery();
+            }
+
+            finally
+            {
+                _connection.Close();
+            }
+        }
+
+        public void JoinGame(string account, int room, string classname)
 		{
 			try
 			{
