@@ -1,4 +1,5 @@
 using Godot;
+using Godot.Collections;
 
 namespace DATGame
 {
@@ -11,8 +12,10 @@ namespace DATGame
         private Entry_Select_Filler _list;
 
         private int _view = 0;
+        private Array _currentselection = [];
 
         public int View { get => _view; }
+        public Array CurrentSelection { get => _currentselection; set => _currentselection = value; }
 
         public override void _Ready()
         {
@@ -35,6 +38,8 @@ namespace DATGame
 
             _accountpane.Visible = true;
 
+            _currentselection = [];
+
             _list.LoadNames();
         }
 
@@ -47,6 +52,8 @@ namespace DATGame
 
             _playerpane.Visible = true;
 
+            _currentselection = [];
+
             _list.LoadNames();
         }
 
@@ -58,6 +65,8 @@ namespace DATGame
             _accountpane.Visible = false;
 
             _roompane.Visible = true;
+
+            _currentselection = [];
 
             _list.LoadNames();
         }

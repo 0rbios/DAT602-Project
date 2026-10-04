@@ -1,0 +1,11 @@
+[gd_scene format=3 uid="uid://ta53lnb40o7s"]
+
+[ext_resource type="Script" uid="uid://sfysfnbx0np7" path="res://Admin Page/Name_Button.cs" id="1_dkqku"]
+
+[node name="btnName" type="Button" unique_id=745138739]
+offset_right = 8.0
+offset_bottom = 8.0
+text = "[Text goes here]"
+script = ExtResource("1_dkqku")
+
+[connection signal="pressed" from="." to="." method="_Clicked"]

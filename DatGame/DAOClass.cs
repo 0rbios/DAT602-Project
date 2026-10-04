@@ -257,6 +257,55 @@ namespace DATGame
 			return false;
 		}
 
+		public Dictionary GetRoomInfo(int room)
+		{
+            Dictionary output = new Dictionary();
+
+            try
+            {
+                _connection.Open();
+
+                MySqlCommand command = new MySqlCommand($"CALL Get_Room({room});", _connection);
+
+                using (MySqlDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        for (int i = 0; i < reader.FieldCount; i++)
+                        {
+                            if (reader.GetValue(i) is int vali)
+                            {
+                                output[reader.GetName(i)] = Variant.From(vali);
+                            }
+
+                            else if (reader.GetValue(i) is Int64 vali64)
+                            {
+                                output[reader.GetName(i)] = Variant.From(vali64);
+                            }
+
+                            else if (reader.GetValue(i) is string vals)
+                            {
+                                output[reader.GetName(i)] = Variant.From(vals);
+                            }
+
+                            else
+                            {
+                                GD.Print($"Unrecognised data type for column: {reader.GetName(i)} | TYPE ({reader.GetValue(i).GetType()})");
+                            }
+
+                        }
+                    }
+                }
+            }
+
+            finally
+            {
+                _connection.Close();
+            }
+
+            return output;
+        }
+
 		public Dictionary GetRoom(string username)
 		{
 			Dictionary output = new Dictionary();
@@ -456,6 +505,55 @@ namespace DATGame
                         }
 
                         output.Add(player);
+                    }
+                }
+            }
+
+            finally
+            {
+                _connection.Close();
+            }
+
+            return output;
+        }
+
+        public Dictionary GetPlayer(string account, int room)
+        {
+            Dictionary output = new Dictionary();
+
+            try
+            {
+                _connection.Open();
+
+                MySqlCommand command = new MySqlCommand($"CALL Get_Player('{account}', {room});", _connection);
+
+                using (MySqlDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        for (int i = 0; i < reader.FieldCount; i++)
+                        {
+                            if (reader.GetValue(i) is int vali)
+                            {
+                                output[reader.GetName(i)] = Variant.From(vali);
+                            }
+
+                            else if (reader.GetValue(i) is Int64 vali64)
+                            {
+                                output[reader.GetName(i)] = Variant.From(vali64);
+                            }
+
+                            else if (reader.GetValue(i) is string vals)
+                            {
+                                output[reader.GetName(i)] = Variant.From(vals);
+                            }
+
+                            else
+                            {
+                                GD.Print($"Unrecognised data type for column: {reader.GetName(i)} | TYPE ({reader.GetValue(i).GetType()})");
+                            }
+
+                        }
                     }
                 }
             }

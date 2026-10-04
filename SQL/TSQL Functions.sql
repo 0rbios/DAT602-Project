@@ -33,6 +33,8 @@ DROP PROCEDURE IF EXISTS Rejoin_At;
 DROP PROCEDURE IF EXISTS Get_Rooms;
 DROP PROCEDURE IF EXISTS Get_Owned_Rooms;
 DROP PROCEDURE IF EXISTS Get_Players;
+DROP PROCEDURE IF EXISTS Get_Room;
+DROP PROCEDURE IF EXISTS Get_Player;
 
 DELIMITER //
 
@@ -1014,13 +1016,60 @@ BEGIN
     
 END//
 
-CREATE PROCEDURE Get_Players()
+CREATE PROCEDURE Get_Room (
+	IN room INT
+)
+BEGIN
+	
+    -- Error: If the account doesn't exist
+    IF NOT EXISTS (SELECT * FROM room WHERE RoomID = room) THEN
+		SELECT 'Room not found';
+	ELSE
+		SELECT RoomName, p.AccountName
+        FROM room r
+		LEFT JOIN player p
+			ON p.RoomID = r.RoomID
+        WHERE r.RoomID = room
+        ORDER BY HighScore
+        LIMIT 1;
+        
+	END IF;
+    
+END//
+
+CREATE PROCEDURE Get_Players ()
 BEGIN
 
-	SELECT p.AccountName, r.RoomName
+	SELECT p.AccountName, r.RoomName, r.RoomID
     FROM player p
 	JOIN room r
 	ON p.RoomID = r.RoomID;
+
+END//
+
+CREATE PROCEDURE Get_Player (
+	IN InAccount VARCHAR(32),
+    IN InRoom INT
+)
+BEGIN
+
+	-- Error: If the account doesn't exist
+    IF NOT EXISTS (SELECT * FROM `account` WHERE AccountName = InAccount) THEN
+		SELECT 'Account not found' AS message;
+    
+    -- Error: If the room doesn't exist
+	ELSEIF NOT EXISTS (SELECT * FROM room WHERE RoomID = InRoom) THEN
+		SELECT 'Room not found' AS message;
+        
+	ELSE
+		SELECT r.RoomName, p.AccountName, p.HighScore, p.CurrentScore
+		FROM player p
+		JOIN room r
+			ON r.RoomID = p.RoomID
+		WHERE p.AccountName = InAccount
+			AND r.RoomID = InRoom;
+	
+    END IF;
 
 END//
 

@@ -28,10 +28,13 @@ namespace DATGame
 
                     foreach (Dictionary account in accountlist)
                     {
-                        Button accountbutton = new Button
-                        {
-                            Text = (string)account["AccountName"]
-                        };
+                        Button accountbutton = (Button)GD.Load<PackedScene>("res://Admin Page/Name Button.tscn").Instantiate();
+
+                        Name_Button script = (Name_Button)accountbutton;
+
+                        accountbutton.Text = (string)account["AccountName"];
+
+                        script.MyValues = [account["AccountName"]];
 
                         CallDeferred("add_child", accountbutton);
                     }
@@ -45,10 +48,13 @@ namespace DATGame
 
                     foreach (Dictionary player in playerlist)
                     {
-                        Button playerbutton = new Button
-                        {
-                            Text = $"{(string)player["AccountName"]} ({(string)player["RoomName"]})"
-                        };
+                        Button playerbutton = (Button)GD.Load<PackedScene>("res://Admin Page/Name Button.tscn").Instantiate();
+
+                        Name_Button script = (Name_Button)playerbutton;
+
+                        playerbutton.Text = $"{(string)player["AccountName"]} ({(string)player["RoomName"]})";
+
+                        script.MyValues = [player["AccountName"], player["RoomID"]];
 
                         CallDeferred("add_child", playerbutton);
                     }
@@ -62,10 +68,13 @@ namespace DATGame
 
                     foreach (Dictionary room in roomlist)
                     {
-                        Button roombutton = new Button
-                        {
-                            Text = (string)room["RoomName"]
-                        };
+                        Button roombutton = (Button)GD.Load<PackedScene>("res://Admin Page/Name Button.tscn").Instantiate();
+
+                        Name_Button script = (Name_Button)roombutton;
+
+                        roombutton.Text = (string)room["RoomName"];
+
+                        script.MyValues = [room["RoomID"]];
 
                         CallDeferred("add_child", roombutton);
                     }
