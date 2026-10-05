@@ -39,6 +39,7 @@ DROP PROCEDURE IF EXISTS Delete_Player;
 DROP PROCEDURE IF EXISTS Get_Statistics;
 DROP PROCEDURE IF EXISTS Get_Inventory;
 DROP PROCEDURE IF EXISTS Attach_Player_Stat;
+DROP PROCEDURE IF EXISTS Get_Tile_Inventory;
 
 DELIMITER //
 
@@ -611,6 +612,48 @@ BEGIN
 	ELSE
 		SELECT AccountName, HighScore FROM player WHERE RoomID = Room;
 	END IF;
+
+END//
+
+-- Get all the abilities on the given x/y range around the player
+CREATE PROCEDURE Get_Tile_Inventory (
+	IN InAccount VARCHAR(32),
+    IN InRoom INT,
+    IN InXRange INT,
+    IN InYRange INT
+)
+BEGIN
+
+	-- Error: If the account doesn't exist
+    IF NOT EXISTS (SELECT * FROM `account` WHERE AccountName = InAccount) THEN
+		SELECT 'Account not found' AS message;
+    
+    -- Error: If the room doesn't exist
+	ELSEIF NOT EXISTS (SELECT * FROM room WHERE RoomID = InRoom) THEN
+		SELECT 'Room not found' AS message;
+	
+	-- Error: If the x or y range is not possible
+    ELSEIF InXRange < 0 OR InYRange < 0 THEN
+		SELECT 'Invalid search range' AS message;
+    
+	ELSE
+		SET @player = (SELECT PlayerID FROM player WHERE AccountName = InAccount AND RoomID = InRoom);
+    
+		SELECT a.*
+        FROM tile_ability ta
+        JOIN abilityinstance ai
+			ON ai.AbilityID = ta.AbilityID
+        JOIN ability a
+			ON a.AbilityName = ai.AbilityName
+		JOIN tile t
+			ON ta.TileID = t.TileID
+		WHERE ta.Removed IS NULL
+			AND (t.XPos <= (SELECT XPos FROM player WHERE PlayerID = @player) + InXRange
+				OR t.XPos >= (SELECT XPos FROM player WHERE PlayerID = @player) - InXRange
+                OR t.YPos <= (SELECT XPos FROM player WHERE PlayerID = @player) + InYRange
+                OR t.YPos >= (SELECT XPos FROM player WHERE PlayerID = @player) - InYRange);
+
+    END IF;
 
 END//
 

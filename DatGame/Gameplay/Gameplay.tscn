@@ -4,6 +4,7 @@
 [ext_resource type="Script" uid="uid://de3llqmdxra87" path="res://Gameplay/Statistic_Readout.cs" id="2_8txw0"]
 [ext_resource type="Script" uid="uid://c7pxxir2r7l2s" path="res://Gameplay/Leaderboard_Populator.cs" id="2_jrg7p"]
 [ext_resource type="PackedScene" uid="uid://wg665ql2fs0x" path="res://Gameplay/Leaderboard Entry.tscn" id="3_5vg7g"]
+[ext_resource type="Script" uid="uid://ba86rieirwmdc" path="res://Gameplay/Tile_Inventory.cs" id="3_7uq6k"]
 
 [node name="Gameplay" type="Control" unique_id=939557805]
 layout_mode = 3
@@ -93,9 +94,18 @@ theme_override_font_sizes/font_size = 24
 text = "[#]/[#]"
 
 [node name="Scroll bar" type="ScrollContainer" parent="CanvasLayer/Columns/Column 2/Inventory" unique_id=573420406]
+custom_minimum_size = Vector2(0, 204)
 layout_mode = 2
 
-[node name="Items" type="GridContainer" parent="CanvasLayer/Columns/Column 2/Inventory/Scroll bar" unique_id=311878189]
+[node name="Rows" type="VBoxContainer" parent="CanvasLayer/Columns/Column 2/Inventory/Scroll bar" unique_id=1898924559]
+layout_mode = 2
+alignment = 1
+script = ExtResource("3_7uq6k")
+
+[node name="Top Row" type="HBoxContainer" parent="CanvasLayer/Columns/Column 2/Inventory/Scroll bar/Rows" unique_id=1520599338]
+layout_mode = 2
+
+[node name="Bottom Row" type="HBoxContainer" parent="CanvasLayer/Columns/Column 2/Inventory/Scroll bar/Rows" unique_id=1789457348]
 layout_mode = 2
 
 [node name="Column 3" type="VBoxContainer" parent="CanvasLayer/Columns" unique_id=1622871578]

@@ -719,6 +719,77 @@ namespace DATGame
         }
     }
 
+    // Any database calls invloving the map
+    internal partial class MapDAO : DAOClass
+    {
+        public Godot.Collections.Array GetTileInventory(string username, int room, int xrange, int yrange)
+        {
+            Godot.Collections.Array output = new Godot.Collections.Array();
+
+            try
+            {
+                _connection.Open();
+
+                MySqlCommand command = new MySqlCommand($"CALL Get_Tile_Inventory('{username}', {room}, {xrange}, {yrange});", _connection);
+
+                using (MySqlDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        Dictionary ability = new Dictionary();
+
+                        for (int i = 0; i < reader.FieldCount; i++)
+                        {
+                            if (reader.GetValue(i) is int vali)
+                            {
+                                ability[reader.GetName(i)] = Variant.From(vali);
+                            }
+
+                            else if (reader.GetValue(i) is UInt64 vali64)
+                            {
+                                switch (reader.GetValue(i))
+                                {
+                                    case (UInt64)0:
+                                        ability[reader.GetName(i)] = Variant.From(false);
+                                        break;
+
+                                    case (UInt64)1:
+                                        ability[reader.GetName(i)] = Variant.From(true);
+                                        break;
+
+                                    default:
+                                        UInt64 val = (UInt64)reader.GetValue(i);
+                                        ability[reader.GetName(i)] = Variant.From(val);
+                                        break;
+                                }
+                            }
+
+                            else if (reader.GetValue(i) is string vals)
+                            {
+                                ability[reader.GetName(i)] = Variant.From(vals);
+                            }
+
+                            else
+                            {
+                                GD.Print($"Unrecognised data type for column: {reader.GetName(i)} | TYPE ({reader.GetValue(i).GetType()})");
+                            }
+
+                        }
+
+                        output.Add(ability);
+                    }
+                }
+            }
+
+            finally
+            {
+                _connection.Close();
+            }
+
+            return output;
+        }
+    }
+
 	// Any database calls to get system/base information
 	internal partial class GameDAO : DAOClass
 	{
