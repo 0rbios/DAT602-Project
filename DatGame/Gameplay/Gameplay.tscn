@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://c0wjmj13cg6u2"]
 
 [ext_resource type="Script" uid="uid://3t6bx35g0wfs" path="res://Gameplay/Gameplay_Config.cs" id="1_hs5x1"]
+[ext_resource type="Script" uid="uid://de3llqmdxra87" path="res://Gameplay/Statistic_Readout.cs" id="2_8txw0"]
 [ext_resource type="Script" uid="uid://c7pxxir2r7l2s" path="res://Gameplay/Leaderboard_Populator.cs" id="2_jrg7p"]
 [ext_resource type="PackedScene" uid="uid://wg665ql2fs0x" path="res://Gameplay/Leaderboard Entry.tscn" id="3_5vg7g"]
 
@@ -26,6 +27,7 @@ layout_mode = 2
 
 [node name="Top Box" type="VBoxContainer" parent="CanvasLayer/Columns/Column 1" unique_id=1825072927]
 layout_mode = 2
+size_flags_vertical = 19
 
 [node name="btnBack" type="Button" parent="CanvasLayer/Columns/Column 1/Top Box" unique_id=308931627]
 custom_minimum_size = Vector2(200, 0)
@@ -37,6 +39,7 @@ text = "Back to menu"
 [node name="rlblStats" type="RichTextLabel" parent="CanvasLayer/Columns/Column 1/Top Box" unique_id=395168746]
 custom_minimum_size = Vector2(0, 195.22)
 layout_mode = 2
+size_flags_vertical = 3
 theme_override_colors/default_color = Color(0, 0, 0, 1)
 text = "Stats:
 	Strength: [#]
@@ -46,9 +49,11 @@ text = "Stats:
 Score: [#]
 
 HP: [#]/[#]"
+script = ExtResource("2_8txw0")
 
 [node name="Bottom Box" type="HBoxContainer" parent="CanvasLayer/Columns/Column 1" unique_id=1222683993]
 layout_mode = 2
+size_flags_vertical = 10
 theme_override_constants/separation = 14
 alignment = 1
 

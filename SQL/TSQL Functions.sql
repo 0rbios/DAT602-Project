@@ -36,6 +36,9 @@ DROP PROCEDURE IF EXISTS Get_Players;
 DROP PROCEDURE IF EXISTS Get_Room;
 DROP PROCEDURE IF EXISTS Get_Player;
 DROP PROCEDURE IF EXISTS Delete_Player;
+DROP PROCEDURE IF EXISTS Get_Statistics;
+DROP PROCEDURE IF EXISTS Get_Inventory;
+DROP PROCEDURE IF EXISTS Attach_Player_Stat;
 
 DELIMITER //
 
@@ -264,6 +267,13 @@ BEGIN
 			INSERT INTO player (CurrentEnergy, CurrentHealth, AccountName, RoomID, ClassName)
 				VALUES (10, 10, InAccountName, InRoomID, Class);
 
+			SET @player = (SELECT PlayerID FROM player WHERE AccountName = InAccountName AND RoomID = InRoomID);
+
+			CALL Attach_Player_Stat(@player, 'Strength');
+			CALL Attach_Player_Stat(@player, 'Speed');
+			CALL Attach_Player_Stat(@player, 'Energy');
+			CALL Attach_Player_Stat(@player, 'Health');
+
 			-- Places the player with the given account and room onto the tile with position 0,0 on the given table.
 			INSERT INTO player_tile (TileID, PlayerID, MovedOn)
 				VALUES (
@@ -277,8 +287,75 @@ BEGIN
 
 END//
 
+-- Create the player statistic value
+CREATE PROCEDURE Attach_Player_Stat (
+	IN InPlayer INT,
+    IN InStatName VARCHAR(16)
+)
+BEGIN
+
+	-- Error: If the player doesn't exist
+    IF NOT EXISTS (SELECT * FROM player WHERE PlayerID = InPlayer) THEN
+		SELECT 'Player not found' AS message;
+	
+    -- Error: If the stat link already exists
+    ELSEIF EXISTS (SELECT * FROM player_stat WHERE StatName = InStatName AND PlayerID = InPlayer) THEN
+		SELECT 'Link already exists' AS message;
+    
+	ELSE
+    
+		INSERT INTO player_stat (StatName, `Value`, PlayerID)
+			VALUES (InStatName, (SELECT SUM(AmountSum) FROM (
+									SELECT SUM(Amount) AS AmountSum
+									FROM class_stat
+									WHERE ClassName = (SELECT ClassName FROM player WHERE PlayerID = InPlayer)
+										AND StatName = InStatName
+									UNION
+									SELECT SUM(Amount) AS AmountSum
+									FROM statchange
+									WHERE AbilityName IN (SELECT ai.AbilityName
+															FROM player_ability pa
+															JOIN abilityinstance ai
+																ON ai.AbilityID = pa.AbilityID
+															WHERE pa.PlayerID = InPlayer
+																AND pa.Dropped IS NULL)
+										AND StatName = InStatName) AS st), InPlayer);
+
+    END IF;
+
+END//
+
+-- Get all abilities in the player's inventory
+CREATE PROCEDURE Get_Inventory (
+	IN InAccount VARCHAR(32),
+    IN InRoom INT
+)
+BEGIN
+
+		-- Error: If the account doesn't exist
+    IF NOT EXISTS (SELECT * FROM `account` WHERE AccountName = InAccount) THEN
+		SELECT 'Account not found' AS message;
+    
+    -- Error: If the room doesn't exist
+	ELSEIF NOT EXISTS (SELECT * FROM room WHERE RoomID = InRoom) THEN
+		SELECT 'Room not found' AS message;
+        
+	ELSE
+		SET @player = (SELECT PlayerID FROM player WHERE AccountName = InAccount AND RoomID = InRoom);
+        
+        SELECT ai.AbilityName, ai.AbilityID
+        FROM player_ability pa
+        JOIN abilityinstance ai
+			ON ai.AbilityID = pa.AbilityID
+        WHERE pa.PlayerID = @player
+			AND pa.Dropped IS NULL;
+
+    END IF;
+
+END//
+
 -- Find available movement tiles and move player
-CREATE PROCEDURE Move_Player(
+CREATE PROCEDURE Move_Player (
     IN Player INT,
 	IN MoveX INT,
     IN MoveY INT,
@@ -1060,12 +1137,37 @@ BEGIN
 		SELECT 'Room not found' AS message;
         
 	ELSE
-		SELECT r.RoomName, p.AccountName, p.HighScore, p.CurrentScore
+		SELECT r.RoomName, p.AccountName, p.HighScore, p.CurrentScore, p.CurrentEnergy, p.CurrentHealth
 		FROM player p
 		JOIN room r
 			ON r.RoomID = p.RoomID
 		WHERE p.AccountName = InAccount
 			AND r.RoomID = InRoom;
+	
+    END IF;
+
+END//
+
+CREATE PROCEDURE Get_Statistics (
+	IN InAccount VARCHAR(32),
+    IN InRoom INT
+)
+BEGIN
+
+	-- Error: If the account doesn't exist
+    IF NOT EXISTS (SELECT * FROM `account` WHERE AccountName = InAccount) THEN
+		SELECT 'Account not found' AS message;
+    
+    -- Error: If the room doesn't exist
+	ELSEIF NOT EXISTS (SELECT * FROM room WHERE RoomID = InRoom) THEN
+		SELECT 'Room not found' AS message;
+        
+	ELSE
+		SET @player = (SELECT PlayerID FROM player WHERE AccountName = InAccount AND RoomID = InRoom);
+        
+		SELECT StatName, `Value`
+        FROM player_stat
+        WHERE PlayerID = @player;
 	
     END IF;
 

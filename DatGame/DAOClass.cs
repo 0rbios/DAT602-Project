@@ -619,6 +619,17 @@ namespace DATGame
                         }
                     }
                 }
+
+                MySqlCommand command2 = new MySqlCommand($"CALL Get_Statistics('{account}', {room});", _connection);
+
+                using (MySqlDataReader reader2 = command2.ExecuteReader())
+                {
+                    while (reader2.Read())
+                    {
+                        output[Variant.From((string)reader2.GetValue(0))] = Variant.From((int)reader2.GetValue(1));
+                    }
+                }
+
             }
 
             finally
