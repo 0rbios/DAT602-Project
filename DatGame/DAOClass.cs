@@ -629,6 +629,83 @@ namespace DATGame
             return output;
         }
 
+        public int GetPlayerScore(string account, int room)
+        {
+            try
+            {
+                _connection.Open();
+
+                MySqlCommand command = new MySqlCommand($"SELECT Get_Score('{account}', {room});", _connection);
+
+                using (MySqlDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        return (int)reader.GetValue(0);
+                    }
+                }
+            }
+
+            finally
+            {
+                _connection.Close();
+            }
+
+            return 0;
+        }
+
+        public Godot.Collections.Array GetLeaderboard(int room)
+        {
+            Godot.Collections.Array output = new Godot.Collections.Array();
+
+            try
+            {
+                _connection.Open();
+
+                MySqlCommand command = new MySqlCommand($"CALL Get_Leaderboard({room});", _connection);
+
+                using (MySqlDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        Dictionary player = new Dictionary();
+
+                        for (int i = 0; i < reader.FieldCount; i++)
+                        {
+                            if (reader.GetValue(i) is int vali)
+                            {
+                                player[reader.GetName(i)] = Variant.From(vali);
+                            }
+
+                            else if (reader.GetValue(i) is Int64 vali64)
+                            {
+                                player[reader.GetName(i)] = Variant.From(vali64);
+                            }
+
+                            else if (reader.GetValue(i) is string vals)
+                            {
+                                player[reader.GetName(i)] = Variant.From(vals);
+                            }
+
+                            else
+                            {
+                                GD.Print($"Unrecognised data type for column: {reader.GetName(i)} | TYPE ({reader.GetValue(i).GetType()})");
+                            }
+
+                        }
+
+                        output.Add(player);
+                    }
+                }
+            }
+
+            finally
+            {
+                _connection.Close();
+            }
+
+            return output;
+        }
     }
 
 	// Any database calls to get system/base information

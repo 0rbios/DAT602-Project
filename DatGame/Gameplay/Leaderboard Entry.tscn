@@ -1,0 +1,42 @@
+[gd_scene format=3 uid="uid://wg665ql2fs0x"]
+
+[ext_resource type="Script" uid="uid://d38sco0hwpnj0" path="res://Gameplay/Leaderboard_Entry_Conf.cs" id="1_ag6am"]
+
+[node name="Rank Panel" type="Panel" unique_id=186400740]
+custom_minimum_size = Vector2(200, 100)
+custom_maximum_size = Vector2(200, 100)
+offset_right = 200.0
+offset_bottom = 100.0
+script = ExtResource("1_ag6am")
+
+[node name="Columns" type="HBoxContainer" parent="." unique_id=1043421680]
+custom_minimum_size = Vector2(200, 100)
+custom_maximum_size = Vector2(200, 100)
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+alignment = 1
+
+[node name="Info" type="VBoxContainer" parent="Columns" unique_id=2048711068]
+custom_minimum_size = Vector2(120, 0)
+custom_maximum_size = Vector2(120, -1)
+layout_mode = 2
+size_flags_horizontal = 3
+alignment = 1
+
+[node name="lblUsername" type="Label" parent="Columns/Info" unique_id=230598612]
+layout_mode = 2
+text = "[Username]"
+horizontal_alignment = 1
+
+[node name="lblScore" type="Label" parent="Columns/Info" unique_id=959943549]
+layout_mode = 2
+text = "[Score]"
+horizontal_alignment = 1
+
+[node name="sprIcon" type="TextureRect" parent="Columns" unique_id=971104071]
+custom_minimum_size = Vector2(50, 50)
+custom_maximum_size = Vector2(50, 50)
+layout_mode = 2
+size_flags_vertical = 4
+expand_mode = 3

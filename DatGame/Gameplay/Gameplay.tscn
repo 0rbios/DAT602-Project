@@ -1,5 +1,9 @@
 [gd_scene format=3 uid="uid://c0wjmj13cg6u2"]
 
+[ext_resource type="Script" uid="uid://3t6bx35g0wfs" path="res://Gameplay/Gameplay_Config.cs" id="1_hs5x1"]
+[ext_resource type="Script" uid="uid://c7pxxir2r7l2s" path="res://Gameplay/Leaderboard_Populator.cs" id="2_jrg7p"]
+[ext_resource type="PackedScene" uid="uid://wg665ql2fs0x" path="res://Gameplay/Leaderboard Entry.tscn" id="3_5vg7g"]
+
 [node name="Gameplay" type="Control" unique_id=939557805]
 layout_mode = 3
 anchors_preset = 15
@@ -7,6 +11,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+script = ExtResource("1_hs5x1")
 
 [node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=1962369925]
 
@@ -67,6 +72,7 @@ text = "Combat"
 
 [node name="Column 2" type="VBoxContainer" parent="CanvasLayer/Columns" unique_id=1112447959]
 layout_mode = 2
+size_flags_horizontal = 3
 
 [node name="Inventory" type="VBoxContainer" parent="CanvasLayer/Columns/Column 2" unique_id=1431266407]
 layout_mode = 2
@@ -88,7 +94,21 @@ layout_mode = 2
 layout_mode = 2
 
 [node name="Column 3" type="VBoxContainer" parent="CanvasLayer/Columns" unique_id=1622871578]
+custom_minimum_size = Vector2(200, 0)
+custom_maximum_size = Vector2(200, -1)
 layout_mode = 2
 
 [node name="Leaderboard" type="VBoxContainer" parent="CanvasLayer/Columns/Column 3" unique_id=2080110100]
 layout_mode = 2
+size_flags_vertical = 3
+script = ExtResource("2_jrg7p")
+
+[node name="Leaderboard Refresh" type="Timer" parent="CanvasLayer/Columns/Column 3" unique_id=431049881]
+autostart = true
+
+[node name="Rank Panel" parent="CanvasLayer/Columns/Column 3" unique_id=186400740 instance=ExtResource("3_5vg7g")]
+layout_mode = 2
+size_flags_vertical = 8
+
+[connection signal="pressed" from="CanvasLayer/Columns/Column 1/Top Box/btnBack" to="." method="_Back_Button_Clicked"]
+[connection signal="timeout" from="CanvasLayer/Columns/Column 3/Leaderboard Refresh" to="CanvasLayer/Columns/Column 3/Leaderboard" method="LoadLeaders"]

@@ -506,17 +506,17 @@ BEGIN
 END//
 
 -- Get score
-CREATE FUNCTION Get_Score ( Player INT )
+CREATE FUNCTION Get_Score ( InAccountName VARCHAR(32), Room INT )
 RETURNS INT DETERMINISTIC
 BEGIN
 
 	-- Default: If requested player doesn't exist return 0
-	IF NOT EXISTS (SELECT CurrentScore FROM player WHERE PlayerID = Player) THEN
+	IF NOT EXISTS (SELECT CurrentScore FROM player WHERE AccountName = InAccountName AND RoomID = Room) THEN
 		RETURN 0;
 	END IF;
 
 	-- Return the player's current score value
-	RETURN (SELECT CurrentScore FROM player WHERE PlayerID = Player);
+	RETURN (SELECT CurrentScore FROM player WHERE AccountName = InAccountName AND RoomID = Room);
     
 END//
 
