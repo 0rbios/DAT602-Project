@@ -40,6 +40,9 @@ namespace DATGame
             foreach (Dictionary ability in tileabilities)
             {
                 Node itembutton = GD.Load<PackedScene>("res://Gameplay/Item Button.tscn").Instantiate();
+                Item_Button_Config conf = (Item_Button_Config)itembutton;
+
+                conf.Info = ability;
 
                 if (ontoprow == true)
                 {

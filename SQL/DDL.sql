@@ -295,9 +295,14 @@ BEGIN
 	INSERT INTO tile ( XPos, YPos, RoomID)
 		VALUES
 		(0, 0, 1),
+		(0, 1, 1),
+		(1, 0, 1),
 		(1, 1, 1),
-		(1, 2, 1),
-		(2, 1, 1)
+        (0, 2, 1),
+        (1, 2, 1),
+        (2, 0, 1),
+        (2, 1, 1),
+        (2, 2, 1)
 	;
 
 	INSERT INTO abilityinstance (AbilityName)
@@ -335,11 +340,11 @@ BEGIN
 		('2026-12-31 11:00:00', 2, 1, '2026-12-31 12:00:00')
 	;
 
-	INSERT INTO player_tile (TileID, PlayerID, MovedOn)
+	INSERT INTO player_tile (TileID, PlayerID, MovedOn, MovedOff)
 		VALUES
-		(1, 1, '2026-12-31 11:00:00'),
-		(2, 1, '2026-12-31 11:01:00'),
-		(1, 1, '2026-12-31 11:02:00')
+		(1, 1, '2026-12-31 11:00:00', '2026-12-31 11:01:00'),
+		(2, 1, '2026-12-31 11:01:00', '2026-12-31 11:02:00'),
+		(1, 1, '2026-12-31 11:02:00', NULL)
 	;
 
 	INSERT INTO tile_ability (Placed, TileID, AbilityID)
@@ -348,22 +353,6 @@ BEGIN
 		('2026-12-31 10:00:00', 1, 2)
 	;
 END //
-
-CREATE PROCEDURE Fetch_Users()
-BEGIN
-	SELECT * FROM `account`;
-END//
-
-CREATE PROCEDURE Fetch_Tiles()
-BEGIN
-	SELECT * FROM tile;
-END//
-
-CREATE PROCEDURE Fetch_Rooms()
-BEGIN
-	SELECT * FROM room;
-END//
-
 
 DELIMITER ;
 

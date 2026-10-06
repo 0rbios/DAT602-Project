@@ -788,6 +788,78 @@ namespace DATGame
 
             return output;
         }
+
+        public Godot.Collections.Array GetMapSnapshot(string username, int room, int viewradius)
+        {
+            Godot.Collections.Array output = new Godot.Collections.Array();
+
+            try
+            {
+                _connection.Open();
+
+                MySqlCommand command = new MySqlCommand($"CALL Get_Map_Snapshot('{username}', {room}, {viewradius});", _connection);
+
+                using (MySqlDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        Dictionary tile = new Dictionary();
+
+                        for (int i = 0; i < reader.FieldCount; i++)
+                        {
+                            if (reader.GetValue(i) is int vali)
+                            {
+                                tile[reader.GetName(i)] = Variant.From(vali);
+                            }
+
+                            else if (reader.GetValue(i) is UInt64 vali64)
+                            {
+                                switch (reader.GetValue(i))
+                                {
+                                    case (UInt64)0:
+                                        tile[reader.GetName(i)] = Variant.From(false);
+                                        break;
+
+                                    case (UInt64)1:
+                                        tile[reader.GetName(i)] = Variant.From(true);
+                                        break;
+
+                                    default:
+                                        UInt64 val = (UInt64)reader.GetValue(i);
+                                        tile[reader.GetName(i)] = Variant.From(val);
+                                        break;
+                                }
+                            }
+
+                            else if (reader.GetValue(i) is string vals)
+                            {
+                                tile[reader.GetName(i)] = Variant.From(vals);
+                            }
+
+                            else if (reader.GetValue(i) is DBNull valsn)
+                            {
+                                tile[reader.GetName(i)] = "";
+                            }
+
+                            else
+                            {
+                                GD.Print($"Unrecognised data type for column: {reader.GetName(i)} | TYPE ({reader.GetValue(i).GetType()})");
+                            }
+                        }
+
+                        output.Add(tile);
+                    }
+                }
+            }
+
+            finally
+            {
+                _connection.Close();
+            }
+
+            return output;
+        }
+
     }
 
 	// Any database calls to get system/base information

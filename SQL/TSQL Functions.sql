@@ -40,6 +40,7 @@ DROP PROCEDURE IF EXISTS Get_Statistics;
 DROP PROCEDURE IF EXISTS Get_Inventory;
 DROP PROCEDURE IF EXISTS Attach_Player_Stat;
 DROP PROCEDURE IF EXISTS Get_Tile_Inventory;
+DROP PROCEDURE IF EXISTS Get_Map_Snapshot;
 
 DELIMITER //
 
@@ -1235,6 +1236,58 @@ BEGIN
 
     END IF;
 
+END//
+
+-- Get all of the tiles around a player in a specified radius
+CREATE PROCEDURE Get_Map_Snapshot (
+	IN InAccount VARCHAR(32),
+    IN InRoom INT,
+    IN InRadius INT
+)
+BEGIN
+
+	-- Error: If the account doesn't exist
+    IF NOT EXISTS (SELECT * FROM `account` WHERE AccountName = InAccount) THEN
+		SELECT 'Account not found' AS message;
+    
+    -- Error: If the room doesn't exist
+	ELSEIF NOT EXISTS (SELECT * FROM room WHERE RoomID = InRoom) THEN
+		SELECT 'Room not found' AS message;
+	
+    -- Error: If the radius is invalid
+	ELSEIF InRadius < 0 THEN
+		SELECT 'Radius too small' AS message;
+        
+	ELSE
+		SET @player = (SELECT PlayerID FROM player WHERE AccountName = InAccount AND RoomID = InRoom);
+    
+		WITH player_position(PlayerX, PlayerY) AS (
+			SELECT t.XPos, t.YPos
+			FROM tile t
+			JOIN player_tile pt
+				ON t.TileID = pt.TileID
+			WHERE pt.PlayerID = @player
+				AND pt.MovedOff IS NULL
+        )
+		SELECT t.XPos, t.YPos, c.Sprite
+        FROM tile t
+        LEFT JOIN player_tile pt
+			ON pt.TileID = t.TileID
+		LEFT JOIN player p
+			ON p.PlayerID = pt.PlayerID
+		LEFT JOIN class c
+			ON c.ClassName = p.ClassName
+        WHERE t.RoomID = InRoom
+			AND (
+					(t.XPos <= ((SELECT PlayerX FROM player_position) + InRadius)
+						AND t.XPos >= ((SELECT PlayerX FROM player_position) - InRadius))
+				AND
+					(t.YPos <= ((SELECT PlayerY FROM player_position) + InRadius)
+						AND t.YPos >= ((SELECT PlayerY FROM player_position) - InRadius))
+				);
+
+    END IF;
+    
 END//
 
 DELIMITER ;
