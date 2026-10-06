@@ -11,7 +11,7 @@ namespace DATGame
         {
             _head = GetNode<Main>("/root/Main");
 
-            Update_Display(1, 1, false);
+            Update_Display(2, 1, false);
         }
 
         public void Update_Display(int viewradius, int moveradius, bool movediagonal)
@@ -67,18 +67,23 @@ namespace DATGame
                         Dictionary tileinfo = (Dictionary)tiles[posvals.IndexOf(new Vector2(x, y))];
 
                         TextureButton tilebutton = (TextureButton)GD.Load<PackedScene>("res://Gameplay/Tile Button.tscn").Instantiate();
-                        
-                        if (ResourceLoader.Exists($"res://Gameplay/Game Sprites/{(string)tileinfo["Sprite"]}.png"))
-                        {
-                            tilebutton.TextureNormal = GD.Load<Texture2D>($"res://Gameplay/Game Sprites/{(string)tileinfo["Sprite"]}.png");
-                        }
-                        else
-                        {
-                            tilebutton.TextureNormal = GD.Load<Texture2D>("res://Gameplay/Game Sprites/Tile Normal.png");
-                        }
+
+                        tilebutton.TextureNormal = GD.Load<Texture2D>("res://Gameplay/Game Sprites/Tile Normal.png");
 
                         tilebutton.CustomMinimumSize = new Vector2((450 / viewwidth), (450 / viewwidth));
                         tilebutton.CustomMaximumSize = tilebutton.CustomMinimumSize;
+
+                        if (ResourceLoader.Exists($"res://Gameplay/Game Sprites/{(string)tileinfo["Sprite"]}.png"))
+                        {
+                            TextureRect playeroverlay = tilebutton.GetNode<TextureRect>("sprPlayerOverlay");
+                            
+                            playeroverlay.Texture = GD.Load<Texture2D>($"res://Gameplay/Game Sprites/{(string)tileinfo["Sprite"]}.png");
+
+                            playeroverlay.Size = new Vector2((int)(tilebutton.CustomMinimumSize.X * 0.8), (int)(tilebutton.CustomMinimumSize.Y * 0.8));
+
+                            int offset = (int)(tilebutton.CustomMinimumSize.X - playeroverlay.Size.X) / 2;
+                            playeroverlay.Position = new Vector2(offset, offset);
+                        }
 
                         maprow.CallDeferred("add_child", tilebutton);
                     }

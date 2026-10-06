@@ -1,0 +1,56 @@
+[gd_scene format=3 uid="uid://guvnhsugju2x"]
+
+[ext_resource type="Script" uid="uid://ckhlws5e73cpq" path="res://Chat/Message_Display.cs" id="1_2je7s"]
+[ext_resource type="Script" uid="uid://8im1qo5iwrvn" path="res://Chat/Message_Controls.cs" id="2_cguh1"]
+
+[node name="Chat Window" type="Window" unique_id=230172480]
+oversampling_override = 1.0
+title = "Chat"
+position = Vector2i(15, 40)
+size = Vector2i(300, 400)
+unresizable = true
+minimize_disabled = true
+maximize_disabled = true
+
+[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=1595670416]
+
+[node name="Rows" type="VBoxContainer" parent="CanvasLayer" unique_id=555288966]
+custom_minimum_size = Vector2(290, 390)
+custom_maximum_size = Vector2(290, 390)
+offset_left = 5.0
+offset_top = 5.0
+offset_right = 295.0
+offset_bottom = 395.0
+alignment = 1
+
+[node name="rlblLog" type="RichTextLabel" parent="CanvasLayer/Rows" unique_id=342010671]
+layout_mode = 2
+size_flags_vertical = 19
+theme_override_colors/default_color = Color(0, 0, 0, 1)
+scroll_following = true
+script = ExtResource("1_2je7s")
+
+[node name="Controls" type="HBoxContainer" parent="CanvasLayer/Rows" unique_id=1403919903]
+layout_mode = 2
+theme_override_constants/separation = 1
+alignment = 1
+script = ExtResource("2_cguh1")
+
+[node name="txtMessage" type="LineEdit" parent="CanvasLayer/Rows/Controls" unique_id=66175434]
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "..."
+
+[node name="btnSend" type="Button" parent="CanvasLayer/Rows/Controls" unique_id=1695151391]
+custom_minimum_size = Vector2(100, 0)
+custom_maximum_size = Vector2(100, -1)
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Send"
+
+[node name="Refresh" type="Timer" parent="." unique_id=565472975]
+wait_time = 0.1
+autostart = true
+
+[connection signal="pressed" from="CanvasLayer/Rows/Controls/btnSend" to="CanvasLayer/Rows/Controls" method="_Send_Message_Clicked"]
+[connection signal="timeout" from="Refresh" to="CanvasLayer/Rows/rlblLog" method="RefreshChat"]

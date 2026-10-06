@@ -758,17 +758,24 @@ END//
 -- Send Message
 CREATE PROCEDURE Send_Message(
 	IN Message VARCHAR(128),
-    IN Player INT
+    IN InAccount VARCHAR(32),
+    IN InRoom INT
 )
 BEGIN
 
-	-- Error: If the player ID doesn't exist
-	IF NOT EXISTS (SELECT * FROM player WHERE PlayerID = Player AND `Active` = 1) THEN
-		SELECT 'Invalid player' AS message;
+	-- Error: If the account doesn't exist
+    IF NOT EXISTS (SELECT * FROM `account` WHERE AccountName = InAccount) THEN
+		SELECT 'Account not found' AS message;
+    
+    -- Error: If the room doesn't exist
+	ELSEIF NOT EXISTS (SELECT * FROM room WHERE RoomID = InRoom) THEN
+		SELECT 'Room not found' AS message;
         
 	ELSE
+		SET @player = (SELECT PlayerID FROM player WHERE AccountName = InAccount AND RoomID = InRoom);
+    
 		INSERT INTO message (PlayerID, `Text`, SendTime)
-			VALUES (Player, Message, CURRENT_TIMESTAMP());
+			VALUES (@player, Message, CURRENT_TIMESTAMP());
 	
     END IF;
 
@@ -785,11 +792,12 @@ BEGIN
 		SELECT 'Invalid room' AS message;
         
 	ELSE
-		SELECT m.*
+		SELECT p.AccountName, m.`Text`
 		FROM message m
         JOIN player p
-        ON p.PlayerID = m.PlayerID
-        WHERE p.RoomID = Room;
+			ON p.PlayerID = m.PlayerID
+        WHERE p.RoomID = Room
+        ORDER BY m.SendTime;
         
 	END IF;
 
@@ -1269,10 +1277,11 @@ BEGIN
 			WHERE pt.PlayerID = @player
 				AND pt.MovedOff IS NULL
         )
-		SELECT t.XPos, t.YPos, c.Sprite
+		SELECT t.XPos, t.YPos, c.Sprite, c.ClassName, p.AccountName
         FROM tile t
         LEFT JOIN player_tile pt
 			ON pt.TileID = t.TileID
+				AND pt.MovedOff IS NULL
 		LEFT JOIN player p
 			ON p.PlayerID = pt.PlayerID
 		LEFT JOIN class c

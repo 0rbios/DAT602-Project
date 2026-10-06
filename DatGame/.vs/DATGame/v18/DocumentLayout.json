@@ -3,8 +3,8 @@
   "WorkspaceRootPath": "E:\\DAT602-Project\\DatGame\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|E:\\DAT602-Project\\DatGame\\Gameplay\\Display_Snapshot.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Gameplay\\Display_Snapshot.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{711F3FF0-1DEB-4209-9E08-FE17DF1E52E1}|DATGame.csproj|e:\\dat602-project\\datgame\\gameplay\\display_snapshot.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{711F3FF0-1DEB-4209-9E08-FE17DF1E52E1}|DATGame.csproj|solutionrelative:gameplay\\display_snapshot.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{711F3FF0-1DEB-4209-9E08-FE17DF1E52E1}|DATGame.csproj|e:\\dat602-project\\datgame\\daoclass.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -28,9 +28,9 @@
               "RelativeDocumentMoniker": "Gameplay\\Display_Snapshot.cs",
               "ToolTip": "E:\\DAT602-Project\\DatGame\\Gameplay\\Display_Snapshot.cs",
               "RelativeToolTip": "Gameplay\\Display_Snapshot.cs",
-              "ViewState": "AgIAACwAAAAAAAAAAAAgwEsAAAAZAAAAAAAAAA==",
+              "ViewState": "AgIAAC8AAAAAAAAAAAAgwB4AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-10-06T01:14:39.698Z",
+              "WhenOpened": "2026-10-06T21:05:15.848Z",
               "EditorCaption": ""
             },
             {
@@ -41,7 +41,7 @@
               "RelativeDocumentMoniker": "DAOClass.cs",
               "ToolTip": "E:\\DAT602-Project\\DatGame\\DAOClass.cs",
               "RelativeToolTip": "DAOClass.cs",
-              "ViewState": "AgIAABIDAAAAAAAAAAAowEcDAAAdAAAAAAAAAA==",
+              "ViewState": "AgIAAHQDAAAAAAAAAAAowJkDAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-10-04T01:54:39.854Z",
               "EditorCaption": ""

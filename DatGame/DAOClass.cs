@@ -2,6 +2,7 @@ using Godot;
 using Godot.Collections;
 using MySql.Data.MySqlClient;
 using System;
+using ZstdSharp.Unsafe;
 
 namespace DATGame
 {
@@ -858,6 +859,71 @@ namespace DATGame
             }
 
             return output;
+        }
+
+    }
+
+    // Any database calls involving the in game chat system
+    internal partial class ChatDAO : DAOClass
+    {
+        public Godot.Collections.Array GetMessages(int room)
+        {
+            Godot.Collections.Array output = new Godot.Collections.Array();
+
+            try
+            {
+                _connection.Open();
+
+                MySqlCommand command = new MySqlCommand($"CALL Get_Messages({room});", _connection);
+
+                using (MySqlDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        Dictionary message = new Dictionary();
+
+                        for (int i = 0; i < reader.FieldCount; i++)
+                        {
+                            if (reader.GetValue(i) is string vals)
+                            {
+                                message[reader.GetName(i)] = Variant.From(vals);
+                            }
+
+                            else
+                            {
+                                GD.Print($"Unrecognised data type for column: {reader.GetName(i)} | TYPE ({reader.GetValue(i).GetType()})");
+                            }
+
+                        }
+
+                        output.Add(message);
+                    }
+                }
+            }
+
+            finally
+            {
+                _connection.Close();
+            }
+
+            return output;
+        }
+
+        public void SendMessage(string message, string username, int room)
+        {
+            try
+            {
+                _connection.Open();
+
+                MySqlCommand command = new MySqlCommand($"CALL Send_Message('{message}', '{username}', {room});", _connection);
+
+                command.ExecuteNonQuery();
+            }
+
+            finally
+            {
+                _connection.Close();
+            }
         }
 
     }
