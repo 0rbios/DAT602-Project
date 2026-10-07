@@ -41,6 +41,8 @@ DROP PROCEDURE IF EXISTS Get_Inventory;
 DROP PROCEDURE IF EXISTS Attach_Player_Stat;
 DROP PROCEDURE IF EXISTS Get_Tile_Inventory;
 DROP PROCEDURE IF EXISTS Get_Map_Snapshot;
+DROP PROCEDURE IF EXISTS Get_Player_Energy;
+DROP PROCEDURE IF EXISTS Replenish_Energy;
 
 DELIMITER //
 
@@ -269,7 +271,7 @@ BEGIN
 		-- Create a new player with the requested account on the requested room and place them on the tile at 0,0
         ELSE
 			INSERT INTO player (CurrentEnergy, CurrentHealth, AccountName, RoomID, ClassName)
-				VALUES (10, 10, InAccountName, InRoomID, Class);
+				VALUES (12, 10, InAccountName, InRoomID, Class);
 
 			SET @player = (SELECT PlayerID FROM player WHERE AccountName = InAccountName AND RoomID = InRoomID);
 
@@ -310,20 +312,20 @@ BEGIN
     
 		INSERT INTO player_stat (StatName, `Value`, PlayerID)
 			VALUES (InStatName, (SELECT SUM(AmountSum) FROM (
-									SELECT SUM(Amount) AS AmountSum
-									FROM class_stat
-									WHERE ClassName = (SELECT ClassName FROM player WHERE PlayerID = InPlayer)
-										AND StatName = InStatName
-									UNION
-									SELECT SUM(Amount) AS AmountSum
-									FROM statchange
-									WHERE AbilityName IN (SELECT ai.AbilityName
-															FROM player_ability pa
-															JOIN abilityinstance ai
-																ON ai.AbilityID = pa.AbilityID
-															WHERE pa.PlayerID = InPlayer
-																AND pa.Dropped IS NULL)
-										AND StatName = InStatName) AS st), InPlayer);
+															SELECT SUM(Amount) AS AmountSum
+															FROM class_stat
+															WHERE ClassName = (SELECT ClassName FROM player WHERE PlayerID = InPlayer)
+																AND StatName = InStatName
+															UNION
+															SELECT SUM(Amount) AS AmountSum
+															FROM statchange
+															WHERE AbilityName IN (SELECT ai.AbilityName
+																					FROM player_ability pa
+																					JOIN abilityinstance ai
+																						ON ai.AbilityID = pa.AbilityID
+																					WHERE pa.PlayerID = InPlayer
+																						AND pa.Dropped IS NULL)
+																AND StatName = InStatName) AS st), InPlayer);
 
     END IF;
 
@@ -1301,6 +1303,60 @@ BEGIN
 
     END IF;
     
+END//
+
+CREATE PROCEDURE Get_Player_Energy (
+	IN InAccount VARCHAR(32),
+    IN InRoom INT
+)
+BEGIN
+
+	-- Error: If the account doesn't exist
+    IF NOT EXISTS (SELECT * FROM `account` WHERE AccountName = InAccount) THEN
+		SELECT 'Account not found' AS message;
+    
+    -- Error: If the room doesn't exist
+	ELSEIF NOT EXISTS (SELECT * FROM room WHERE RoomID = InRoom) THEN
+		SELECT 'Room not found' AS message;
+        
+	ELSE
+		SET @player = (SELECT PlayerID FROM player WHERE AccountName = InAccount AND RoomID = InRoom);
+    
+		SELECT CurrentEnergy
+        FROM player
+        WHERE PlayerID = @player;
+        
+    END IF;
+	
+END//
+
+CREATE PROCEDURE Replenish_Energy (
+	IN InAccount VARCHAR(32),
+    IN InRoom INT
+)
+BEGIN
+
+	-- Error: If the account doesn't exist
+    IF NOT EXISTS (SELECT * FROM `account` WHERE AccountName = InAccount) THEN
+		SELECT 'Account not found' AS message;
+    
+    -- Error: If the room doesn't exist
+	ELSEIF NOT EXISTS (SELECT * FROM room WHERE RoomID = InRoom) THEN
+		SELECT 'Room not found' AS message;
+	
+    -- Error: If energy is already at max
+    ELSEIF (SELECT CurrentEnergy FROM player WHERE AccountName = InAccount AND RoomID = InRoom) >= 100 THEN
+		SELECT 'Energy at max' AS message;
+    
+	ELSE
+		SET @player = (SELECT PlayerID FROM player WHERE AccountName = InAccount AND RoomID = InRoom);
+    
+		UPDATE player
+        SET CurrentEnergy = CurrentEnergy + 1
+        WHERE PlayerID = @player;
+        
+    END IF;
+	
 END//
 
 DELIMITER ;

@@ -7,6 +7,7 @@
 [ext_resource type="Script" uid="uid://blsi32clwj3i3" path="res://Gameplay/Player_Inventory_Loader.cs" id="3_5vtsj"]
 [ext_resource type="Script" uid="uid://ba86rieirwmdc" path="res://Gameplay/Tile_Inventory.cs" id="3_7uq6k"]
 [ext_resource type="Script" uid="uid://c0n32n0bugq2i" path="res://Gameplay/Display_Snapshot.cs" id="3_8uvy0"]
+[ext_resource type="Script" uid="uid://bp7xibi6vxye" path="res://Gameplay/Abilty_Menu_Loader.cs" id="5_fvut2"]
 [ext_resource type="PackedScene" uid="uid://guvnhsugju2x" path="res://Chat/Chat Window.tscn" id="7_2gist"]
 
 [node name="Gameplay" type="Control" unique_id=939557805]
@@ -111,18 +112,37 @@ theme_override_constants/separation = 0
 alignment = 1
 script = ExtResource("3_8uvy0")
 
+[node name="Refresh" type="Timer" parent="CanvasLayer/Columns/Column 2" unique_id=166556402]
+wait_time = 0.1
+autostart = true
+
 [node name="Inventory" type="VBoxContainer" parent="CanvasLayer/Columns/Column 2" unique_id=1431266407]
 layout_mode = 2
 size_flags_vertical = 10
 
 [node name="Abilties" type="HBoxContainer" parent="CanvasLayer/Columns/Column 2/Inventory" unique_id=69006018]
 layout_mode = 2
+theme_override_constants/separation = 18
+script = ExtResource("5_fvut2")
 
 [node name="lblEnergy" type="Label" parent="CanvasLayer/Columns/Column 2/Inventory/Abilties" unique_id=172635544]
 layout_mode = 2
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_font_sizes/font_size = 24
 text = "[#]/[#]"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Energy Restore" type="Timer" parent="CanvasLayer/Columns/Column 2/Inventory/Abilties" unique_id=766351046]
+wait_time = 0.1
+autostart = true
+
+[node name="Display Refresh" type="Timer" parent="CanvasLayer/Columns/Column 2/Inventory/Abilties" unique_id=1489588173]
+wait_time = 0.1
+autostart = true
+
+[node name="Ability Buttons" type="HBoxContainer" parent="CanvasLayer/Columns/Column 2/Inventory/Abilties" unique_id=1805575512]
+layout_mode = 2
 
 [node name="Scroll bar" type="ScrollContainer" parent="CanvasLayer/Columns/Column 2/Inventory" unique_id=573420406]
 custom_minimum_size = Vector2(0, 204)
@@ -138,10 +158,6 @@ layout_mode = 2
 
 [node name="Bottom Row" type="HBoxContainer" parent="CanvasLayer/Columns/Column 2/Inventory/Scroll bar/Rows" unique_id=1789457348]
 layout_mode = 2
-
-[node name="Refresh" type="Timer" parent="CanvasLayer/Columns/Column 2" unique_id=166556402]
-wait_time = 0.1
-autostart = true
 
 [node name="Column 3" type="VBoxContainer" parent="CanvasLayer/Columns" unique_id=1622871578]
 custom_minimum_size = Vector2(200, 0)
@@ -165,4 +181,7 @@ visible = false
 
 [connection signal="pressed" from="CanvasLayer/Columns/Column 1/Top Box/btnBack" to="." method="_Back_Button_Clicked"]
 [connection signal="timeout" from="CanvasLayer/Columns/Column 2/Refresh" to="CanvasLayer/Columns/Column 2/Map" method="Update_Display" binds= [2, 1, false]]
+[connection signal="timeout" from="CanvasLayer/Columns/Column 2/Inventory/Abilties/Energy Restore" to="CanvasLayer/Columns/Column 2/Inventory/Abilties" method="_ReplenishEnergy"]
+[connection signal="timeout" from="CanvasLayer/Columns/Column 2/Inventory/Abilties/Display Refresh" to="CanvasLayer/Columns/Column 2/Inventory/Abilties" method="UpdateAbilityButtons"]
+[connection signal="timeout" from="CanvasLayer/Columns/Column 2/Inventory/Abilties/Display Refresh" to="CanvasLayer/Columns/Column 2/Inventory/Abilties" method="UpdateEnergyGaugeDisplay"]
 [connection signal="timeout" from="CanvasLayer/Columns/Column 3/Leaderboard Refresh" to="CanvasLayer/Columns/Column 3/Leaderboard" method="LoadLeaders"]

@@ -478,6 +478,48 @@ namespace DATGame
 	// Any database calls that manage player entries
 	internal partial class PlayerDAO : DAOClass
 	{
+        public void ReplenishEnergy(string username, int room)
+        {
+            try
+            {
+                _connection.Open();
+
+                MySqlCommand command = new MySqlCommand($"CALL Replenish_Energy('{username}', {room});", _connection);
+
+                command.ExecuteNonQuery();
+            }
+
+            finally
+            {
+                _connection.Close();
+            }
+        }
+
+        public int GetEnergy(string username, int room)
+        {
+            try
+            {
+                _connection.Open();
+
+                MySqlCommand command = new MySqlCommand($"CALL Get_Player_Energy('{username}', {room});", _connection);
+
+                using (MySqlDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        return (int)reader.GetValue(0);
+                    }
+                }
+            }
+
+            finally
+            {
+                _connection.Close();
+            }
+
+            return 0;
+        }
+
         public Godot.Collections.Array GetInventory(string account, int room)
         {
             Godot.Collections.Array output = new Godot.Collections.Array();
