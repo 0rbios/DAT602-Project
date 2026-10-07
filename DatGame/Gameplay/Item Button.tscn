@@ -3,8 +3,8 @@
 [ext_resource type="Script" uid="uid://bltvrv3lwdac4" path="res://Gameplay/Item_Button_Config.cs" id="1_km0xk"]
 
 [node name="Item Button" type="PanelContainer" unique_id=1848661090]
-custom_minimum_size = Vector2(100, 100)
-custom_maximum_size = Vector2(100, 100)
+custom_minimum_size = Vector2(150, 100)
+custom_maximum_size = Vector2(150, 100)
 offset_right = 40.0
 offset_bottom = 40.0
 script = ExtResource("1_km0xk")

@@ -4,6 +4,7 @@
 [ext_resource type="Script" uid="uid://de3llqmdxra87" path="res://Gameplay/Statistic_Readout.cs" id="2_8txw0"]
 [ext_resource type="Script" uid="uid://c7pxxir2r7l2s" path="res://Gameplay/Leaderboard_Populator.cs" id="2_jrg7p"]
 [ext_resource type="PackedScene" uid="uid://wg665ql2fs0x" path="res://Gameplay/Leaderboard Entry.tscn" id="3_5vg7g"]
+[ext_resource type="Script" uid="uid://blsi32clwj3i3" path="res://Gameplay/Player_Inventory_Loader.cs" id="3_5vtsj"]
 [ext_resource type="Script" uid="uid://ba86rieirwmdc" path="res://Gameplay/Tile_Inventory.cs" id="3_7uq6k"]
 [ext_resource type="Script" uid="uid://c0n32n0bugq2i" path="res://Gameplay/Display_Snapshot.cs" id="3_8uvy0"]
 [ext_resource type="PackedScene" uid="uid://guvnhsugju2x" path="res://Chat/Chat Window.tscn" id="7_2gist"]
@@ -20,17 +21,21 @@ script = ExtResource("1_hs5x1")
 [node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=1962369925]
 
 [node name="Columns" type="HBoxContainer" parent="CanvasLayer" unique_id=616942783]
+custom_minimum_size = Vector2(1260, 700)
+custom_maximum_size = Vector2(1260, 700)
 offset_left = 10.0
 offset_top = 10.0
 offset_right = 1270.0
 offset_bottom = 710.0
 
 [node name="Column 1" type="VBoxContainer" parent="CanvasLayer/Columns" unique_id=1334697283]
+custom_minimum_size = Vector2(222, 0)
+custom_maximum_size = Vector2(222, -1)
 layout_mode = 2
 
 [node name="Top Box" type="VBoxContainer" parent="CanvasLayer/Columns/Column 1" unique_id=1825072927]
 layout_mode = 2
-size_flags_vertical = 19
+size_flags_vertical = 3
 
 [node name="btnBack" type="Button" parent="CanvasLayer/Columns/Column 1/Top Box" unique_id=308931627]
 custom_minimum_size = Vector2(200, 0)
@@ -44,39 +49,57 @@ custom_minimum_size = Vector2(0, 195.22)
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_colors/default_color = Color(0, 0, 0, 1)
-text = "Stats:
-	Strength: [#]
-	Speed: [#]
-	Energy: [#]
+text = "	Stats:
+		Strength: [#]
+		Speed: [#]
+		Energy: [#]
 
-Score: [#]
+	Score: [#]
 
-HP: [#]/[#]"
+	HP: [#]/[#]"
+vertical_alignment = 1
 script = ExtResource("2_8txw0")
 
 [node name="Bottom Box" type="HBoxContainer" parent="CanvasLayer/Columns/Column 1" unique_id=1222683993]
 layout_mode = 2
 size_flags_vertical = 10
-theme_override_constants/separation = 14
+theme_override_constants/separation = 0
 alignment = 1
+script = ExtResource("3_5vtsj")
 
 [node name="Ability" type="VBoxContainer" parent="CanvasLayer/Columns/Column 1/Bottom Box" unique_id=1935974592]
 layout_mode = 2
+size_flags_horizontal = 3
+alignment = 1
 
 [node name="lblAbility" type="Label" parent="CanvasLayer/Columns/Column 1/Bottom Box/Ability" unique_id=834983974]
 layout_mode = 2
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_font_sizes/font_size = 24
 text = "Ability"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Ability List" type="VBoxContainer" parent="CanvasLayer/Columns/Column 1/Bottom Box/Ability" unique_id=86266977]
+layout_mode = 2
+alignment = 1
 
 [node name="Combat" type="VBoxContainer" parent="CanvasLayer/Columns/Column 1/Bottom Box" unique_id=822143988]
 layout_mode = 2
+size_flags_horizontal = 3
+alignment = 1
 
 [node name="lblCombat" type="Label" parent="CanvasLayer/Columns/Column 1/Bottom Box/Combat" unique_id=1865024647]
 layout_mode = 2
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_font_sizes/font_size = 24
 text = "Combat"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Combat List" type="VBoxContainer" parent="CanvasLayer/Columns/Column 1/Bottom Box/Combat" unique_id=274908636]
+layout_mode = 2
+alignment = 1
 
 [node name="Column 2" type="VBoxContainer" parent="CanvasLayer/Columns" unique_id=1112447959]
 layout_mode = 2

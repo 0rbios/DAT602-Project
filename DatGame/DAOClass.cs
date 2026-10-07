@@ -2,6 +2,7 @@ using Godot;
 using Godot.Collections;
 using MySql.Data.MySqlClient;
 using System;
+using System.Security.Principal;
 using ZstdSharp.Unsafe;
 
 namespace DATGame
@@ -477,6 +478,73 @@ namespace DATGame
 	// Any database calls that manage player entries
 	internal partial class PlayerDAO : DAOClass
 	{
+        public Godot.Collections.Array GetInventory(string account, int room)
+        {
+            Godot.Collections.Array output = new Godot.Collections.Array();
+
+            try
+            {
+                _connection.Open();
+
+                MySqlCommand command = new MySqlCommand($"CALL Get_Inventory('{account}', {room});", _connection);
+
+                using (MySqlDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        Dictionary item = new Dictionary();
+
+                        for (int i = 0; i < reader.FieldCount; i++)
+                        {
+                            if (reader.GetValue(i) is int vali)
+                            {
+                                item[reader.GetName(i)] = Variant.From(vali);
+                            }
+
+                            else if (reader.GetValue(i) is Int64 vali64)
+                            {
+                                switch (reader.GetValue(i))
+                                {
+                                    case (UInt64)0:
+                                        item[reader.GetName(i)] = Variant.From<bool>(false);
+                                        break;
+
+                                    case (UInt64)1:
+                                        item[reader.GetName(i)] = Variant.From<bool>(true);
+                                        break;
+
+                                    default:
+                                        UInt64 val = (UInt64)reader.GetValue(i);
+                                        item[reader.GetName(i)] = Variant.From<UInt64>(val);
+                                        break;
+                                }
+                            }
+
+                            else if (reader.GetValue(i) is string vals)
+                            {
+                                item[reader.GetName(i)] = Variant.From(vals);
+                            }
+
+                            else
+                            {
+                                GD.Print($"Unrecognised data type for column: {reader.GetName(i)} | TYPE ({reader.GetValue(i).GetType()})");
+                            }
+
+                        }
+
+                        output.Add(item);
+                    }
+                }
+            }
+
+            finally
+            {
+                _connection.Close();
+            }
+
+            return output;
+        }
+
         public void UpdatePlayer(string account, int room, int highscore, int currentscore)
         {
             try

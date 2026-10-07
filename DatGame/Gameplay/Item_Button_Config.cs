@@ -13,6 +13,11 @@ namespace DATGame
 
         public override void _Ready()
         {
+            if (_info == null)
+            {
+                return;
+            }
+
             string _path = $"res://Gameplay/Game Sprites/{_info["Sprite"]}.png";
 
             if (ResourceLoader.Exists(_path))

@@ -345,10 +345,12 @@ BEGIN
 	ELSE
 		SET @player = (SELECT PlayerID FROM player WHERE AccountName = InAccount AND RoomID = InRoom);
         
-        SELECT ai.AbilityName, ai.AbilityID
+        SELECT a.*, ai.AbilityID
         FROM player_ability pa
         JOIN abilityinstance ai
 			ON ai.AbilityID = pa.AbilityID
+		JOIN ability a
+			ON ai.AbilityName = a.AbilityName
         WHERE pa.PlayerID = @player
 			AND pa.Dropped IS NULL;
 
