@@ -240,15 +240,18 @@ BEGIN
     ELSE
 		-- Attempt to place the player back on their last tile if they are already in the room
 		IF EXISTS (SELECT * FROM player WHERE RoomID = InRoomID AND AccountName = InAccountName) THEN
+			SET @player = (SELECT PlayerID FROM player WHERE RoomID = InRoomID AND AccountName = InAccountName);
+        
+			UPDATE player
+            SET ClassName = Class
+            WHERE PlayerID = @player;
         
 			-- 	If someone else is currently on the tile which the player was on when they left then return a message to the caller
 			IF (SELECT COUNT(PlayerID)
 				FROM player_tile
 				WHERE TileID = (SELECT TileID
 								FROM player_tile
-								WHERE PlayerID = (SELECT PlayerID
-													FROM player
-													WHERE AccountName = InAccountName)
+								WHERE PlayerID = @player
 									AND MovedOff IS NULL)
 					AND MovedOff IS NULL
                     AND PlayerID IN (SELECT PlayerID FROM player WHERE `Active` = 1)
@@ -259,8 +262,7 @@ BEGIN
                 -- Reactivate the player on that tile
 				UPDATE player
 				SET `Active` = 1
-				WHERE AccountName = InAccountName
-					AND RoomID = InRoomID;
+				WHERE PlayerID = @player;
 			
             END IF;
             

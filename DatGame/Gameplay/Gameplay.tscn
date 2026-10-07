@@ -107,6 +107,7 @@ size_flags_horizontal = 3
 
 [node name="Map" type="VBoxContainer" parent="CanvasLayer/Columns/Column 2" unique_id=2137973710]
 layout_mode = 2
+theme_override_constants/separation = 0
 alignment = 1
 script = ExtResource("3_8uvy0")
 
