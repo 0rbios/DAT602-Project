@@ -138,8 +138,8 @@ namespace DATGame
             Godot.Collections.Array tiles = dao.GetMapSnapshot(_head.Account, _head.Room, viewradius);
 
             // Get the smallest x and y values
-            int miny = 0;
-            int minx = 0;
+            int ? miny = null;
+            int ? minx = null;
 
             // Create a linear counter for non-player tile names
             int npi = 0;
@@ -162,17 +162,20 @@ namespace DATGame
 
                 posvals[$"{playername}"] = (new Vector2((int)tile["XPos"], (int)tile["YPos"]));
 
-                if (miny > (int)tile["YPos"]) { miny = (int)tile["YPos"]; }
-                if (minx > (int)tile["XPos"]) { minx = (int)tile["XPos"]; }
+                if (miny > (int)tile["YPos"] || miny is null) { miny = (int)tile["YPos"]; }
+                if (minx > (int)tile["XPos"] || minx is null) { minx = (int)tile["XPos"]; }
             }
 
-            for (int row = miny; row < GetChildCount(); row++)
+            for (int row = 0; row < GetChildCount(); row++)
             {
                 HBoxContainer currentrow = GetChild<HBoxContainer>(row);
 
                 // Iterate over each x position on the row
-                for (int tile = minx; tile < currentrow.GetChildCount(); tile++)
+                for (int tile = 0; tile < currentrow.GetChildCount(); tile++)
                 {
+                    int tilexpos = (int)minx + tile;
+                    int tileypos = (int)miny + row;
+
                     TextureButton currenttile = currentrow.GetChild<TextureButton>(tile);
 
                     // Set the tiles default configuration
@@ -181,11 +184,11 @@ namespace DATGame
                     tileinfo["type"] = (int)TileTypes.Type.OOBE;
 
                     // If the tile's position actually exists
-                    if (posvals.Values.Contains(new Vector2(tile, row)))
+                    if (posvals.Values.Contains(new Vector2(tilexpos, tileypos)))
                     {
 
                         // Get the detailed information for the current tile
-                        tileinfo = (Dictionary)tiles[((Godot.Collections.Array)posvals.Values).IndexOf(new Vector2(tile, row))];
+                        tileinfo = (Dictionary)tiles[((Godot.Collections.Array)posvals.Values).IndexOf(new Vector2(tilexpos, tileypos))];
                         tileinfo["moveradius"] = moveradius;
                         tileinfo["diagonal"] = movediagonal;
 

@@ -128,7 +128,7 @@ BEGIN
 		
         SET @NewRoomID = (SELECT RoomID FROM room WHERE AccountName = In_Player LIMIT 1);
         
-        CALL Layout_Tiles(@NewRoomID, 10, 10);
+        CALL Layout_Tiles(@NewRoomID, 20, 20);
         
         CALL Place_Ability_On_Tile("Piston Wreck", @NewRoomID, 0, 0);
         
@@ -634,7 +634,7 @@ BEGIN
     
     -- Remove the requested item from its current tile and add it to the player's inventory
     ELSE
-        IF NOT EXISTS (SELECT * FROM tile_ability WHERE Placed = CURRENT_TIMESTAMP AND AbilityID = AbilityInstance) THEN
+        IF NOT EXISTS (SELECT * FROM tile_ability WHERE Placed = CURRENT_TIMESTAMP() AND AbilityID = AbilityInstance) THEN
 			UPDATE player_ability
 				SET Dropped = CURRENT_TIMESTAMP()
 				WHERE AbilityID = AbilityInstance
@@ -653,42 +653,47 @@ END//
 
 -- Update score
 CREATE PROCEDURE Update_Score (
-	IN Player INT
+	IN InPlayer INT
 )
 BEGIN
 
 	-- Error: If requested player doesn't exist
-	IF NOT EXISTS (SELECT * FROM player WHERE PlayerID = Player AND `Active` = 1) THEN
+	IF NOT EXISTS (SELECT * FROM player WHERE PlayerID = InPlayer AND `Active` = 1) THEN
 		SELECT 'Invalid player id' AS message;
 
 	-- Default: If there is nothing in the inventory score is just the battle score
-    ELSEIF NOT EXISTS (SELECT * FROM player_ability WHERE PlayerID = Player AND Dropped IS NULL) THEN
-		UPDATE player
-			SET CurrentScore = (SELECT BattleScore FROM player WHERE PlayerID = Player)
-			WHERE PlayerID = Player;
+    ELSEIF NOT EXISTS (SELECT * FROM player_ability WHERE PlayerID = InPlayer AND Dropped IS NULL) THEN
+		SET @newscore = (SELECT BattleScore FROM player WHERE PlayerID = InPlayer);
+        
+        UPDATE player
+			SET CurrentScore = @newscore
+			WHERE PlayerID = InPlayer;
 	
     -- Set the player's score to the sum of the values of all abilities they are currently holding plus their battle score
     ELSE
+		SET @newscore = ( SELECT SUM(a.`Value`) + p.BattleScore
+							FROM player p
+							JOIN player_ability pa
+								ON p.PlayerID = pa.PlayerID
+							JOIN abilityinstance ai
+								ON pa.AbilityID = ai.AbilityID
+							JOIN ability a
+								ON ai.AbilityName = a.AbilityName
+							WHERE pa.Dropped IS NULL
+							GROUP BY p.PlayerID
+								HAVING p.PlayerID = InPlayer
+						);
+                                  
 		UPDATE player
-			SET CurrentScore = (
-									SELECT (SUM(a.`Value`) + BattleScore)
-									FROM player_ability AS pa
-									JOIN abilityinstance AS ai
-										ON pa.AbilityID = ai.AbilityID
-									JOIN ability AS a
-										ON ai.AbilityName = a.AbilityName
-									WHERE pa.Dropped IS NULL
-									GROUP BY pa.PlayerID
-										HAVING pa.PlayerID = 1
-								  )
-			WHERE PlayerID = Player;
+			SET CurrentScore = @newscore
+			WHERE PlayerID = InPlayer;
 	END IF;
     
     -- Update the high score if necessary
-    IF (SELECT CurrentScore FROM player) > (SELECT HighScore FROM player) THEN
+    IF (SELECT CurrentScore FROM player WHERE PlayerID = InPlayer) > (SELECT HighScore FROM player WHERE PlayerID = InPlayer) THEN
 		UPDATE player
         SET HighScore = CurrentScore
-        WHERE PlayerID = Player;
+        WHERE PlayerID = InPlayer;
 	END IF;
 
 END//
@@ -1318,10 +1323,15 @@ BEGIN
 		SELECT 'Room not found' AS message;
         
 	ELSE
-		SELECT r.RoomName, p.AccountName, p.HighScore, p.CurrentScore, p.CurrentEnergy, p.CurrentHealth
+		SELECT r.RoomName, p.AccountName, p.HighScore, p.CurrentScore, p.CurrentEnergy, p.CurrentHealth, t.XPos, t.YPos
 		FROM player p
 		JOIN room r
 			ON r.RoomID = p.RoomID
+		JOIN player_tile pt
+			ON pt.PlayerID = p.PlayerID
+				AND pt.MovedOff IS NULL
+		JOIN tile t
+			ON t.TileID = pt.TileID
 		WHERE p.AccountName = InAccount
 			AND r.RoomID = InRoom;
 	

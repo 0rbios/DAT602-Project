@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://dvfyeaashjgca"]
 
 [ext_resource type="Script" uid="uid://bltvrv3lwdac4" path="res://Gameplay/Item_Button_Config.cs" id="1_km0xk"]
+[ext_resource type="Texture2D" uid="uid://b12bqnyeubtvb" path="res://Gameplay/Game Sprites/Missing Texture.png" id="2_4o5yw"]
 
 [node name="Item Button" type="PanelContainer" unique_id=1848661090]
 custom_minimum_size = Vector2(150, 100)
@@ -16,6 +17,8 @@ layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
 mouse_filter = 2
+texture = ExtResource("2_4o5yw")
+stretch_mode = 5
 
 [node name="Clickbox" type="Button" parent="." unique_id=1407014958]
 layout_mode = 2

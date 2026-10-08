@@ -1,5 +1,6 @@
 using Godot;
 using Godot.Collections;
+using System.IO;
 
 namespace DATGame
 {
@@ -30,6 +31,10 @@ namespace DATGame
                 {
                     GetNode<TextureRect>("sprIcon").Texture = GD.Load<Texture2D>("res://Gameplay/Game Sprites/Missing Texture.png");
                 }
+            }
+            else
+            {
+                GetNode<TextureRect>("sprIcon").Texture = null;
             }
         }
 

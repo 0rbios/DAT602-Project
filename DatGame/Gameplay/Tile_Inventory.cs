@@ -6,6 +6,7 @@ namespace DATGame
     public partial class Tile_Inventory : VBoxContainer
     {
         private Main _head;
+        private bool _ontoprow = true;
 
         public override void _Ready()
         {
@@ -30,22 +31,21 @@ namespace DATGame
 
             Array<Node> allchildren = toprowchildren + bottomrowchildren;
 
-            bool ontoprow = true;
-
-            for (int rm = allchildren.Count; rm > tileabilities.Count; rm--)
+            for (int rm = allchildren.Count; rm > tileabilities.Count + 1; rm--)
             {
-                if (rm > tileabilities.Count)
+                if (rm > tileabilities.Count + 1)
                 {
                     allchildren[rm - 1].QueueFree();
+                    _ontoprow = !_ontoprow;
                 }
             }
 
-            for (int cr = allchildren.Count; cr < tileabilities.Count; cr++)
+            for (int cr = allchildren.Count; cr < tileabilities.Count + 1; cr++)
             {
-                if (cr < tileabilities.Count)
+                if (cr < tileabilities.Count + 1)
                 {
                     Node itembutton = GD.Load<PackedScene>("res://Gameplay/Item Button.tscn").Instantiate();
-                    if (ontoprow == true)
+                    if (_ontoprow == true)
                     {
                         toprow.CallDeferred("add_child", itembutton);
                     }
@@ -53,10 +53,9 @@ namespace DATGame
                     {
                         bottomrow.CallDeferred("add_child", itembutton);
                     }
-                    ontoprow = !ontoprow;
+                    _ontoprow = !_ontoprow;
                 }
             }
-
 
             for (int item = 0; item < allchildren.Count; item++)
             {
@@ -67,6 +66,10 @@ namespace DATGame
                 if (item < tileabilities.Count)
                 {
                     conf.UpdateContents((Dictionary)tileabilities[item]);
+                }
+                else
+                {
+                    conf.UpdateContents(null);
                 }
             }
         }

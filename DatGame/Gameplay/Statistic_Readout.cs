@@ -17,7 +17,7 @@ namespace DATGame
         {
             Dictionary playerinfo = _dao.GetPlayer(_head.Account, _head.Room);
 
-            Text = $"Statistics:\n\tStength: {playerinfo["Strength"]}\n\tSpeed: {playerinfo["Speed"]}\n\tEnergy: {playerinfo["Energy"]}\n\tHealth: {playerinfo["Health"]}\n\nCurrent Score: {playerinfo["CurrentScore"]}\n\nHP: {playerinfo["CurrentHealth"]}";
+            Text = $"Position: ({playerinfo["XPos"]}, {playerinfo["YPos"]})\nStatistics:\n\tStength: {playerinfo["Strength"]}\n\tSpeed: {playerinfo["Speed"]}\n\tEnergy: {playerinfo["Energy"]}\n\tHealth: {playerinfo["Health"]}\n\nCurrent Score: {playerinfo["CurrentScore"]}\n\nHP: {playerinfo["CurrentHealth"]}";
         }
 
     }
