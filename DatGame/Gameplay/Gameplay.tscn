@@ -163,6 +163,10 @@ layout_mode = 2
 [node name="Bottom Row" type="HBoxContainer" parent="CanvasLayer/Columns/Column 2/Inventory/Scroll bar/Rows" unique_id=1789457348]
 layout_mode = 2
 
+[node name="Refresh" type="Timer" parent="CanvasLayer/Columns/Column 2/Inventory/Scroll bar" unique_id=1499547040]
+wait_time = 0.1
+autostart = true
+
 [node name="Column 3" type="VBoxContainer" parent="CanvasLayer/Columns" unique_id=1622871578]
 custom_minimum_size = Vector2(200, 0)
 custom_maximum_size = Vector2(200, -1)
@@ -189,4 +193,5 @@ visible = false
 [connection signal="timeout" from="CanvasLayer/Columns/Column 2/Inventory/Abilties/Energy Restore" to="CanvasLayer/Columns/Column 2/Inventory/Abilties" method="_ReplenishEnergy"]
 [connection signal="timeout" from="CanvasLayer/Columns/Column 2/Inventory/Abilties/Display Refresh" to="CanvasLayer/Columns/Column 2/Inventory/Abilties" method="UpdateAbilityButtons"]
 [connection signal="timeout" from="CanvasLayer/Columns/Column 2/Inventory/Abilties/Display Refresh" to="CanvasLayer/Columns/Column 2/Inventory/Abilties" method="UpdateEnergyGaugeDisplay"]
+[connection signal="timeout" from="CanvasLayer/Columns/Column 2/Inventory/Scroll bar/Refresh" to="CanvasLayer/Columns/Column 2/Inventory/Scroll bar/Rows" method="LoadTileInventory"]
 [connection signal="timeout" from="CanvasLayer/Columns/Column 3/Leaderboard Refresh" to="CanvasLayer/Columns/Column 3/Leaderboard" method="LoadLeaders"]

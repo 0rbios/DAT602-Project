@@ -15,3 +15,10 @@ custom_maximum_size = Vector2(75, 75)
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
+mouse_filter = 2
+
+[node name="Clickbox" type="Button" parent="." unique_id=1407014958]
+layout_mode = 2
+flat = true
+
+[connection signal="pressed" from="Clickbox" to="." method="_ItemButtonClicked"]

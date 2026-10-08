@@ -43,6 +43,7 @@ DROP PROCEDURE IF EXISTS Get_Tile_Inventory;
 DROP PROCEDURE IF EXISTS Get_Map_Snapshot;
 DROP PROCEDURE IF EXISTS Get_Player_Energy;
 DROP PROCEDURE IF EXISTS Replenish_Energy;
+DROP PROCEDURE IF EXISTS Transfer_Abilities;
 
 DELIMITER //
 
@@ -490,6 +491,88 @@ BEGIN
     
 END//
 
+-- Swapping item positions
+CREATE PROCEDURE Transfer_Abilities(
+	IN Item1 INT,
+    IN Item2 INT,
+    IN InAccount VARCHAR(32),
+    IN InRoom INT
+)
+BEGIN
+
+	-- Error: If one of the requested ability instances doen't exist
+	IF NOT EXISTS (SELECT * FROM abilityinstance WHERE AbilityID = Item1 OR AbilityID = Item2) THEN
+		SELECT 'One or both ability instances not found' AS message;
+    
+	-- Error: If the account doesn't exist
+    ELSEIF NOT EXISTS (SELECT * FROM `account` WHERE AccountName = InAccount) THEN
+		SELECT 'Account not found' AS message;
+    
+    -- Error: If the room doesn't exist
+	ELSEIF NOT EXISTS (SELECT * FROM room WHERE RoomID = InRoom) THEN
+		SELECT 'Room not found' AS message;
+	
+    ELSE
+		
+        SET @player = (SELECT PlayerID FROM player WHERE AccountName = InAccount AND RoomID = InRoom);
+    
+		-- If the first ability is null
+        IF Item1 = -1 THEN
+        
+			-- Error: If both abilities are null
+			IF Item2 = -1 THEN
+				SELECT 'No abilities to swap' AS message;
+                
+			ELSE
+				-- If the first given ability is in the player's inventory
+				IF EXISTS (SELECT * FROM player_ability WHERE AbilityID = Item1 AND Dropped IS NULL) THEN
+					CALL Drop_Ability(@player, Item1);
+				
+                -- If it's on the tile
+				ELSE
+					CALL Pickup_Ability(@player, Item1);
+                    
+				END IF;
+                
+			END IF;
+		
+        -- If only the second ability is null
+		ELSEIF Item2 = -1 THEN
+			-- If the second given ability is in the player's inventory
+			IF EXISTS (SELECT * FROM player_ability WHERE AbilityID = Item2 AND Dropped IS NULL) THEN
+				CALL Drop_Ability(@player, Item2);
+				
+			-- If it's on the tile
+			ELSE
+				CALL Pickup_Ability(@player, Item2);
+                    
+			END IF;
+		
+        ELSE
+			-- If the first given ability is in the player's inventory
+			IF EXISTS (SELECT * FROM player_ability WHERE AbilityID = Item1 AND Dropped IS NULL) THEN
+			-- If the second given ability is not in the player's inventory
+				IF EXISTS (SELECT * FROM tile_ability WHERE AbilityID = Item2 AND Removed IS NULL) THEN
+					CALL Drop_Ability(@player, Item1);
+					CALL Pickup_Ability(@player, Item2);
+				END IF;
+			
+			-- If the second given ability is in the player's inventory
+			ELSEIF EXISTS (SELECT * FROM player_ability WHERE AbilityID = Item2 AND Dropped IS NULL) THEN
+			-- If the first given ability is not in the player's inventory
+				IF EXISTS (SELECT * FROM tile_ability WHERE AbilityID = Item1 AND Removed IS NULL) THEN
+					CALL Pickup_Ability(@player, Item1);
+					CALL Drop_Ability(@player, Item2);
+				END IF;
+			
+			END IF;
+            
+        END IF;
+            
+	END IF;
+
+END//
+
 -- Player acquiring inventory
 CREATE PROCEDURE Pickup_Ability (
 	IN Player INT,
@@ -657,7 +740,7 @@ BEGIN
 	ELSE
 		SET @player = (SELECT PlayerID FROM player WHERE AccountName = InAccount AND RoomID = InRoom);
     
-		SELECT a.*
+		SELECT a.*, ai.AbilityID
         FROM tile_ability ta
         JOIN abilityinstance ai
 			ON ai.AbilityID = ta.AbilityID

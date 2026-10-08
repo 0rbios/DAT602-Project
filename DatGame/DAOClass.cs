@@ -478,6 +478,36 @@ namespace DATGame
 	// Any database calls that manage player entries
 	internal partial class PlayerDAO : DAOClass
 	{
+        public void SwapItems(string account, int room, int ? id1, int ? id2)
+        {
+            int id1i = -1;
+            int id2i = -1;
+
+            if (id1 is not null)
+            {
+                id1i = (int)id1;
+            }
+
+            if (id2 is not null)
+            {
+                id2i = (int)id2;
+            }
+
+            try
+            {
+                _connection.Open();
+
+                MySqlCommand command = new MySqlCommand($"CALL Transfer_Abilities({id1i}, {id2i}, '{account}', {room});", _connection);
+
+                command.ExecuteNonQuery();
+            }
+
+            finally
+            {
+                _connection.Close();
+            }
+        }
+
         public void ReplenishEnergy(string username, int room)
         {
             try

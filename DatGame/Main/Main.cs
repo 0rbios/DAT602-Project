@@ -8,10 +8,17 @@ public partial class Main : Node
 
 	private bool _canmove = true;
 
+	private int ? _swapitemid1 = null;
+	private int ? _swapitemid2 = null;
+	private bool _itemselected = false;
+
 	public string Account { get => _account; set => _account = value; }
     public int Room { get => _roomID; set => _roomID = value; }
     public string RoomName { get => _roomName; set => _roomName = value; }
     public bool Canmove { get => _canmove; set => _canmove = value; }
+	public int? Swapitemid2 { get => _swapitemid2; set => _swapitemid2 = value; }
+    public int? Swapitemid1 { get => _swapitemid1; set => _swapitemid1 = value; }
+    public bool Itemselected { get => _itemselected; set => _itemselected = value; }
 
     public override void _Ready()
 	{
