@@ -1,14 +1,11 @@
 using Godot;
 using Godot.Collections;
-using System.Resources;
-using System.Security.Policy;
 
 namespace DATGame
 {
-    public partial class Item_Button_Config : PanelContainer
+    public partial class Ability_Button_Config : TextureButton
     {
         private Dictionary _info;
-
         public Dictionary Info { set => _info = value; }
 
         public override void _Ready()

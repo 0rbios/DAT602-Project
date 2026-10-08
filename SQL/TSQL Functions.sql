@@ -364,7 +364,8 @@ END//
 
 -- Find available movement tiles and move player
 CREATE PROCEDURE Move_Player (
-    IN Player INT,
+	IN InAccount VARCHAR(32),
+    IN InRoom INT,
 	IN MoveX INT,
     IN MoveY INT,
 	IN SearchRadius INT,
@@ -375,36 +376,45 @@ BEGIN
 	DECLARE playerX INT;
 	DECLARE playerY INT;
 
-	-- Error: If procedure tries to move diagonally without diagonal flag
-	IF AllowDiagonal = 0 AND (MoveX <> 0 AND MoveY <> 0) THEN
-			SELECT 'Diagonal movement on non-diagonal check' AS message;
-            
 	-- Error: If requested radius is too small
-    ELSEIF SearchRadius < 1 THEN
+    IF SearchRadius < 1 THEN
 		SELECT 'Search radius too small' AS message;
 	
-    -- Error: If requested player doesn't exist
-	ELSEIF NOT EXISTS (SELECT * FROM player WHERE PlayerID = Player AND `Active` = 1) THEN
-		SELECT 'Player not found' AS message;
+		-- Error: If the account doesn't exist
+    ELSEIF NOT EXISTS (SELECT * FROM `account` WHERE AccountName = InAccount) THEN
+		SELECT 'Account not found' AS message;
     
-    ELSE
+    -- Error: If the room doesn't exist
+	ELSEIF NOT EXISTS (SELECT * FROM room WHERE RoomID = InRoom) THEN
+		SELECT 'Room not found' AS message;
+	
+    -- Error: If tile is already occupied
+    ELSEIF EXISTS (SELECT PlayerID FROM player_tile WHERE MovedOff IS NULL AND TileID = (SELECT TileID FROM tile WHERE XPos = MoveX AND YPos = MoveY)) THEN
+		SELECT 'Tile already occupied' AS message;
     
+	ELSE
+		SET @player = (SELECT PlayerID FROM player WHERE AccountName = InAccount AND RoomID = InRoom);
+        
 		-- Get the player's current position
-		SET playerX = (SELECT XPos FROM tile WHERE TileID = (SELECT TileID FROM player_tile WHERE PlayerID = Player AND MovedOff IS NULL));
-		SET playerY = (SELECT YPos FROM tile WHERE TileID = (SELECT TileID FROM player_tile WHERE PlayerID = Player AND MovedOff IS NULL));
-
+		SET @playerX = (SELECT XPos FROM tile WHERE TileID = (SELECT TileID FROM player_tile WHERE PlayerID = @player AND MovedOff IS NULL));
+		SET @playerY = (SELECT YPos FROM tile WHERE TileID = (SELECT TileID FROM player_tile WHERE PlayerID = @player AND MovedOff IS NULL));
+        
+    	-- Error: If procedure tries to move diagonally without diagonal flag
+		IF AllowDiagonal = 0 AND ((@playerX - MoveX) <> 0 AND (@playerY - MoveY) <> 0) THEN
+				SELECT 'Diagonal movement on non-diagonal check' AS message;
+                
 		-- Error: Requested tile is out of range
-		IF NOT EXISTS (WITH surroundingtiles AS 
+		ELSEIF NOT EXISTS (WITH surroundingtiles AS 
 			(
 				SELECT *
 				FROM tile
-				WHERE XPos >= playerX - searchRadius
-					AND XPos <= playerX + searchRadius
-					AND YPos >= playerY - searchRadius
-					AND YPos <= playerY + searchRadius
+				WHERE XPos >= @playerX - searchRadius
+					AND XPos <= @playerX + searchRadius
+					AND YPos >= @playerY - searchRadius
+					AND YPos <= @playerY + searchRadius
 					AND RoomID = (SELECT RoomID
 									FROM player
-									WHERE PlayerID = Player)
+									WHERE PlayerID = @player)
 			) SELECT TileID FROM surroundingtiles WHERE XPos = MoveX AND YPos = MoveY) THEN
 			
             SELECT 'Tile out of range' AS message;
@@ -414,10 +424,11 @@ BEGIN
 			UPDATE player_tile
             SET MovedOFF = CURRENT_TIMESTAMP()
             WHERE MovedOff IS NULL
-				AND PlayerID = Player;
+				AND PlayerID = @player;
         
 			INSERT INTO player_tile (TileID, PlayerID, MovedOn)
-				VALUES ((SELECT TileID FROM tile WHERE XPos = MoveX AND YPos = MoveY), Player, CURRENT_TIMESTAMP());
+				VALUES ((SELECT TileID FROM tile WHERE XPos = MoveX AND YPos = MoveY), @player, CURRENT_TIMESTAMP());
+                
 		END IF;
         
 	END IF;

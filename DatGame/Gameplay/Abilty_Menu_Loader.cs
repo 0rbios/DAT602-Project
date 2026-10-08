@@ -43,6 +43,9 @@ namespace DATGame
             foreach (Dictionary ability in inventory)
             {
                 TextureButton abilitybutton = (TextureButton)GD.Load<PackedScene>("res://Gameplay/Ability Button.tscn").Instantiate();
+                Ability_Button_Config conf = (Ability_Button_Config)abilitybutton;
+
+                conf.Info = ability;
 
                 _abilitybuttons.CallDeferred("add_child", abilitybutton);
             }

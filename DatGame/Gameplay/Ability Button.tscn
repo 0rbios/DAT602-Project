@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://crwltipsbnig7"]
 
 [ext_resource type="Texture2D" uid="uid://b12bqnyeubtvb" path="res://Gameplay/Game Sprites/Missing Texture.png" id="1_jsj0y"]
+[ext_resource type="Script" uid="uid://cs5ii82x0imxd" path="res://Gameplay/Ability_Button_Config.cs" id="2_8xdg0"]
 
 [node name="Ability Button" type="TextureButton" unique_id=570540839]
 custom_minimum_size = Vector2(30, 30)
@@ -9,3 +10,4 @@ offset_right = 40.0
 offset_bottom = 40.0
 texture_normal = ExtResource("1_jsj0y")
 stretch_mode = 0
+script = ExtResource("2_8xdg0")

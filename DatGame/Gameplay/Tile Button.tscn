@@ -1,5 +1,7 @@
 [gd_scene format=3 uid="uid://chssivdoseavv"]
 
+[ext_resource type="Script" uid="uid://c6mibdopf2wub" path="res://Gameplay/Tile_Functions.cs" id="1_4st62"]
+
 [node name="btnTile" type="TextureButton" unique_id=822296959]
 custom_minimum_size = Vector2(100, 100)
 custom_maximum_size = Vector2(100, 100)
@@ -7,6 +9,7 @@ propagate_maximum_size = true
 offset_right = 40.0
 offset_bottom = 40.0
 stretch_mode = 5
+script = ExtResource("1_4st62")
 
 [node name="sprPlayerOverlay" type="TextureRect" parent="." unique_id=1391791307]
 layout_mode = 0
@@ -16,3 +19,5 @@ offset_right = 90.0
 offset_bottom = 90.0
 mouse_filter = 2
 expand_mode = 3
+
+[connection signal="pressed" from="." to="." method="_TileClicked"]

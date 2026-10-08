@@ -116,6 +116,10 @@ script = ExtResource("3_8uvy0")
 wait_time = 0.1
 autostart = true
 
+[node name="Movement Timer" type="Timer" parent="CanvasLayer/Columns/Column 2" unique_id=410471872]
+wait_time = 0.1
+autostart = true
+
 [node name="Inventory" type="VBoxContainer" parent="CanvasLayer/Columns/Column 2" unique_id=1431266407]
 layout_mode = 2
 size_flags_vertical = 10
@@ -181,6 +185,7 @@ visible = false
 
 [connection signal="pressed" from="CanvasLayer/Columns/Column 1/Top Box/btnBack" to="." method="_Back_Button_Clicked"]
 [connection signal="timeout" from="CanvasLayer/Columns/Column 2/Refresh" to="CanvasLayer/Columns/Column 2/Map" method="Update_Display" binds= [2, 1, false]]
+[connection signal="timeout" from="CanvasLayer/Columns/Column 2/Movement Timer" to="CanvasLayer/Columns/Column 2/Map" method="_MovementRecharged"]
 [connection signal="timeout" from="CanvasLayer/Columns/Column 2/Inventory/Abilties/Energy Restore" to="CanvasLayer/Columns/Column 2/Inventory/Abilties" method="_ReplenishEnergy"]
 [connection signal="timeout" from="CanvasLayer/Columns/Column 2/Inventory/Abilties/Display Refresh" to="CanvasLayer/Columns/Column 2/Inventory/Abilties" method="UpdateAbilityButtons"]
 [connection signal="timeout" from="CanvasLayer/Columns/Column 2/Inventory/Abilties/Display Refresh" to="CanvasLayer/Columns/Column 2/Inventory/Abilties" method="UpdateEnergyGaugeDisplay"]

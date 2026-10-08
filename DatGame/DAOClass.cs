@@ -833,6 +833,30 @@ namespace DATGame
     // Any database calls invloving the map
     internal partial class MapDAO : DAOClass
     {
+        public void MovePlayer(string username, int room, int x, int y, int range, bool diagonal)
+        {
+            int idiagonal = 0;
+
+            if (diagonal == true)
+            {
+                idiagonal = 1;
+            }
+
+            try
+            {
+                _connection.Open();
+
+                MySqlCommand command = new MySqlCommand($"CALL Move_Player('{username}', {room}, {x}, {y}, {range}, {idiagonal});", _connection);
+
+                command.ExecuteNonQuery();
+            }
+
+            finally
+            {
+                _connection.Close();
+            }
+        }
+
         public Godot.Collections.Array GetTileInventory(string username, int room, int xrange, int yrange)
         {
             Godot.Collections.Array output = new Godot.Collections.Array();
