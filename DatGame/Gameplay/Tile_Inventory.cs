@@ -30,30 +30,44 @@ namespace DATGame
 
             Array<Node> allchildren = toprowchildren + bottomrowchildren;
 
-            foreach (Node child in allchildren)
-            {
-                child.QueueFree();
-            }
-
             bool ontoprow = true;
 
-            foreach (Dictionary ability in tileabilities)
+            for (int rm = allchildren.Count; rm > tileabilities.Count; rm--)
             {
-                Node itembutton = GD.Load<PackedScene>("res://Gameplay/Item Button.tscn").Instantiate();
-                Item_Button_Config conf = (Item_Button_Config)itembutton;
-
-                conf.Info = ability;
-
-                if (ontoprow == true)
+                if (rm > tileabilities.Count)
                 {
-                    toprow.CallDeferred("add_child", itembutton);
+                    allchildren[rm - 1].QueueFree();
                 }
-                else
-                {
-                    bottomrow.CallDeferred("add_child", itembutton);
-                }
+            }
 
-                ontoprow = !ontoprow;
+            for (int cr = allchildren.Count; cr < tileabilities.Count; cr++)
+            {
+                if (cr < tileabilities.Count)
+                {
+                    Node itembutton = GD.Load<PackedScene>("res://Gameplay/Item Button.tscn").Instantiate();
+                    if (ontoprow == true)
+                    {
+                        toprow.CallDeferred("add_child", itembutton);
+                    }
+                    else
+                    {
+                        bottomrow.CallDeferred("add_child", itembutton);
+                    }
+                    ontoprow = !ontoprow;
+                }
+            }
+
+
+            for (int item = 0; item < allchildren.Count; item++)
+            {
+                Node slot = allchildren[item];
+
+                Item_Button_Config conf = (Item_Button_Config)slot;
+
+                if (item < tileabilities.Count)
+                {
+                    conf.UpdateContents((Dictionary)tileabilities[item]);
+                }
             }
         }
     }

@@ -3,12 +3,12 @@
   "WorkspaceRootPath": "E:\\DAT602-Project\\DatGame\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{711F3FF0-1DEB-4209-9E08-FE17DF1E52E1}|DATGame.csproj|e:\\dat602-project\\datgame\\gameplay\\item_button_config.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{711F3FF0-1DEB-4209-9E08-FE17DF1E52E1}|DATGame.csproj|solutionrelative:gameplay\\item_button_config.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{711F3FF0-1DEB-4209-9E08-FE17DF1E52E1}|DATGame.csproj|e:\\dat602-project\\datgame\\daoclass.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{711F3FF0-1DEB-4209-9E08-FE17DF1E52E1}|DATGame.csproj|solutionrelative:daoclass.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{711F3FF0-1DEB-4209-9E08-FE17DF1E52E1}|DATGame.csproj|e:\\dat602-project\\datgame\\gameplay\\player_inventory_loader.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{711F3FF0-1DEB-4209-9E08-FE17DF1E52E1}|DATGame.csproj|solutionrelative:gameplay\\player_inventory_loader.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -18,30 +18,30 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 0,
+          "SelectedChildIndex": 1,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "Item_Button_Config.cs",
-              "DocumentMoniker": "E:\\DAT602-Project\\DatGame\\Gameplay\\Item_Button_Config.cs",
-              "RelativeDocumentMoniker": "Gameplay\\Item_Button_Config.cs",
-              "ToolTip": "E:\\DAT602-Project\\DatGame\\Gameplay\\Item_Button_Config.cs",
-              "RelativeToolTip": "Gameplay\\Item_Button_Config.cs",
-              "ViewState": "AgIAABAAAAAAAAAAAAAkwDMAAAAAAAAAAAAAAA==",
+              "DocumentIndex": 1,
+              "Title": "Player_Inventory_Loader.cs",
+              "DocumentMoniker": "E:\\DAT602-Project\\DatGame\\Gameplay\\Player_Inventory_Loader.cs",
+              "RelativeDocumentMoniker": "Gameplay\\Player_Inventory_Loader.cs",
+              "ToolTip": "E:\\DAT602-Project\\DatGame\\Gameplay\\Player_Inventory_Loader.cs",
+              "RelativeToolTip": "Gameplay\\Player_Inventory_Loader.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAxwAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-10-08T02:05:27.278Z",
+              "WhenOpened": "2026-10-08T22:00:45.787Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 0,
               "Title": "DAOClass.cs",
               "DocumentMoniker": "E:\\DAT602-Project\\DatGame\\DAOClass.cs",
               "RelativeDocumentMoniker": "DAOClass.cs",
               "ToolTip": "E:\\DAT602-Project\\DatGame\\DAOClass.cs",
               "RelativeToolTip": "DAOClass.cs",
-              "ViewState": "AgIAAB0AAAAAAAAAAAAvwPIBAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAN0BAAAAAAAAAAAYwPsBAAAVAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-10-04T01:54:39.854Z",
               "EditorCaption": ""

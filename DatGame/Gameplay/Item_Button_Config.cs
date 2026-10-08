@@ -9,13 +9,16 @@ namespace DATGame
 
         private Dictionary _info;
 
-        public Dictionary Info { set => _info = value; }
-
         public override void _Ready()
         {
             _head = GetNode<Main>("/root/Main");
+        }
 
-            if (_info != null)
+        public void UpdateContents(Dictionary info)
+        {
+            _info = info;
+
+            if (_info is not null)
             {
                 string _path = $"res://Gameplay/Game Sprites/{_info["Sprite"]}.png";
 
@@ -32,6 +35,8 @@ namespace DATGame
 
         public void _ItemButtonClicked()
         {
+            GD.Print("Clicked");
+
             if (_head.Itemselected == false)
             {
                 if (_info is not null)

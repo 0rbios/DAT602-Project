@@ -18,10 +18,10 @@ namespace DATGame
             _abilityinventory = GetNode<VBoxContainer>("Ability/Ability List");
             _combatinventory = GetNode<VBoxContainer>("Combat/Combat List");
 
-            UpdateInventory();
+            GenerateInventory();
         }
 
-        public void UpdateInventory()
+        public void GenerateInventory()
         {
             foreach (Node child in (_abilityinventory.GetChildren() + _combatinventory.GetChildren()))
             {
@@ -42,12 +42,13 @@ namespace DATGame
 
                 button.SizeFlagsHorizontal = SizeFlags.ShrinkCenter;
 
+                Item_Button_Config conf = (Item_Button_Config)button;
+
+                Dictionary item = null;
+
                 if (slot < inventory.Count)
                 {
-                    Dictionary item = (Dictionary)inventory[slot];
-
-                    Item_Button_Config conf = (Item_Button_Config)button;
-                    conf.Info = item;
+                    item = (Dictionary)inventory[slot];
 
                     if ((bool)item["Combat"] == true)
                     {
@@ -70,6 +71,58 @@ namespace DATGame
                     }
                 }
 
+                conf.UpdateContents(item);
+            }
+        }
+
+        public void UpdateInventory()
+        {
+            PlayerDAO dao = new PlayerDAO();
+
+            Godot.Collections.Array inventory = dao.GetInventory(_head.Account, _head.Room);
+
+            Godot.Collections.Array abilityinventory = new Godot.Collections.Array();
+            Godot.Collections.Array combatinventory = new Godot.Collections.Array();
+
+            foreach (Dictionary ability in inventory)
+            {
+                if ((bool)ability["Combat"] == true)
+                {
+                    combatinventory.Add(ability);
+                }
+                else
+                {
+                    abilityinventory.Add(ability);
+                }
+            }
+
+            Godot.Collections.Array combatchildren = (Godot.Collections.Array)_combatinventory.GetChildren();
+            Godot.Collections.Array abilitychildren = (Godot.Collections.Array)_abilityinventory.GetChildren();
+
+            for (int slot = 0; slot < combatchildren.Count; slot++)
+            {
+                Dictionary item = null;
+
+                if (slot < combatinventory.Count)
+                {
+                    item = (Dictionary)combatinventory[slot];
+                }
+
+                Item_Button_Config conf = (Item_Button_Config)combatchildren[slot];
+                conf.UpdateContents(item);
+            }
+
+            for (int slot = 0; slot < abilitychildren.Count; slot++)
+            {
+                Dictionary item = null;
+
+                if (slot < abilityinventory.Count)
+                {
+                    item = (Dictionary)abilityinventory[slot];
+                }
+
+                Item_Button_Config conf = (Item_Button_Config)abilitychildren[slot];
+                conf.UpdateContents(item);
             }
         }
 

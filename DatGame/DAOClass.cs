@@ -499,7 +499,16 @@ namespace DATGame
 
                 MySqlCommand command = new MySqlCommand($"CALL Transfer_Abilities({id1i}, {id2i}, '{account}', {room});", _connection);
 
-                command.ExecuteNonQuery();
+
+                using (MySqlDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        GD.Print(reader.GetValue(0));
+                    }
+                }
+
+                //command.ExecuteNonQuery();
             }
 
             finally
@@ -573,7 +582,7 @@ namespace DATGame
                                 item[reader.GetName(i)] = Variant.From(vali);
                             }
 
-                            else if (reader.GetValue(i) is Int64 vali64)
+                            else if (reader.GetValue(i) is UInt64 vali64)
                             {
                                 switch (reader.GetValue(i))
                                 {

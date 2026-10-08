@@ -6,10 +6,11 @@ namespace DATGame
     public partial class Ability_Button_Config : TextureButton
     {
         private Dictionary _info;
-        public Dictionary Info { set => _info = value; }
 
-        public override void _Ready()
+        public void UpdateContents(Dictionary info)
         {
+            _info = info;
+
             if (_info == null)
             {
                 return;
@@ -19,11 +20,11 @@ namespace DATGame
 
             if (ResourceLoader.Exists(_path))
             {
-                GetNode<TextureRect>("sprIcon").Texture = GD.Load<Texture2D>(_path);
+                TextureNormal = GD.Load<Texture2D>(_path);
             }
             else
             {
-                GetNode<TextureRect>("sprIcon").Texture = GD.Load<Texture2D>("res://Gameplay/Game Sprites/Missing Texture.png");
+                TextureNormal = GD.Load<Texture2D>("res://Gameplay/Game Sprites/Missing Texture.png");
             }
         }
 

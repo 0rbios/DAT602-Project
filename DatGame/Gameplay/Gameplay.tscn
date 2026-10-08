@@ -102,6 +102,10 @@ vertical_alignment = 1
 layout_mode = 2
 alignment = 1
 
+[node name="Refresh" type="Timer" parent="CanvasLayer/Columns/Column 1/Bottom Box" unique_id=855087685]
+wait_time = 0.1
+autostart = true
+
 [node name="Column 2" type="VBoxContainer" parent="CanvasLayer/Columns" unique_id=1112447959]
 layout_mode = 2
 size_flags_horizontal = 3
@@ -188,6 +192,7 @@ size_flags_vertical = 8
 visible = false
 
 [connection signal="pressed" from="CanvasLayer/Columns/Column 1/Top Box/btnBack" to="." method="_Back_Button_Clicked"]
+[connection signal="timeout" from="CanvasLayer/Columns/Column 1/Bottom Box/Refresh" to="CanvasLayer/Columns/Column 1/Bottom Box" method="UpdateInventory"]
 [connection signal="timeout" from="CanvasLayer/Columns/Column 2/Refresh" to="CanvasLayer/Columns/Column 2/Map" method="Update_Display" binds= [2, 1, false]]
 [connection signal="timeout" from="CanvasLayer/Columns/Column 2/Movement Timer" to="CanvasLayer/Columns/Column 2/Map" method="_MovementRecharged"]
 [connection signal="timeout" from="CanvasLayer/Columns/Column 2/Inventory/Abilties/Energy Restore" to="CanvasLayer/Columns/Column 2/Inventory/Abilties" method="_ReplenishEnergy"]

@@ -524,28 +524,33 @@ BEGIN
 				SELECT 'No abilities to swap' AS message;
                 
 			ELSE
-				-- If the first given ability is in the player's inventory
-				IF EXISTS (SELECT * FROM player_ability WHERE AbilityID = Item1 AND Dropped IS NULL) THEN
-					CALL Drop_Ability(@player, Item1);
-				
-                -- If it's on the tile
-				ELSE
-					CALL Pickup_Ability(@player, Item1);
+				-- If the second given ability is in the player's inventory
+				IF EXISTS (SELECT * FROM player_ability WHERE AbilityID = Item2 AND Dropped IS NULL) THEN
+					CALL Drop_Ability(@player, Item2);
+                    SELECT 'First selection was null, second was in player inventory' AS message;
                     
+				-- If the first ability is on a tile
+				ELSEIF EXISTS (SELECT * FROM tile_ability WHERE AbilityID = Item2 AND Removed IS NULL) THEN
+					CALL Pickup_Ability(@player, Item2);  
+                    SELECT 'First selection was null, second was in tile inventory' AS message;
+                
 				END IF;
                 
 			END IF;
 		
         -- If only the second ability is null
 		ELSEIF Item2 = -1 THEN
-			-- If the second given ability is in the player's inventory
-			IF EXISTS (SELECT * FROM player_ability WHERE AbilityID = Item2 AND Dropped IS NULL) THEN
-				CALL Drop_Ability(@player, Item2);
-				
-			-- If it's on the tile
-			ELSE
-				CALL Pickup_Ability(@player, Item2);
-                    
+        
+			-- If the first given ability is in the player's inventory
+			IF EXISTS (SELECT * FROM player_ability WHERE AbilityID = Item1 AND Dropped IS NULL) THEN
+				CALL Drop_Ability(@player, Item1);   
+				SELECT 'Second selection was null, first was in player inventory' AS message;
+			
+            -- If the first ability is on a tile
+            ELSEIF EXISTS (SELECT * FROM tile_ability WHERE AbilityID = Item1 AND Removed IS NULL) THEN
+				CALL Pickup_Ability(@player, Item1);  
+				SELECT 'Second selection was null, first was in tile inventory' AS message; 
+            
 			END IF;
 		
         ELSE
@@ -555,14 +560,16 @@ BEGIN
 				IF EXISTS (SELECT * FROM tile_ability WHERE AbilityID = Item2 AND Removed IS NULL) THEN
 					CALL Drop_Ability(@player, Item1);
 					CALL Pickup_Ability(@player, Item2);
+                    SELECT 'Selection 1 in player inv, 2 in tile inventory' AS message;
 				END IF;
 			
 			-- If the second given ability is in the player's inventory
 			ELSEIF EXISTS (SELECT * FROM player_ability WHERE AbilityID = Item2 AND Dropped IS NULL) THEN
 			-- If the first given ability is not in the player's inventory
 				IF EXISTS (SELECT * FROM tile_ability WHERE AbilityID = Item1 AND Removed IS NULL) THEN
-					CALL Pickup_Ability(@player, Item1);
 					CALL Drop_Ability(@player, Item2);
+                    CALL Pickup_Ability(@player, Item1);
+                    SELECT 'Selection 2 in player inv, 1 in tile inventory' AS message;
 				END IF;
 			
 			END IF;
@@ -570,6 +577,8 @@ BEGIN
         END IF;
             
 	END IF;
+
+	SELECT 'Missed All Checks' AS message;
 
 END//
 
@@ -739,6 +748,24 @@ BEGIN
     
 	ELSE
 		SET @player = (SELECT PlayerID FROM player WHERE AccountName = InAccount AND RoomID = InRoom);
+        
+		SET @playerx = (SELECT XPos 
+						FROM tile t
+                        JOIN player_tile pt
+							ON pt.TileID = t.TileID
+								AND pt.MovedOff IS NULL
+						JOIN player p
+							ON p.PlayerID = pt.PlayerID
+						WHERE p.PlayerID = @player);
+                        
+		SET @playery = (SELECT YPos 
+						FROM tile t
+                        JOIN player_tile pt
+							ON pt.TileID = t.TileID
+								AND pt.MovedOff IS NULL
+						JOIN player p
+							ON p.PlayerID = pt.PlayerID
+						WHERE p.PlayerID = @player);
     
 		SELECT a.*, ai.AbilityID
         FROM tile_ability ta
@@ -749,10 +776,12 @@ BEGIN
 		JOIN tile t
 			ON ta.TileID = t.TileID
 		WHERE ta.Removed IS NULL
-			AND (t.XPos <= (SELECT XPos FROM player WHERE PlayerID = @player) + InXRange
-				OR t.XPos >= (SELECT XPos FROM player WHERE PlayerID = @player) - InXRange
-                OR t.YPos <= (SELECT XPos FROM player WHERE PlayerID = @player) + InYRange
-                OR t.YPos >= (SELECT XPos FROM player WHERE PlayerID = @player) - InYRange);
+			AND (
+				(t.XPos <= @playerx + InXRange
+				AND t.XPos >= @playerx - InXRange)
+                AND
+                (t.YPos <= @playery + InYRange
+                AND t.YPos >= @playery - InYRange));
 
     END IF;
 

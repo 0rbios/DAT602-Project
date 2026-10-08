@@ -271,6 +271,10 @@ BEGIN
               ('Tiger', 'Energy', 1),
               ('Tiger', 'Speed', -1);
 	
+    -- Create an administrator account
+    INSERT INTO `account` (AccountName, `Password`, `Admin`)
+		VALUES ('admin', 'admin123', 1);
+	
 END //
 
 CREATE PROCEDURE Create_Test_Data ()
@@ -357,4 +361,6 @@ END //
 DELIMITER ;
 
 CALL Generate_Database();
-CALL Create_Test_Data();
+
+-- ORIGINAL TEST DATA SEEMS TO BE MALFORMED
+-- CALL Create_Test_Data();
