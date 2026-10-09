@@ -274,9 +274,26 @@ BEGIN
 		-- Create a new player with the requested account on the requested room and place them on the tile at 0,0
         ELSE
 			INSERT INTO player (CurrentEnergy, CurrentHealth, AccountName, RoomID, ClassName)
-				VALUES (12, 10, InAccountName, InRoomID, Class);
+				VALUES (20, 20, InAccountName, InRoomID, Class);
 
 			SET @player = (SELECT PlayerID FROM player WHERE AccountName = InAccountName AND RoomID = InRoomID);
+
+			-- Create their starting ability instance
+			INSERT INTO abilityinstance (AbilityName)
+				VALUES ((SELECT AbilityName
+						 FROM class c
+						 JOIN player p
+							ON p.ClassName = c.ClassName
+						 WHERE p.PlayerID = @player)
+						);
+			
+			-- Add ability to inventory
+			INSERT INTO player_ability (PlayerID, AbilityID, PickedUp)
+				VALUES (@player, (SELECT Get_Instance((SELECT AbilityName
+														FROM class c
+														JOIN player p
+															ON p.ClassName = c.ClassName
+														WHERE p.PlayerID = @player))), CURRENT_TIMESTAMP());
 
 			CALL Attach_Player_Stat(@player, 'Strength');
 			CALL Attach_Player_Stat(@player, 'Speed');
@@ -1100,7 +1117,7 @@ BEGIN
 		
 		-- Calculate damage output
         SET @damage = FLOOR(
-						(SELECT `Value` FROM player_stat WHERE StatName = 'Strength' AND PlayerID = @attacker) *
+						(SELECT `Value` FROM player_stat WHERE StatName = 'Strength' AND PlayerID = @attacker) +
 						(SELECT Damage FROM ability WHERE AbilityName = (SELECT AbilityName FROM abilityinstance WHERE AbilityID = Ability))
                       );
         
@@ -1135,15 +1152,20 @@ BEGIN
 		SELECT 'Player(s) do not exist' AS message;
 
 	ELSE
+		SET @scoreincrease = CEIL((SELECT CurrentScore FROM player WHERE PlayerID = Loser) / 10) + (SELECT SUM(`Value`) FROM player_stat WHERE PlayerID = Loser);
+    
 		-- Add score increase to winner's battle score and reset the loser's battle score
 		UPDATE player
 		SET BattleScore = CASE
-			WHEN PlayerID = Winner THEN BattleScore + CEIL((SELECT CurrentScore FROM player WHERE PlayerID = Loser) / 10)
-													  +
-													  (SELECT SUM(`Value`) FROM player_stat WHERE PlayerID = Loser)
+			WHEN PlayerID = Winner THEN BattleScore + @scoreincrease
 			WHEN PlayerID = Loser THEN 0
             END;
 
+		-- Reset the loser's health
+        UPDATE player
+        SET CurrentHealth = 20
+		WHERE PlayerID = Loser;
+    
 		-- Remove all items from loser's inventory
 		UPDATE player_ability
         SET Dropped = CURRENT_TIMESTAMP()
@@ -1526,17 +1548,19 @@ BEGIN
     -- Error: If the room doesn't exist
 	ELSEIF NOT EXISTS (SELECT * FROM room WHERE RoomID = InRoom) THEN
 		SELECT 'Room not found' AS message;
-	
-    -- Error: If energy is already at max
-    ELSEIF (SELECT CurrentEnergy FROM player WHERE AccountName = InAccount AND RoomID = InRoom) >= 100 THEN
-		SELECT 'Energy at max' AS message;
-    
+        
 	ELSE
 		SET @player = (SELECT PlayerID FROM player WHERE AccountName = InAccount AND RoomID = InRoom);
     
 		UPDATE player
         SET CurrentEnergy = CurrentEnergy + 1
-        WHERE PlayerID = @player;
+        WHERE PlayerID = @player
+			AND CurrentEnergy < 20;
+        
+        UPDATE player
+        SET CurrentHealth = CurrentHealth + 1
+        WHERE PlayerID = @player
+			AND CurrentHealth < 20;
         
     END IF;
 	

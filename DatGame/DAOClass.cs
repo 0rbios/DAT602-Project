@@ -476,6 +476,23 @@ namespace DATGame
 	// Any database calls that manage player entries
 	internal partial class PlayerDAO : DAOClass
 	{
+        public void Attack(int ability)
+        {
+            try
+            {
+                _connection.Open();
+
+                MySqlCommand command = new MySqlCommand($"CALL Attack({ability});", _connection);
+
+                command.ExecuteNonQuery();
+            }
+
+            finally
+            {
+                _connection.Close();
+            }
+        }
+
         public void ExitRoom(string account, int room)
         {
             try

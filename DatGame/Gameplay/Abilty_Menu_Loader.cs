@@ -28,7 +28,7 @@ namespace DATGame
         {
             int energy = _dao.GetEnergy(_head.Account, _head.Room);
 
-            _gaugetext.Text = $"{energy} / 100";
+            _gaugetext.Text = $"{energy} / 20";
         }
 
         public void UpdateAbilityButtons()

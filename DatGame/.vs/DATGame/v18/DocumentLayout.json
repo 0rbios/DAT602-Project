@@ -3,20 +3,20 @@
   "WorkspaceRootPath": "E:\\DAT602-Project\\DatGame\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{711F3FF0-1DEB-4209-9E08-FE17DF1E52E1}|DATGame.csproj|e:\\dat602-project\\datgame\\gameplay\\abilty_menu_loader.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{711F3FF0-1DEB-4209-9E08-FE17DF1E52E1}|DATGame.csproj|solutionrelative:gameplay\\abilty_menu_loader.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{711F3FF0-1DEB-4209-9E08-FE17DF1E52E1}|DATGame.csproj|e:\\dat602-project\\datgame\\gameplay\\statistic_readout.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{711F3FF0-1DEB-4209-9E08-FE17DF1E52E1}|DATGame.csproj|solutionrelative:gameplay\\statistic_readout.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{711F3FF0-1DEB-4209-9E08-FE17DF1E52E1}|DATGame.csproj|e:\\dat602-project\\datgame\\gameplay\\ability_button_config.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{711F3FF0-1DEB-4209-9E08-FE17DF1E52E1}|DATGame.csproj|solutionrelative:gameplay\\ability_button_config.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{711F3FF0-1DEB-4209-9E08-FE17DF1E52E1}|DATGame.csproj|e:\\dat602-project\\datgame\\daoclass.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{711F3FF0-1DEB-4209-9E08-FE17DF1E52E1}|DATGame.csproj|solutionrelative:daoclass.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{711F3FF0-1DEB-4209-9E08-FE17DF1E52E1}|DATGame.csproj|e:\\dat602-project\\datgame\\main\\main.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{711F3FF0-1DEB-4209-9E08-FE17DF1E52E1}|DATGame.csproj|solutionrelative:main\\main.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{711F3FF0-1DEB-4209-9E08-FE17DF1E52E1}|DATGame.csproj|e:\\dat602-project\\datgame\\gameplay\\display_snapshot.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{711F3FF0-1DEB-4209-9E08-FE17DF1E52E1}|DATGame.csproj|solutionrelative:gameplay\\display_snapshot.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{711F3FF0-1DEB-4209-9E08-FE17DF1E52E1}|DATGame.csproj|e:\\dat602-project\\datgame\\gameplay\\gameplay_config.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{711F3FF0-1DEB-4209-9E08-FE17DF1E52E1}|DATGame.csproj|solutionrelative:gameplay\\gameplay_config.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -26,56 +26,56 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 3,
+          "SelectedChildIndex": 0,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "Display_Snapshot.cs",
-              "DocumentMoniker": "E:\\DAT602-Project\\DatGame\\Gameplay\\Display_Snapshot.cs",
-              "RelativeDocumentMoniker": "Gameplay\\Display_Snapshot.cs",
-              "ToolTip": "E:\\DAT602-Project\\DatGame\\Gameplay\\Display_Snapshot.cs",
-              "RelativeToolTip": "Gameplay\\Display_Snapshot.cs",
-              "ViewState": "AgIAALMAAAAAAAAAAAAowMwAAAAAAAAAAAAAAA==",
+              "DocumentIndex": 0,
+              "Title": "Abilty_Menu_Loader.cs",
+              "DocumentMoniker": "E:\\DAT602-Project\\DatGame\\Gameplay\\Abilty_Menu_Loader.cs",
+              "RelativeDocumentMoniker": "Gameplay\\Abilty_Menu_Loader.cs",
+              "ToolTip": "E:\\DAT602-Project\\DatGame\\Gameplay\\Abilty_Menu_Loader.cs",
+              "RelativeToolTip": "Gameplay\\Abilty_Menu_Loader.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAACcAAAANAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-10-09T04:28:14.213Z",
+              "WhenOpened": "2026-10-09T08:03:22.128Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 1,
-              "Title": "Main.cs",
-              "DocumentMoniker": "E:\\DAT602-Project\\DatGame\\Main\\Main.cs",
-              "RelativeDocumentMoniker": "Main\\Main.cs",
-              "ToolTip": "E:\\DAT602-Project\\DatGame\\Main\\Main.cs",
-              "RelativeToolTip": "Main\\Main.cs",
-              "ViewState": "AgIAABoAAAAAAAAAAAAAADYAAAAPAAAAAAAAAA==",
+              "Title": "Statistic_Readout.cs",
+              "DocumentMoniker": "E:\\DAT602-Project\\DatGame\\Gameplay\\Statistic_Readout.cs",
+              "RelativeDocumentMoniker": "Gameplay\\Statistic_Readout.cs",
+              "ToolTip": "E:\\DAT602-Project\\DatGame\\Gameplay\\Statistic_Readout.cs",
+              "RelativeToolTip": "Gameplay\\Statistic_Readout.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABIAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-10-09T03:40:42.771Z",
+              "WhenOpened": "2026-10-09T07:48:15.114Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "Ability_Button_Config.cs",
+              "DocumentMoniker": "E:\\DAT602-Project\\DatGame\\Gameplay\\Ability_Button_Config.cs",
+              "RelativeDocumentMoniker": "Gameplay\\Ability_Button_Config.cs",
+              "ToolTip": "E:\\DAT602-Project\\DatGame\\Gameplay\\Ability_Button_Config.cs",
+              "RelativeToolTip": "Gameplay\\Ability_Button_Config.cs",
+              "ViewState": "AgIAAAwAAAAAAAAAAAAYwDEAAAANAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-09T07:37:23.642Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 3,
-              "Title": "Gameplay_Config.cs",
-              "DocumentMoniker": "E:\\DAT602-Project\\DatGame\\Gameplay\\Gameplay_Config.cs",
-              "RelativeDocumentMoniker": "Gameplay\\Gameplay_Config.cs",
-              "ToolTip": "E:\\DAT602-Project\\DatGame\\Gameplay\\Gameplay_Config.cs",
-              "RelativeToolTip": "Gameplay\\Gameplay_Config.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAwAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-10-09T03:32:31.018Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
               "Title": "DAOClass.cs",
               "DocumentMoniker": "E:\\DAT602-Project\\DatGame\\DAOClass.cs",
               "RelativeDocumentMoniker": "DAOClass.cs",
               "ToolTip": "E:\\DAT602-Project\\DatGame\\DAOClass.cs",
               "RelativeToolTip": "DAOClass.cs",
-              "ViewState": "AgIAAM8BAAAAAAAAAAAwwN4BAAAUAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAOMBAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-10-04T01:54:39.854Z",
               "EditorCaption": ""

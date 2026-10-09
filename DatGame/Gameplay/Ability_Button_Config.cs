@@ -44,5 +44,15 @@ namespace DATGame
             }
         }
 
+        public void _Ability_Clicked()
+        {
+            if ((bool)_info["Combat"] == true)
+            {
+                PlayerDAO dao = new PlayerDAO();
+
+                dao.Attack((int)_info["AbilityID"]);
+            }
+        }
+
     }
 }

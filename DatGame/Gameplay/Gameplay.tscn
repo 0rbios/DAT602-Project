@@ -142,7 +142,6 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="Energy Restore" type="Timer" parent="CanvasLayer/Columns/Column 2/Inventory/Abilties" unique_id=766351046]
-wait_time = 0.1
 autostart = true
 
 [node name="Display Refresh" type="Timer" parent="CanvasLayer/Columns/Column 2/Inventory/Abilties" unique_id=1489588173]

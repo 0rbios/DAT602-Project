@@ -11,3 +11,5 @@ offset_bottom = 40.0
 texture_normal = ExtResource("1_jsj0y")
 stretch_mode = 0
 script = ExtResource("2_8xdg0")
+
+[connection signal="pressed" from="." to="." method="_Ability_Clicked"]
