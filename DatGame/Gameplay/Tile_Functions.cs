@@ -9,7 +9,7 @@ namespace DATGame
 
         private Dictionary _info;
 
-        private MapDAO dao = new MapDAO();
+        private MapDAO _dao = new MapDAO();
 
         public override void _Ready()
         {
@@ -37,6 +37,10 @@ namespace DATGame
 
                 case TileTypes.Type.Highlighted:   
                     TextureNormal = GD.Load<Texture2D>("res://Gameplay/Game Sprites/Tile Highlighted.png");
+                    break;
+
+                case TileTypes.Type.Combat:
+                    TextureNormal = GD.Load<Texture2D>("res://Gameplay/Game Sprites/Tile Combat.png");
                     break;
 
                 default:
@@ -71,11 +75,22 @@ namespace DATGame
 
         public void _TileClicked()
         {
+            if (_head.Combatant is not null)
+            {
+                _dao.Disengage(_head.Account, _head.Room);
+                _head.Combatant = null;
+            }
+            else if ((string)_info["PlayerID"] != "")
+            {
+                _dao.Engage(_head.Account, _head.Room, (int)_info["PlayerID"]);
+                _head.Combatant = (int)_info["PlayerID"];
+            }
+
             if ((TileTypes.Type)(int)_info["type"] != TileTypes.Type.OOBE)
             {
                 if (_head.Canmove == true)
                 {
-                    dao.MovePlayer(_head.Account, _head.Room, (int)_info["XPos"], (int)_info["YPos"], (int)_info["moveradius"], (bool)_info["diagonal"]);
+                    _dao.MovePlayer(_head.Account, _head.Room, (int)_info["XPos"], (int)_info["YPos"], (int)_info["moveradius"], (bool)_info["diagonal"]);
                     _head.Canmove = false;
                 }
             }

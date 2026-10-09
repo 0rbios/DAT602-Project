@@ -9,6 +9,7 @@ namespace DATGame
             Normal,
             Highlighted,
             Unavailable,
+            Combat,
             OOBE
         }
     }

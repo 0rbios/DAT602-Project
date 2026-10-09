@@ -141,6 +141,8 @@ namespace DATGame
             int ? miny = null;
             int ? minx = null;
 
+            int playerid = 0;
+
             // Create a linear counter for non-player tile names
             int npi = 0;
 
@@ -158,6 +160,11 @@ namespace DATGame
                 {
                     playername = $"{npi}";
                     npi++;
+                }
+
+                if ((string)tile["AccountName"] == _head.Account)
+                {
+                    playerid = (int)tile["PlayerID"];
                 }
 
                 posvals[$"{playername}"] = (new Vector2((int)tile["XPos"], (int)tile["YPos"]));
@@ -198,11 +205,8 @@ namespace DATGame
 
                         // Set the tile sprite according to it's situation
 
-                        // If the tile is occupied by a player
-                        if ((string)tileinfo["AccountName"] != "") { tileinfo["type"] = (int)TileTypes.Type.Unavailable; }
-
                         // If the tile is within the player's movement range (A.K.A can be moved to)
-                        else if (xdiff <= moveradius && ydiff <= moveradius)
+                        if (xdiff <= moveradius && ydiff <= moveradius)
                         {
                             // Only highlight diagonally available tiles if diagonal movement is enabled
                             if ((xdiff != ydiff) || (xdiff == ydiff && movediagonal == true))
@@ -219,6 +223,24 @@ namespace DATGame
                         else
                         {
                             tileinfo["type"] = (int)TileTypes.Type.Normal;
+                        }
+
+                        // If the tile is occupied by a player
+                        if ((string)tileinfo["AccountName"] != "")
+                        {
+                            // If the player is in combat
+                            if ((string)tileinfo["Combatant"] != "")
+                            {
+                                // If they are in combat with the player
+                                if ((int)tileinfo["Combatant"] == playerid)
+                                {
+                                    tileinfo["type"] = (int)TileTypes.Type.Combat;
+                                }
+                                else
+                                {
+                                    tileinfo["type"] = (int)TileTypes.Type.Unavailable;
+                                }
+                            }
                         }
                     }
 

@@ -965,37 +965,48 @@ END//
 
 -- Engage Combat
 CREATE PROCEDURE Engage_Combat(
-	IN Player1 INT,
+	IN InAccount VARCHAR(32),
+    IN InRoom INT,
     IN Player2 INT
 )
 BEGIN
 
+	-- Error: If the account doesn't exist
+    IF NOT EXISTS (SELECT * FROM `account` WHERE AccountName = InAccount) THEN
+		SELECT 'Account not found' AS message;
+    
+    -- Error: If the room doesn't exist
+	ELSEIF NOT EXISTS (SELECT * FROM room WHERE RoomID = InRoom) THEN
+		SELECT 'Room not found' AS message;
+        
 	-- Error: If Player 1 or 2 don't exist
-    IF NOT EXISTS (SELECT * FROM player WHERE (PlayerID = Player1 OR PlayerID = Player2) AND `Active` = 1) THEN
+    ELSEIF NOT EXISTS (SELECT * FROM player WHERE ((AccountName = InAccount AND RoomID = InRoom) OR PlayerID = Player2) AND `Active` = 1) THEN
 		SELECT 'Invalid player(s)' AS message;
     
 	-- Error: If Player 1 or 2 is already engaged
-    ELSEIF NOT EXISTS (SELECT * FROM player WHERE (PlayerID = Player1 OR PlayerID = Player2) AND Combatant IS NULL) THEN
+    ELSEIF NOT EXISTS (SELECT * FROM player WHERE ((AccountName = InAccount AND RoomID = InRoom) OR PlayerID = Player2) AND Combatant IS NULL) THEN
 		SELECT 'Player(s) already engaged' AS message;
     
     -- Error: If Player 1 and Player 2 are the same player
-    ELSEIF Player1 = Player2 THEN
+    ELSEIF (SELECT PlayerID FROM player WHERE AccountName = InAccount AND RoomID = InRoom) = Player2 THEN
 		SELECT 'Identical player' AS message;
     
     -- Error: If Player 1 and Player 2 are not in the same room
-    ELSEIF (SELECT RoomID FROM player WHERE PlayerID = Player1) <> (SELECT RoomID FROM player WHERE PlayerID = Player2) THEN
+    ELSEIF (SELECT RoomID FROM player WHERE AccountName = InAccount AND RoomID = InRoom) <> (SELECT RoomID FROM player WHERE PlayerID = Player2) THEN
 		SELECT 'Players are in different rooms' AS message;
     
 	-- Error: If Player 1 and Player 2 are too many tiles apart    
-    ELSEIF ABS((SELECT t.XPos + t.YPos FROM tile t JOIN player_tile pt ON pt.TileID = t.TileID WHERE pt.PlayerID = Player1 AND MovedOff IS NULL) - (SELECT t.XPos + t.YPos FROM tile t JOIN player_tile pt ON pt.TileID = t.TileID WHERE pt.PlayerID = Player2 AND MovedOff IS NULL)) <> 1 THEN
+    ELSEIF ABS((SELECT t.XPos + t.YPos FROM tile t JOIN player_tile pt ON pt.TileID = t.TileID JOIN player p ON p.PlayerID = pt.PlayerID WHERE p.AccountName = InAccount AND p.RoomID = InRoom AND pt.MovedOff IS NULL) - (SELECT t.XPos + t.YPos FROM tile t JOIN player_tile pt ON pt.TileID = t.TileID WHERE pt.PlayerID = Player2 AND pt.MovedOff IS NULL)) <> 1 THEN
 		SELECT 'Players too far apart' AS message;
     
     -- Set each other as combatants
 	ELSE
+		SET @player = (SELECT PlayerID FROM player WHERE AccountName = InAccount AND RoomID = InRoom);
+    
 		UPDATE player
         SET Combatant = CASE
-			WHEN PlayerID = Player1 THEN Player2
-            WHEN PlayerID = Player2 THEN Player1
+			WHEN PlayerID = @player THEN Player2
+            WHEN PlayerID = Player2 THEN @player
             END;
 
 	END IF;
@@ -1004,26 +1015,36 @@ END//
 
 -- Disengage Combat
 CREATE PROCEDURE Disengage_Combat(
-	IN Player INT
+	IN InAccount VARCHAR(32),
+    IN InRoom INT
 )
 BEGIN
 
+	-- Error: If the account doesn't exist
+    IF NOT EXISTS (SELECT * FROM `account` WHERE AccountName = InAccount) THEN
+		SELECT 'Account not found' AS message;
+    
+    -- Error: If the room doesn't exist
+	ELSEIF NOT EXISTS (SELECT * FROM room WHERE RoomID = InRoom) THEN
+		SELECT 'Room not found' AS message;
+        
 	-- Error: If player doesn't exist
-	IF NOT EXISTS (SELECT * FROM player WHERE PlayerID = Player AND `Active` = 1) THEN
+	ELSEIF NOT EXISTS (SELECT * FROM player WHERE AccountName = InAccount AND RoomID = InRoom AND `Active` = 1) THEN
 		SELECT 'Invalid player' AS message;
 
 	-- Error: If player is not in combat
-	ELSEIF (SELECT Combatant FROM player WHERE PlayerID = Player) IS NULL THEN
+	ELSEIF (SELECT Combatant FROM player WHERE AccountName = InAccount AND RoomID = InRoom) IS NULL THEN
 		SELECT 'Player not in combat' AS messsage;
 
 	-- Set both player's combatant to null
 	ELSE 
-		SET @OtherPlayer = (SELECT Combatant FROM player WHERE PlayerID = Player);
+		SET @player = (SELECT PlayerID FROM player WHERE AccountName = InAccount AND RoomID = InRoom);
+		SET @otherplayer = (SELECT Combatant FROM player WHERE PlayerID = @player);
         
 		UPDATE player
         SET Combatant = NULL
-        WHERE PlayerID = Player
-			OR PlayerID = @OtherPlayer;  
+        WHERE PlayerID = @player
+			OR PlayerID = @otherplayer;  
 
 	END IF;
 
@@ -1416,7 +1437,7 @@ BEGIN
 			WHERE pt.PlayerID = @player
 				AND pt.MovedOff IS NULL
         )
-		SELECT t.XPos, t.YPos, c.Sprite, c.ClassName, p.AccountName
+		SELECT t.XPos, t.YPos, c.Sprite, p.AccountName, p.Combatant, p.PlayerID
         FROM tile t
         LEFT JOIN player_tile pt
 			ON pt.TileID = t.TileID

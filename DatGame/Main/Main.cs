@@ -11,6 +11,8 @@ public partial class Main : Node
 	private int ? _swapitemid1 = null;
 	private int ? _swapitemid2 = null;
 	private bool _itemselected = false;
+	
+	private int? _combatant = null;
 
 	public string Account { get => _account; set => _account = value; }
     public int Room { get => _roomID; set => _roomID = value; }
@@ -19,6 +21,7 @@ public partial class Main : Node
 	public int? Swapitemid2 { get => _swapitemid2; set => _swapitemid2 = value; }
     public int? Swapitemid1 { get => _swapitemid1; set => _swapitemid1 = value; }
     public bool Itemselected { get => _itemselected; set => _itemselected = value; }
+    public int? Combatant { get => _combatant; set => _combatant = value; }
 
     public override void _Ready()
 	{

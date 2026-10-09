@@ -499,16 +499,7 @@ namespace DATGame
 
                 MySqlCommand command = new MySqlCommand($"CALL Transfer_Abilities({id1i}, {id2i}, '{account}', {room});", _connection);
 
-
-                using (MySqlDataReader reader = command.ExecuteReader())
-                {
-                    while (reader.Read())
-                    {
-                        GD.Print(reader.GetValue(0));
-                    }
-                }
-
-                //command.ExecuteNonQuery();
+                command.ExecuteNonQuery();
             }
 
             finally
@@ -872,6 +863,40 @@ namespace DATGame
     // Any database calls invloving the map
     internal partial class MapDAO : DAOClass
     {
+        public void Engage(string username, int room, int player)
+        {
+            try
+            {
+                _connection.Open();
+
+                MySqlCommand command = new MySqlCommand($"CALL Engage_Combat('{username}', {room}, {player});", _connection);
+
+                command.ExecuteNonQuery();
+            }
+
+            finally
+            {
+                _connection.Close();
+            }
+        }
+
+        public void Disengage(string username, int room)
+        {
+            try
+            {
+                _connection.Open();
+
+                MySqlCommand command = new MySqlCommand($"CALL Disengage_Combat('{username}', {room});", _connection);
+
+                command.ExecuteNonQuery();
+            }
+
+            finally
+            {
+                _connection.Close();
+            }
+        }
+
         public void MovePlayer(string username, int room, int x, int y, int range, bool diagonal)
         {
             int idiagonal = 0;
