@@ -23,6 +23,22 @@ namespace DATGame
             {
                 string _path = $"res://Gameplay/Game Sprites/{_info["Sprite"]}.png";
 
+                string tooltip = $"{_info["AbilityName"]}\n";
+
+                if ((bool)_info["Combat"] == true)
+                {
+                    tooltip += $"{_info["Damage"]} DMG | ";
+                }
+
+                if ((int)_info["Cost"] > 0)
+                {
+                    tooltip += $"{_info["Cost"]} | ";
+                }
+
+                tooltip += $"{_info["Value"]} Points\n{_info["Description"]}";
+
+                GetNode<Button>("Clickbox").TooltipText = tooltip;
+
                 if (ResourceLoader.Exists(_path))
                 {
                     GetNode<TextureRect>("sprIcon").Texture = GD.Load<Texture2D>(_path);
@@ -34,6 +50,7 @@ namespace DATGame
             }
             else
             {
+                GetNode<Button>("Clickbox").TooltipText = null;
                 GetNode<TextureRect>("sprIcon").Texture = null;
             }
         }

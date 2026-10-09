@@ -2,8 +2,6 @@ using Godot;
 using Godot.Collections;
 using MySql.Data.MySqlClient;
 using System;
-using System.Security.Principal;
-using ZstdSharp.Unsafe;
 
 namespace DATGame
 {
@@ -478,6 +476,48 @@ namespace DATGame
 	// Any database calls that manage player entries
 	internal partial class PlayerDAO : DAOClass
 	{
+        public void ExitRoom(string account, int room)
+        {
+            try
+            {
+                _connection.Open();
+
+                MySqlCommand command = new MySqlCommand($"CALL Exit_Room('{account}', {room});", _connection);
+
+                command.ExecuteNonQuery();
+            }
+
+            finally
+            {
+                _connection.Close();
+            }
+        }
+
+        public string GetPrimaryPlayer(int room)
+        {
+            try
+            {
+                _connection.Open();
+
+                MySqlCommand command = new MySqlCommand($"CALL Get_Primary_Player({room});", _connection);
+
+                using (MySqlDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        return (string)reader.GetValue(0);
+                    }
+                }
+
+                return "";
+            }
+
+            finally
+            {
+                _connection.Close();
+            }
+        }
+
         public void SwapItems(string account, int room, int ? id1, int ? id2)
         {
             int id1i = -1;
@@ -863,6 +903,23 @@ namespace DATGame
     // Any database calls invloving the map
     internal partial class MapDAO : DAOClass
     {
+        public void Glitch(int room)
+        {
+            try
+            {
+                _connection.Open();
+
+                MySqlCommand command = new MySqlCommand($"CALL Glitch_Ability({room});", _connection);
+
+                command.ExecuteNonQuery();
+            }
+
+            finally
+            {
+                _connection.Close();
+            }
+        }
+
         public void Engage(string username, int room, int player)
         {
             try

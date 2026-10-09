@@ -75,19 +75,19 @@ namespace DATGame
 
         public void _TileClicked()
         {
-            if (_head.Combatant is not null)
-            {
-                _dao.Disengage(_head.Account, _head.Room);
-                _head.Combatant = null;
-            }
-            else if ((string)_info["PlayerID"] != "")
-            {
-                _dao.Engage(_head.Account, _head.Room, (int)_info["PlayerID"]);
-                _head.Combatant = (int)_info["PlayerID"];
-            }
-
             if ((TileTypes.Type)(int)_info["type"] != TileTypes.Type.OOBE)
             {
+                if (_head.Combatant is not null)
+                {
+                    _dao.Disengage(_head.Account, _head.Room);
+                    _head.Combatant = null;
+                }
+                else if ((string)_info["PlayerID"] != "")
+                {
+                    _dao.Engage(_head.Account, _head.Room, (int)_info["PlayerID"]);
+                    _head.Combatant = (int)_info["PlayerID"];
+                }
+
                 if (_head.Canmove == true)
                 {
                     _dao.MovePlayer(_head.Account, _head.Room, (int)_info["XPos"], (int)_info["YPos"], (int)_info["moveradius"], (bool)_info["diagonal"]);

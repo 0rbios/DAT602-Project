@@ -44,6 +44,7 @@ DROP PROCEDURE IF EXISTS Get_Map_Snapshot;
 DROP PROCEDURE IF EXISTS Get_Player_Energy;
 DROP PROCEDURE IF EXISTS Replenish_Energy;
 DROP PROCEDURE IF EXISTS Transfer_Abilities;
+DROP PROCEDURE IF EXISTS Get_Primary_Player;
 
 DELIMITER //
 
@@ -116,6 +117,8 @@ CREATE PROCEDURE Create_Room(
     IN In_Player VARCHAR(32)
 )
 BEGIN
+
+	DECLARE i INT DEFAULT 1;
 	
     -- Error: Requested room owner account name doesn't exist
     IF NOT EXISTS (SELECT * FROM `account` WHERE AccountName = In_Player) THEN
@@ -128,9 +131,21 @@ BEGIN
 		
         SET @NewRoomID = (SELECT RoomID FROM room WHERE AccountName = In_Player LIMIT 1);
         
-        CALL Layout_Tiles(@NewRoomID, 20, 20);
+        SET @mapsize = 20;
         
-        CALL Place_Ability_On_Tile("Piston Wreck", @NewRoomID, 0, 0);
+        CALL Layout_Tiles(@NewRoomID, @mapsize, @mapsize);
+        
+        item_loop: LOOP
+        
+			IF i > (((@mapsize / 2) + 3) * 1.5) THEN
+				LEAVE item_loop;
+			END IF;
+        
+			CALL Place_Ability_On_Tile((SELECT AbilityName FROM ability LIMIT i, 1), Random_Tile(@NewRoomID));
+            
+            SET i = i + 1;
+            
+        END LOOP item_loop;
         
 	END IF;
     
@@ -184,18 +199,12 @@ END//
 -- Placing an ability on a tile
 CREATE PROCEDURE Place_Ability_On_Tile(
 	IN InAbility VARCHAR(24),
-    IN InRoom INT,
-    IN InXPos INT,
-    In InYPos INT
+    IN InTile INT
 )
 BEGIN
 
-	-- Error: If requested room doesn't exist
-	IF NOT EXISTS (SELECT * FROM room WHERE RoomID = InRoom) THEN
-		SELECT 'Room does not exist' AS message;
-	
     -- Error: If the given x/y doesn't exist in the given room
-    ELSEIF NOT EXISTS (SELECT * FROM tile WHERE RoomID = InRoom AND XPos = InXPos AND YPos = InYPos) THEN
+    IF NOT EXISTS (SELECT * FROM tile WHERE TileID = InTile) THEN
 		SELECT 'Tile does not exist' AS message;
     
     -- Error: If requested ability instance doesn't exist
@@ -206,16 +215,9 @@ BEGIN
 	ELSE
 		INSERT INTO abilityinstance (AbilityName)
 			VALUES (InAbility);
-        
-        SET @tiletoplace = (SELECT TileID
-							FROM tile
-                            WHERE RoomID = InRoom
-								AND XPos = InXPos
-								AND YPos = InYPos
-							LIMIT 1);
-        
+		
 		INSERT INTO Tile_Ability (Placed, TileID, AbilityID)
-			VALUES (CURRENT_TIMESTAMP(), @tiletoplace, (SELECT Get_Instance(InAbility)));
+			VALUES (CURRENT_TIMESTAMP(), InTile, (SELECT Get_Instance(InAbility)));
 	END IF;
 
 END//
@@ -437,40 +439,55 @@ END//
 
 -- Glitch ability movement
 CREATE PROCEDURE Glitch_Ability (
-	IN AbilityInstance INT
+	IN InRoom INT
 )
 BEGIN
 
-	-- Error: If requested ability instance doesn't exist
-	IF NOT EXISTS (SELECT * FROM abilityinstance WHERE AbilityID = AbilityInstance) THEN
-		SELECT 'Ability instance does not exist' AS message;
+	DECLARE i INT DEFAULT 1;
+
+	-- Error: If requested room doesn't exist
+	IF NOT EXISTS (SELECT * FROM room WHERE RoomID = InRoom) THEN
+		SELECT 'Room does not exist' AS message;
     
-    -- Error: If requested ability instance is in a player's inventory
-    ELSEIF EXISTS (SELECT * FROM player_ability WHERE AbilityID = AbilityInstance AND Dropped IS NULL) THEN
-		SELECT 'Ability is being held' AS message;
-    
-    -- Remove the requested ability instance from its tile and add it to the player's inventory
-    ELSE
-        IF NOT EXISTS (SELECT * FROM tile_ability WHERE Placed = CURRENT_TIMESTAMP AND AbilityID = AbilityInstance) THEN
-			
-			UPDATE tile_ability
-				SET Removed = CURRENT_TIMESTAMP()
-				WHERE AbilityID = AbilityInstance
-					AND Removed;
+    ELSE 
+		-- Remove the requested ability instance from its tile and add it to the player's inventory
 		
+        DROP TEMPORARY TABLE IF EXISTS glitchabilities;
+        
+        CREATE TEMPORARY TABLE glitchabilities AS (SELECT ta.AbilityID
+													FROM tile_ability ta
+													JOIN abilityinstance ai
+														ON ai.AbilityID = ta.AbilityID
+													JOIN ability a
+														ON a.AbilityName = ai.AbilityName
+													JOIN tile t
+														ON t.TileID = ta.TileID
+													WHERE ta.Removed IS NULL
+														AND a.Glitched = 1
+														AND t.RoomID = InRoom);
+
+        glitch_loop: LOOP
+        
+			IF i >= (SELECT COUNT(AbilityID) FROM glitchabilities) THEN
+				LEAVE glitch_loop;
+			END IF;
+        
+			SET @currentability = (SELECT AbilityID FROM glitchabilities LIMIT i, 1);
+        
+			UPDATE tile_ability
+			SET Removed = CURRENT_TIMESTAMP()
+			WHERE AbilityID = @currentability
+				AND Removed IS NULL;
+        
 			INSERT INTO tile_ability (TileID, AbilityID, Placed)
-				VALUE (Random_Tile(
-							(SELECT t.RoomID
-							 FROM tile_ability AS ta
-							 JOIN abilityinstance AS ai
-								ON ai.AbilityID = ta.AbilityID
-							 JOIN tile AS t
-								ON t.TileID = ta.TileID
-							 WHERE ta.AbilityID = AbilityInstance)
-							), AbilityInstance, CURRENT_TIMESTAMP());
-                            
-		END IF;
-			
+				VALUE (Random_Tile(InRoom), @currentability, CURRENT_TIMESTAMP());
+            
+            SET i = i + 1;
+            
+        END LOOP glitch_loop;
+		
+        DROP TEMPORARY TABLE IF EXISTS glitchabilities;
+        
 	END IF;
 
 END//
@@ -1196,19 +1213,30 @@ END//
 
 -- Exiting room
 CREATE PROCEDURE Exit_Room (
-	IN ExitPlayer INT
+	IN InAccount VARCHAR(32),
+    IN InRoom INT
 )
 BEGIN
 	
-    -- Error: If player doesn't currently exist
-    IF NOT EXISTS (SELECT * FROM player WHERE PlayerID = ExitPlayer AND `Active` = 1) THEN
-		SELECT 'Invalid player' AS message;
+	-- Error: If the account doesn't exist
+    IF NOT EXISTS (SELECT * FROM `account` WHERE AccountName = InAccount) THEN
+		SELECT 'Account not found' AS message;
+    
+    -- Error: If the room doesn't exist
+	ELSEIF NOT EXISTS (SELECT * FROM room WHERE RoomID = InRoom) THEN
+		SELECT 'Room not found' AS message;
     
     -- Change player active status
     ELSE
+		SET @player = (SELECT PlayerID FROM player WHERE AccountName = InAccount AND RoomID = InRoom);
+    
+		IF (SELECT Combatant FROM player WHERE PlayerID = @player) IS NOT NULL THEN
+			CALL Disengage_Combat((SELECT AccountName FROM player WHERE PlayerID = @player), (SELECT RoomID FROM player WHERE PlayerID = @player));
+        END IF;
+    
 		UPDATE player
 		SET `Active` = 0
-        WHERE PlayerID = ExitPlayer;
+        WHERE PlayerID = @player;
     
     END IF;
 
@@ -1444,6 +1472,7 @@ BEGIN
 				AND pt.MovedOff IS NULL
 		LEFT JOIN player p
 			ON p.PlayerID = pt.PlayerID
+				AND p.`Active` = 1
 		LEFT JOIN class c
 			ON c.ClassName = p.ClassName
         WHERE t.RoomID = InRoom
@@ -1511,6 +1540,27 @@ BEGIN
         
     END IF;
 	
+END//
+
+CREATE PROCEDURE Get_Primary_Player (
+	IN InRoom INT
+)
+BEGIN
+
+	-- Error: If the room doesn't exist
+	IF NOT EXISTS (SELECT * FROM room WHERE RoomID = InRoom) THEN
+		SELECT 'Room not found' AS message;
+	
+    ELSE
+		SELECT a.AccountName
+        FROM `account` a
+        JOIN player p
+			ON p.AccountName = a.AccountName
+		WHERE p.`active` = 1
+        LIMIT 1;
+	
+    END IF;
+
 END//
 
 DELIMITER ;

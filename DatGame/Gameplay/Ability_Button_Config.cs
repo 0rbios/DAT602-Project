@@ -16,6 +16,22 @@ namespace DATGame
                 return;
             }
 
+            string tooltip = $"{_info["AbilityName"]}\n";
+
+            if ((bool)_info["Combat"] == true)
+            {
+                tooltip += $"{_info["Damage"]} DMG | ";
+            }
+
+            if ((int)_info["Cost"] > 0)
+            {
+                tooltip += $"{_info["Cost"]} | ";
+            }
+
+            tooltip += $"{_info["Value"]} Points\n{_info["Description"]}";
+
+            TooltipText = tooltip;
+
             string _path = $"res://Gameplay/Game Sprites/{_info["Sprite"]}.png";
 
             if (ResourceLoader.Exists(_path))

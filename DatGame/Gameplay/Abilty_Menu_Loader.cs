@@ -33,18 +33,32 @@ namespace DATGame
 
         public void UpdateAbilityButtons()
         {
-            foreach (Node child in _abilitybuttons.GetChildren())
-            {
-                child.QueueFree();
-            }
-
             Array inventory = _dao.GetInventory(_head.Account, _head.Room);
+            Array usables = [];
 
             foreach (Dictionary ability in inventory)
             {
+                if ((int)ability["Cost"] > 0)
+                {
+                    usables.Add(ability);
+                }
+            }
+
+            for (int rm = _abilitybuttons.GetChildren().Count; rm > usables.Count; rm--)
+            {
+                _abilitybuttons.GetChildren()[rm].QueueFree();
+            }
+
+            for (int cr = _abilitybuttons.GetChildren().Count; cr < usables.Count; cr++)
+            {
                 TextureButton abilitybutton = (TextureButton)GD.Load<PackedScene>("res://Gameplay/Ability Button.tscn").Instantiate();
-                Ability_Button_Config conf = (Ability_Button_Config)abilitybutton;
                 _abilitybuttons.CallDeferred("add_child", abilitybutton);
+            }
+
+            for (int slot = 0; slot < _abilitybuttons.GetChildren().Count; slot++)
+            {
+                Ability_Button_Config conf = (Ability_Button_Config)_abilitybuttons.GetChildren()[slot];
+                conf.UpdateContents((Dictionary)usables[slot]);
             }
         }
 

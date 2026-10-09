@@ -9,6 +9,7 @@
 [ext_resource type="Script" uid="uid://c0n32n0bugq2i" path="res://Gameplay/Display_Snapshot.cs" id="3_8uvy0"]
 [ext_resource type="Script" uid="uid://bp7xibi6vxye" path="res://Gameplay/Abilty_Menu_Loader.cs" id="5_fvut2"]
 [ext_resource type="PackedScene" uid="uid://guvnhsugju2x" path="res://Chat/Chat Window.tscn" id="7_2gist"]
+[ext_resource type="Script" uid="uid://cu506pwo0nasa" path="res://Gameplay/Glitch_Item_Movement.cs" id="10_au2ii"]
 
 [node name="Gameplay" type="Control" unique_id=939557805]
 layout_mode = 3
@@ -121,7 +122,6 @@ wait_time = 0.1
 autostart = true
 
 [node name="Movement Timer" type="Timer" parent="CanvasLayer/Columns/Column 2" unique_id=410471872]
-wait_time = 0.1
 autostart = true
 
 [node name="Inventory" type="VBoxContainer" parent="CanvasLayer/Columns/Column 2" unique_id=1431266407]
@@ -191,6 +191,10 @@ size_flags_vertical = 8
 [node name="Chat Window" parent="." unique_id=230172480 instance=ExtResource("7_2gist")]
 visible = false
 
+[node name="Glitch Movement" type="Timer" parent="." unique_id=131963950]
+autostart = true
+script = ExtResource("10_au2ii")
+
 [connection signal="pressed" from="CanvasLayer/Columns/Column 1/Top Box/btnBack" to="." method="_Back_Button_Clicked"]
 [connection signal="timeout" from="CanvasLayer/Columns/Column 1/Bottom Box/Refresh" to="CanvasLayer/Columns/Column 1/Bottom Box" method="UpdateInventory"]
 [connection signal="timeout" from="CanvasLayer/Columns/Column 2/Refresh" to="CanvasLayer/Columns/Column 2/Map" method="Update_Display" binds= [2, 1, false]]
@@ -200,3 +204,4 @@ visible = false
 [connection signal="timeout" from="CanvasLayer/Columns/Column 2/Inventory/Abilties/Display Refresh" to="CanvasLayer/Columns/Column 2/Inventory/Abilties" method="UpdateEnergyGaugeDisplay"]
 [connection signal="timeout" from="CanvasLayer/Columns/Column 2/Inventory/Scroll bar/Refresh" to="CanvasLayer/Columns/Column 2/Inventory/Scroll bar/Rows" method="LoadTileInventory"]
 [connection signal="timeout" from="CanvasLayer/Columns/Column 3/Leaderboard Refresh" to="CanvasLayer/Columns/Column 3/Leaderboard" method="LoadLeaders"]
+[connection signal="timeout" from="Glitch Movement" to="Glitch Movement" method="_GlitchItemTimeout"]

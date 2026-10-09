@@ -1,4 +1,6 @@
+using DATGame;
 using Godot;
+using System;
 
 public partial class Main : Node
 {
@@ -44,4 +46,15 @@ public partial class Main : Node
 			GD.Print("Scene Switch Failed");
 		}
 	}
+
+    public override void _Notification(int what)
+    {
+		if (what == NotificationWMCloseRequest)
+		{
+			PlayerDAO dao = new PlayerDAO();
+			dao.ExitRoom(Account, Room);
+			GetTree().Quit();
+		}
+    }
+
 }
