@@ -1,50 +1,307 @@
+DROP DATABASE IF EXISTS gamedb;
+CREATE DATABASE gamedb;
 USE gamedb;
 
-DROP PROCEDURE IF EXISTS Login;
-DROP PROCEDURE IF EXISTS Create_Account;
-DROP PROCEDURE IF EXISTS Create_Room;
-DROP PROCEDURE IF EXISTS Join_Room;
-DROP PROCEDURE IF EXISTS Layout_Tiles;
-DROP PROCEDURE IF EXISTS Place_Ability_On_Tile;
-DROP PROCEDURE IF EXISTS Move_Player;
-DROP PROCEDURE IF EXISTS Glitch_Ability;
-DROP FUNCTION IF EXISTS Random_Tile;
-DROP PROCEDURE IF EXISTS Pickup_Ability;
-DROP PROCEDURE IF EXISTS Drop_Ability;
-DROP PROCEDURE IF EXISTS Update_Score;
-DROP FUNCTION IF EXISTS Get_Score;
-DROP PROCEDURE IF EXISTS Get_Leaderboard;
-DROP PROCEDURE IF EXISTS Kill_Room;
-DROP PROCEDURE IF EXISTS Update_Account;
-DROP PROCEDURE IF EXISTS Delete_Account;
-DROP PROCEDURE IF EXISTS Update_Player;
-DROP PROCEDURE IF EXISTS Send_Message;
-DROP PROCEDURE IF EXISTS Get_Messages;
-DROP PROCEDURE IF EXISTS Engage_Combat;
-DROP PROCEDURE IF EXISTS Disengage_Combat;
-DROP PROCEDURE IF EXISTS Attack;
-DROP PROCEDURE IF EXISTS Resolve_Combat;
-DROP FUNCTION IF EXISTS Get_Instance;
-DROP PROCEDURE IF EXISTS Exit_Room;
-DROP PROCEDURE IF EXISTS Rejoin_At;
-DROP PROCEDURE IF EXISTS Get_Rooms;
-DROP PROCEDURE IF EXISTS Get_Owned_Rooms;
-DROP PROCEDURE IF EXISTS Get_Players;
-DROP PROCEDURE IF EXISTS Get_Room;
-DROP PROCEDURE IF EXISTS Get_Player;
-DROP PROCEDURE IF EXISTS Delete_Player;
-DROP PROCEDURE IF EXISTS Get_Statistics;
-DROP PROCEDURE IF EXISTS Get_Inventory;
-DROP PROCEDURE IF EXISTS Attach_Player_Stat;
-DROP PROCEDURE IF EXISTS Get_Tile_Inventory;
-DROP PROCEDURE IF EXISTS Get_Map_Snapshot;
-DROP PROCEDURE IF EXISTS Get_Player_Energy;
-DROP PROCEDURE IF EXISTS Replenish_Energy;
-DROP PROCEDURE IF EXISTS Transfer_Abilities;
-DROP PROCEDURE IF EXISTS Get_Primary_Player;
-DROP PROCEDURE IF EXISTS Get_Available_Tiles;
-
 DELIMITER //
+
+-- Generate the database
+CREATE PROCEDURE Generate_Database()
+BEGIN
+	CREATE TABLE `account` (
+		AccountName VARCHAR(32),
+		`Password` VARCHAR(32) NOT NULL,
+		`Admin` BIT NOT NULL DEFAULT 0,
+		`Locked` BIT NOT NULL DEFAULT 0,
+		LoginAttempts INT(1) NOT NULL DEFAULT 0,
+		PRIMARY KEY (AccountName)
+	);
+
+	CREATE TABLE room (
+		RoomID INT AUTO_INCREMENT,
+		RoomName VARCHAR(32) NOT NULL,
+		AccountName VARCHAR(32) NOT NULL,
+		PRIMARY KEY (RoomID),
+		CONSTRAINT fk_account_room
+			FOREIGN KEY (AccountName)
+			REFERENCES `account`(AccountName)
+            ON DELETE CASCADE
+	);
+    
+	CREATE TABLE ability (
+		AbilityName VARCHAR(24),
+		`Description` VARCHAR(255) NOT NULL,
+		`Value` INT(5) NOT NULL,
+		Cost INT(5) NOT NULL,
+		Combat BIT NOT NULL,
+		Damage INT(3),
+		Glitched BIT NOT NULL DEFAULT 0,
+		Sprite VARCHAR(32) NOT NULL,
+		PRIMARY KEY (AbilityName)
+	);
+
+	CREATE TABLE abilityinstance (
+		AbilityID INT AUTO_INCREMENT,
+		AbilityName VARCHAR(24) NOT NULL,
+        PRIMARY KEY (AbilityID),
+        CONSTRAINT fk_abilityinstance_ability
+			FOREIGN KEY (AbilityName)
+            REFERENCES ability(AbilityName)
+            ON DELETE CASCADE
+    );
+    
+    CREATE TABLE class (
+		ClassName VARCHAR(32),
+        AbilityName VARCHAR(24),
+		Sprite VARCHAR(32) NOT NULL,
+        PRIMARY KEY (ClassName),
+        CONSTRAINT fk_class_ability
+			FOREIGN KEY (AbilityName)
+            REFERENCES ability(AbilityName)
+            ON DELETE CASCADE
+    );
+    
+	CREATE TABLE stat (
+		StatName VARCHAR(16),
+		`MaxValue` INT NOT NULL,
+		PRIMARY KEY (StatName)
+	);
+    
+    CREATE TABLE class_stat(
+		ClassName VARCHAR(32),
+        StatName VARCHAR(16) NOT NULL,
+        Amount INT NOT NULL,
+        PRIMARY KEY (ClassName, StatName),
+        CONSTRAINT fk_class_stat_class
+			FOREIGN KEY (ClassName)
+            REFERENCES class(ClassName)
+            ON DELETE CASCADE,
+        CONSTRAINT fk_class_stat_stat
+			FOREIGN KEY (StatName)
+            REFERENCES stat(StatName)
+            ON DELETE CASCADE
+    );
+    
+	CREATE TABLE player (
+		PlayerID INT AUTO_INCREMENT,
+        `Active` BIT DEFAULT 1 NOT NULL,
+		CurrentScore INT NOT NULL DEFAULT 0,
+		HighScore INT NOT NULL DEFAULT 0,
+		CurrentEnergy INT NOT NULL,
+		CurrentHealth INT NOT NULL,
+		AccountName VARCHAR(32) NOT NULL,
+		RoomID INT NOT NULL,
+        Combatant INT UNIQUE,
+        ClassName VARCHAR(32) NOT NULL,
+        BattleScore INT NOT NULL DEFAULT 0,
+		PRIMARY KEY (PlayerID),
+		CONSTRAINT fk_player_account
+			FOREIGN KEY (AccountName)
+			REFERENCES `account`(AccountName)
+            ON DELETE CASCADE,
+		CONSTRAINT fk_player_room
+			FOREIGN KEY (RoomID)
+			REFERENCES room(RoomID)
+            ON DELETE CASCADE,
+		CONSTRAINT fk_player_player
+			FOREIGN KEY (Combatant)
+            REFERENCES player(PlayerID)
+            ON DELETE CASCADE,
+		CONSTRAINT fk_player_class
+			FOREIGN KEY (ClassName)
+            REFERENCES class(ClassName)
+            ON DELETE CASCADE
+	);
+
+	CREATE TABLE tile (
+		TileID INT AUTO_INCREMENT,
+		XPos INT NOT NULL,
+		YPos INT NOT NULL,
+		RoomID INT NOT NULL,
+		PRIMARY KEY (TileID),
+		CONSTRAINT fk_tile_room
+			FOREIGN KEY (RoomID)
+			REFERENCES room(RoomID)
+            ON DELETE CASCADE
+	);
+
+	CREATE TABLE message (
+		PlayerID INT,
+		SendTime TIMESTAMP,
+		`Text` VARCHAR(128) NOT NULL,
+		PRIMARY KEY (PlayerID, SendTime),
+		CONSTRAINT fk_message_player
+			FOREIGN KEY (PlayerID)
+			REFERENCES player(PlayerID)
+            ON DELETE CASCADE
+	);
+
+	CREATE TABLE statchange (
+		AbilityName VARCHAR(24),
+		StatName VARCHAR(16),
+		Amount INT(2) NOT NULL,
+		PRIMARY KEY (AbilityName, StatName),
+		CONSTRAINT fk_statchange_ability
+			FOREIGN KEY (AbilityName)
+			REFERENCES ability(AbilityName)
+            ON DELETE CASCADE,
+		CONSTRAINT fk_statchange_stat
+			FOREIGN KEY (StatName)
+			REFERENCES stat(StatName)
+            ON DELETE CASCADE
+	);
+
+	CREATE TABLE player_stat (
+		StatName VARCHAR(16),
+		PlayerID INT,
+		`Value` INT NOT NULL,
+		PRIMARY KEY (StatName, PlayerID),
+		CONSTRAINT fk_playerstat_player
+			FOREIGN KEY (PlayerID)
+			REFERENCES player(PlayerID)
+            ON DELETE CASCADE,
+		CONSTRAINT fk_playerstat_stat
+			FOREIGN KEY (StatName)
+			REFERENCES stat(StatName)
+            ON DELETE CASCADE
+	);
+
+	CREATE TABLE player_ability (
+		PickedUp TIMESTAMP,
+		AbilityID INT,
+		PlayerID INT,
+		Dropped TIMESTAMP,
+		PRIMARY KEY (PickedUp, AbilityID, PlayerID),
+		CONSTRAINT fk_playerability_abilityinstance
+			FOREIGN KEY (AbilityID)
+			REFERENCES abilityinstance(AbilityID)
+            ON DELETE CASCADE,
+		CONSTRAINT fk_playerability_player
+			FOREIGN KEY (PlayerID)
+			REFERENCES player(PlayerID)
+            ON DELETE CASCADE
+	);
+
+	CREATE TABLE player_tile (
+		TileID INT,
+		PlayerID INT,
+		MovedOn TIMESTAMP,
+		MovedOff TIMESTAMP,
+		PRIMARY KEY (TileID, PlayerID, MovedOn),
+		CONSTRAINT fk_playertile_player
+			FOREIGN KEY (PlayerID)
+			REFERENCES player(PlayerID)
+            ON DELETE CASCADE,
+		CONSTRAINT fk_playertile_tile
+			FOREIGN KEY (TileID)
+			REFERENCES tile(TileID)
+            ON DELETE CASCADE
+	);
+
+	CREATE TABLE tile_ability (
+		Placed TIMESTAMP,
+		TileID INT,
+		AbilityID INT,
+        Removed TIMESTAMP,
+		PRIMARY KEY (Placed, TileID, AbilityID),
+		CONSTRAINT fk_tileability_tile
+			FOREIGN KEY (TileID)
+			REFERENCES tile(TileID)
+            ON DELETE CASCADE,
+		CONSTRAINT fk_tileability_abilityinstance
+			FOREIGN KEY (AbilityID)
+			REFERENCES abilityinstance(AbilityID)
+            ON DELETE CASCADE
+	);
+    
+    -- Creates the games statistics
+    INSERT INTO stat (StatName, `MaxValue`)
+		VALUES ('Strength', 100),
+			   ('Speed', 100),
+               ('Energy', 100),
+               ('Health', 100);
+    
+	-- Create all of the games abilities
+    INSERT INTO ability (AbilityName, `Description`, `Value`, Cost, Damage, Sprite, Glitched, Combat)
+		VALUES ('Iron Core', '+1 Health | -1 Speed\nA forged iron core to increase the durability of a suit.', 5, 0, 0, './Assets/IronCore.png', 0, 0),
+				('Steel Core', '+3 Health | -2 Speed\nA forged steel core to better increase the durability of a suit.', 10, 0, 0, './Assets/SteelCore.png', 0, 0),
+				('Platinum Core', '+5 Health | -3 Speed\nA forged platinum core to greatly increase the durability of a suit.', 15, 0, 0, './Assets/PlatinumCore.png', 0, 0),
+				('Loose Spring', '+1 Health | -1 Strength\nA stretched spring, not very springy but bends easily.', 5, 0, 0, './Assets/LooseSpring.png', 0, 0),
+				('Tight Spring', '+1 Strength | +1 Energy | -2 Health\nA firm spring, plenty of potential energy but not very flexible.', 10, 0, 0, './Assets/TightSpring.png', 0, 0),
+				('Overtightened Spring', '+3 Energy | +2 Strength | -4 Health\nA spring that seems to have somehow been twisted past its usual breaking point. Extremely high potential energy but will not hold up well to stress.', 15, 0, 0, './Assets/OvertightenedSpring.png', 0, 0),
+				('Ping', 'Scan the surrounding area for signals. (Tile inventory will include surrounding tiles as well until player moves)', 12, 5, 0, './Assets/Ping.png', 0, 0),
+				('Piston Wreck', 'Utilise the added force of the pistons in a suit to increase the power of a punch.', 6, 1, 2, './Assets/PistonWreck.png', 0, 1),
+				('Wing Swipe', 'Swipe a suits wing (or arm) with the added assistance of its propulsion jet.', 6, 1, 2, './Assets/WingSwipe.png', 0, 1),
+				('Claw Strike', 'Use a suit’s claws (or fist) to damage a target.', 6, 1, 2, './Assets/ClawStrike.png', 0, 1),
+				('Hyper-Speed Kick', 'Utilise the fast bearings in a suit’s legs to kick a target at increased speed.', 6, 1, 2, './Assets/HyperSpeedKick.png', 0, 1),
+				('Jump-Kick', 'Jump into the air and kick a target.', 10, 4, 5, './Assets/JumpKick.png', 0, 1),
+				('Laser', 'Fire a high-powered laser at a target.', 16, 6, 10, './Assets/Laser.png', 1, 1),
+				('Teleport', 'Phase-shift a suit and its occupant to a different place. (Move to any empty tile on the map)', 30, 10, 0, './Assets/Teleport.png', 1, 0),
+				('Speed Shift', '+5 Speed\nA mechanical switch which makes it substantially faster to shift up (and down) speed levels of a suit.', 25, 0, 0, './Assets/SpeedShift.png', 0, 0),
+				('Iron Plating', '+1 Health | -1 Energy\nForged iron plating for the exterior of a suit. Seems to interfere with energy conduction.', 5, 0, 0, './Assets/IronPlating.png', 0, 0),
+				('Steel Plating', '+3 Health | -2 Energy\nForged steel plating for the exterior of a suit. Seems to interfere with energy conduction.', 10, 0, 0, './Assets/SteelPlating.png', 0, 0),
+				('Platinum Plating', '+5 Health | -3 Energy\nForged platinum plating for the exterior of a suit. Seems to interfere with energy conduction.', 20, 0, 0, './Assets/PlatinumPlating.png', 0, 0),
+				('Overcharge', '+5 Energy\nSend an excess amount of energy around the suit, disregarding component damage.', 28, 0, 0, './Assets/Overcharge.png', 1, 0),
+				('Cell', '+1 Energy | -1 Strength\nAn energy cell to store energy for later use. Seems to bounce off of surfaces easily.', 3, 0, 0, './Assets/Cell.png', 0, 0),
+				('Double-Cell', '+4 Energy | -2 Strength\nTwo energy cells to store more energy for later use. Seem to bounce off of surfaces easily.', 6, 0, 0, './Assets/DoubleCell.png', 0, 0),
+				('Triple-Cell', '+6 Energy | -3 Strength\nThree energy cells to store a lot more energy for later use. Seem to bounce off of surfaces easily.', 12, 0, 0, './Assets/TripleCell.png', 0, 0),
+				('Quad-Cell', '+8 Energy | -5 Strength\nFour energy cells to store an overwhelming amount of energy for later use. Seem to bounce off of surfaces easily. One might question the diminishing returns of so many cells.', 24, 0, 0, './Assets/QuadCell.png', 0, 0);
+        
+    -- Create the games classes
+    INSERT INTO class (ClassName, AbilityName, Sprite)
+		VALUES ('Gorilla', 'Piston Wreck', 'Gorilla Token'),
+			   ('Eagle', 'Wing Swipe', 'Eagle Token'),
+               ('Cheetah', 'Hyper-Speed Kick', 'Cheetah Token'),
+               ('Tiger', 'Claw Strike', 'Tiger Token');
+    
+    -- Attaches the classes to statistics
+	INSERT INTO class_stat (ClassName, StatName, Amount)
+		VALUE ('Gorilla', 'Health', 1),
+			  ('Gorilla', 'Strength', 1),
+              ('Gorilla', 'Energy', -1),
+              ('Gorilla', 'Speed', -1),
+              ('Eagle', 'Health', 1),
+			  ('Eagle', 'Strength', -1),
+              ('Eagle', 'Energy', -1),
+              ('Eagle', 'Speed', 1),
+              ('Cheetah', 'Health', -1),
+			  ('Cheetah', 'Strength', -1),
+              ('Cheetah', 'Energy', 1),
+              ('Cheetah', 'Speed', 1),
+              ('Tiger', 'Health', -1),
+			  ('Tiger', 'Strength', 1),
+              ('Tiger', 'Energy', 1),
+              ('Tiger', 'Speed', -1);
+	
+    -- Create an administrator account
+    INSERT INTO `account` (AccountName, `Password`, `Admin`)
+		VALUES ('admin', 'admin123', 1);
+
+END //
+
+-- Generate a set of test data
+CREATE PROCEDURE Create_Test_Data ()
+BEGIN
+	CALL Login('John', 'Password123');
+	CALL Login('Amanda', 'HelloWorld');
+	CALL Login('Test', 'TestTest');
+	CALL Login('Ghostie', 'eits0hg');
+	CALL Login('V', 'V3nd3774');
+
+	CALL Create_Room('Test Room', 'Ghostie');
+
+	CALL Join_Room('Ghostie', 1, 'Gorilla');
+	
+    CALL Send_Message('Hello World!', 'Ghostie', 1);
+    CALL Send_Message('Is this thing on?', 'Ghostie', 1);
+
+	CALL Pickup_Ability(1, 1);
+    CALL Pickup_Ability(1, 2);
+    CALL Drop_Ability(1, 2);
+    
+    CALL Move_Player('Ghostie', 1, 2, 1, 1, 0);
+    CALL Move_Player('Ghostie', 1, 1, 1, 1, 0);
+    
+END //
 
 -- Account login, including lock out
 CREATE PROCEDURE Login(
@@ -461,6 +718,7 @@ BEGIN
 		END IF;
         
 	END IF;
+    
 END//
 
 -- Glitch ability movement
@@ -977,7 +1235,7 @@ END//
 CREATE PROCEDURE Engage_Combat(
 	IN InAccount VARCHAR(32),
     IN InRoom INT,
-    IN Player2 INT
+    IN Target INT
 )
 BEGIN
 
@@ -990,23 +1248,23 @@ BEGIN
 		SELECT 'Room not found' AS message;
         
 	-- Error: If Player 1 or 2 don't exist
-    ELSEIF NOT EXISTS (SELECT * FROM player WHERE ((AccountName = InAccount AND RoomID = InRoom) OR PlayerID = Player2) AND `Active` = 1) THEN
+    ELSEIF NOT EXISTS (SELECT * FROM player WHERE ((AccountName = InAccount AND RoomID = InRoom) OR PlayerID = Target) AND `Active` = 1) THEN
 		SELECT 'Invalid player(s)' AS message;
     
 	-- Error: If Player 1 or 2 is already engaged
-    ELSEIF NOT EXISTS (SELECT * FROM player WHERE ((AccountName = InAccount AND RoomID = InRoom) OR PlayerID = Player2) AND Combatant IS NULL) THEN
+    ELSEIF NOT EXISTS (SELECT * FROM player WHERE ((AccountName = InAccount AND RoomID = InRoom) OR PlayerID = Target) AND Combatant IS NULL) THEN
 		SELECT 'Player(s) already engaged' AS message;
     
     -- Error: If Player 1 and Player 2 are the same player
-    ELSEIF (SELECT PlayerID FROM player WHERE AccountName = InAccount AND RoomID = InRoom) = Player2 THEN
+    ELSEIF (SELECT PlayerID FROM player WHERE AccountName = InAccount AND RoomID = InRoom) = Target THEN
 		SELECT 'Identical player' AS message;
     
     -- Error: If Player 1 and Player 2 are not in the same room
-    ELSEIF (SELECT RoomID FROM player WHERE AccountName = InAccount AND RoomID = InRoom) <> (SELECT RoomID FROM player WHERE PlayerID = Player2) THEN
+    ELSEIF (SELECT RoomID FROM player WHERE AccountName = InAccount AND RoomID = InRoom) <> (SELECT RoomID FROM player WHERE PlayerID = Target) THEN
 		SELECT 'Players are in different rooms' AS message;
     
 	-- Error: If Player 1 and Player 2 are too many tiles apart    
-    ELSEIF ABS((SELECT t.XPos + t.YPos FROM tile t JOIN player_tile pt ON pt.TileID = t.TileID JOIN player p ON p.PlayerID = pt.PlayerID WHERE p.AccountName = InAccount AND p.RoomID = InRoom AND pt.MovedOff IS NULL) - (SELECT t.XPos + t.YPos FROM tile t JOIN player_tile pt ON pt.TileID = t.TileID WHERE pt.PlayerID = Player2 AND pt.MovedOff IS NULL)) <> 1 THEN
+    ELSEIF ABS((SELECT t.XPos + t.YPos FROM tile t JOIN player_tile pt ON pt.TileID = t.TileID JOIN player p ON p.PlayerID = pt.PlayerID WHERE p.AccountName = InAccount AND p.RoomID = InRoom AND pt.MovedOff IS NULL) - (SELECT t.XPos + t.YPos FROM tile t JOIN player_tile pt ON pt.TileID = t.TileID WHERE pt.PlayerID = Target AND pt.MovedOff IS NULL)) <> 1 THEN
 		SELECT 'Players too far apart' AS message;
     
     -- Set each other as combatants
@@ -1015,8 +1273,8 @@ BEGIN
     
 		UPDATE player
         SET Combatant = CASE
-			WHEN PlayerID = @player THEN Player2
-            WHEN PlayerID = Player2 THEN @player
+			WHEN PlayerID = @player THEN Target
+            WHEN PlayerID = Target THEN @player
             END;
 
 	END IF;
@@ -1261,6 +1519,10 @@ BEGIN
     ELSEIF NOT EXISTS (SELECT * FROM tile WHERE TileID = NewLocation) THEN
 		SELECT 'Tile does not exist' AS message;
     
+    -- Error: If the player has not been in the given room before
+    ELSEIF NOT EXISTS (SELECT * FROM player WHERE AccountName = InAccount AND RoomID = InRoom)THEN
+		SELECT 'Player has not joined room' AS message;
+        
     -- Error: If the player is active
     ELSEIF (SELECT `active` FROM player WHERE AccountName = InAccount AND RoomID = InRoom) = 1 THEN
 		SELECT 'Player already in game' AS message;
@@ -1299,6 +1561,7 @@ BEGIN
     
 END//
 
+-- Get all rooms in the database and their player counts
 CREATE PROCEDURE Get_Rooms ()
 BEGIN
 
@@ -1311,6 +1574,7 @@ BEGIN
 
 END//
 
+-- Get all the rooms owned by a specific account
 CREATE PROCEDURE Get_Owned_Rooms (
 	IN `User` VARCHAR(32)
 )
@@ -1332,6 +1596,7 @@ BEGIN
     
 END//
 
+-- Get the basic details about a given room
 CREATE PROCEDURE Get_Room (
 	IN room INT
 )
@@ -1353,6 +1618,7 @@ BEGIN
     
 END//
 
+-- Get all players in the database and what room they are in
 CREATE PROCEDURE Get_Players ()
 BEGIN
 
@@ -1363,6 +1629,7 @@ BEGIN
 
 END//
 
+-- Get the details of a specific player in the database
 CREATE PROCEDURE Get_Player (
 	IN InAccount VARCHAR(32),
     IN InRoom INT
@@ -1394,6 +1661,7 @@ BEGIN
 
 END//
 
+-- Get the stats for a specific player
 CREATE PROCEDURE Get_Statistics (
 	IN InAccount VARCHAR(32),
     IN InRoom INT
@@ -1419,6 +1687,7 @@ BEGIN
 
 END//
 
+-- Remove a given player from the database
 CREATE PROCEDURE Delete_Player (
 	IN InAccount VARCHAR(32),
     IN InRoom INT
@@ -1432,7 +1701,7 @@ BEGIN
     -- Error: If the room doesn't exist
 	ELSEIF NOT EXISTS (SELECT * FROM room WHERE RoomID = InRoom) THEN
 		SELECT 'Room not found' AS message;
-        
+	
 	ELSE
 		DELETE FROM player WHERE AccountName = InAccount AND RoomID = InRoom;
 
@@ -1496,6 +1765,7 @@ BEGIN
     
 END//
 
+-- Get the current energy value of a given player
 CREATE PROCEDURE Get_Player_Energy (
 	IN InAccount VARCHAR(32),
     IN InRoom INT
@@ -1521,6 +1791,7 @@ BEGIN
 	
 END//
 
+-- Increase the given player's energy by a set value
 CREATE PROCEDURE Replenish_Energy (
 	IN InAccount VARCHAR(32),
     IN InRoom INT
@@ -1552,6 +1823,7 @@ BEGIN
 	
 END//
 
+-- Get the first active player from a room
 CREATE PROCEDURE Get_Primary_Player (
 	IN InRoom INT
 )
@@ -1573,6 +1845,7 @@ BEGIN
 
 END//
 
+-- Get a list of all unoccupied tiles in a room
 CREATE PROCEDURE Get_Available_Tiles (
 	IN InRoom INT
 )
@@ -1597,3 +1870,5 @@ BEGIN
 END//
 
 DELIMITER ;
+
+CALL Generate_Database();
