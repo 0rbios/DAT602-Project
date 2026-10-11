@@ -1168,7 +1168,8 @@ BEGIN
 		-- Move the loser to the home tile
         UPDATE player_tile
         SET MovedOff = CURRENT_TIMESTAMP()
-        WHERE MovedOff IS NULL;
+        WHERE MovedOff IS NULL
+			AND PlayerID = Loser;
         
 		INSERT INTO player_tile (PlayerID, TileID, MovedOn)
 			VALUE (Loser,
@@ -1379,12 +1380,12 @@ BEGIN
 	ELSE
 		SELECT r.RoomName, p.AccountName, p.HighScore, p.CurrentScore, p.CurrentEnergy, p.CurrentHealth, t.XPos, t.YPos
 		FROM player p
-		JOIN room r
+		LEFT JOIN room r
 			ON r.RoomID = p.RoomID
-		JOIN player_tile pt
+		LEFT JOIN player_tile pt
 			ON pt.PlayerID = p.PlayerID
 				AND pt.MovedOff IS NULL
-		JOIN tile t
+		LEFT JOIN tile t
 			ON t.TileID = pt.TileID
 		WHERE p.AccountName = InAccount
 			AND r.RoomID = InRoom;

@@ -1,22 +1,26 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "E:\\DAT602-Project\\DatGame\\",
+  "WorkspaceRootPath": "C:\\Users\\dyfry\\workspace\\2026\\DAT602-Project\\DatGame\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{711F3FF0-1DEB-4209-9E08-FE17DF1E52E1}|DATGame.csproj|e:\\dat602-project\\datgame\\daoclass.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{711F3FF0-1DEB-4209-9E08-FE17DF1E52E1}|DATGame.csproj|solutionrelative:daoclass.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{711F3FF0-1DEB-4209-9E08-FE17DF1E52E1}|DATGame.csproj|c:\\users\\dyfry\\workspace\\2026\\dat602-project\\datgame\\gameplay\\statistic_readout.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{711F3FF0-1DEB-4209-9E08-FE17DF1E52E1}|DATGame.csproj|solutionrelative:gameplay\\statistic_readout.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{711F3FF0-1DEB-4209-9E08-FE17DF1E52E1}|DATGame.csproj|e:\\dat602-project\\datgame\\gameplay\\display_snapshot.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{711F3FF0-1DEB-4209-9E08-FE17DF1E52E1}|DATGame.csproj|c:\\users\\dyfry\\workspace\\2026\\dat602-project\\datgame\\respawn menu\\tile_button_config.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{711F3FF0-1DEB-4209-9E08-FE17DF1E52E1}|DATGame.csproj|solutionrelative:respawn menu\\tile_button_config.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{711F3FF0-1DEB-4209-9E08-FE17DF1E52E1}|DATGame.csproj|c:\\users\\dyfry\\workspace\\2026\\dat602-project\\datgame\\class select page\\class_config.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{711F3FF0-1DEB-4209-9E08-FE17DF1E52E1}|DATGame.csproj|solutionrelative:class select page\\class_config.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{711F3FF0-1DEB-4209-9E08-FE17DF1E52E1}|DATGame.csproj|c:\\users\\dyfry\\workspace\\2026\\dat602-project\\datgame\\gameplay\\display_snapshot.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{711F3FF0-1DEB-4209-9E08-FE17DF1E52E1}|DATGame.csproj|solutionrelative:gameplay\\display_snapshot.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|E:\\DAT602-Project\\DatGame\\Respawn Menu\\Tile_Button_Config.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Respawn Menu\\Tile_Button_Config.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{711F3FF0-1DEB-4209-9E08-FE17DF1E52E1}|DATGame.csproj|e:\\dat602-project\\datgame\\class select page\\class_config.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{711F3FF0-1DEB-4209-9E08-FE17DF1E52E1}|DATGame.csproj|solutionrelative:class select page\\class_config.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{711F3FF0-1DEB-4209-9E08-FE17DF1E52E1}|DATGame.csproj|c:\\users\\dyfry\\workspace\\2026\\dat602-project\\datgame\\daoclass.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{711F3FF0-1DEB-4209-9E08-FE17DF1E52E1}|DATGame.csproj|solutionrelative:daoclass.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -25,59 +29,97 @@
       "VerticalTabListWidth": 256,
       "DocumentGroups": [
         {
-          "DockedWidth": 200,
-          "SelectedChildIndex": 3,
+          "DockedWidth": 214,
+          "SelectedChildIndex": 11,
           "Children": [
             {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "Display_Snapshot.cs",
-              "DocumentMoniker": "E:\\DAT602-Project\\DatGame\\Gameplay\\Display_Snapshot.cs",
-              "RelativeDocumentMoniker": "Gameplay\\Display_Snapshot.cs",
-              "ToolTip": "E:\\DAT602-Project\\DatGame\\Gameplay\\Display_Snapshot.cs",
-              "RelativeToolTip": "Gameplay\\Display_Snapshot.cs",
-              "ViewState": "AgIAAJcAAAAAAAAAAAAAAOQAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-10-10T20:05:41.648Z",
-              "EditorCaption": ""
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{eefa5220-e298-11d0-8f78-00a0c9110057}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{b1e99781-ab81-11d0-b683-00aa00a3ee26}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:128:0:{116d2292-e37d-41cd-a077-ebacac4c8cc4}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{004be353-6879-467c-9d1e-9ac23cdf6d49}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{3ae79031-e1bc-11d0-8f78-00a0c9110057}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{d78612c7-9962-4b83-95d9-268046dad23a}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{34e76e81-ee4a-11d0-ae2e-00a0c90fffc3}"
             },
             {
               "$type": "Document",
               "DocumentIndex": 3,
-              "Title": "Class_Config.cs",
-              "DocumentMoniker": "E:\\DAT602-Project\\DatGame\\Class Select Page\\Class_Config.cs",
-              "RelativeDocumentMoniker": "Class Select Page\\Class_Config.cs",
-              "ToolTip": "E:\\DAT602-Project\\DatGame\\Class Select Page\\Class_Config.cs",
-              "RelativeToolTip": "Class Select Page\\Class_Config.cs",
-              "ViewState": "AgIAAAcAAAAAAAAAAAAQwCQAAAAAAAAAAAAAAA==",
+              "Title": "Display_Snapshot.cs",
+              "DocumentMoniker": "C:\\Users\\dyfry\\workspace\\2026\\DAT602-Project\\DatGame\\Gameplay\\Display_Snapshot.cs",
+              "RelativeDocumentMoniker": "Gameplay\\Display_Snapshot.cs",
+              "ToolTip": "C:\\Users\\dyfry\\workspace\\2026\\DAT602-Project\\DatGame\\Gameplay\\Display_Snapshot.cs",
+              "RelativeToolTip": "Gameplay\\Display_Snapshot.cs",
+              "ViewState": "AgIAALkAAAAAAAAAAAAAAOEAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-10-10T19:39:36.334Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-10-10T20:05:41.648Z"
             },
             {
               "$type": "Document",
               "DocumentIndex": 2,
+              "Title": "Class_Config.cs",
+              "DocumentMoniker": "C:\\Users\\dyfry\\workspace\\2026\\DAT602-Project\\DatGame\\Class Select Page\\Class_Config.cs",
+              "RelativeDocumentMoniker": "Class Select Page\\Class_Config.cs",
+              "ToolTip": "C:\\Users\\dyfry\\workspace\\2026\\DAT602-Project\\DatGame\\Class Select Page\\Class_Config.cs",
+              "RelativeToolTip": "Class Select Page\\Class_Config.cs",
+              "ViewState": "AgIAAAcAAAAAAAAAAAAzwBwAAAAcAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-10T19:39:36.334Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
               "Title": "Tile_Button_Config.cs",
-              "DocumentMoniker": "E:\\DAT602-Project\\DatGame\\Respawn Menu\\Tile_Button_Config.cs",
+              "DocumentMoniker": "C:\\Users\\dyfry\\workspace\\2026\\DAT602-Project\\DatGame\\Respawn Menu\\Tile_Button_Config.cs",
               "RelativeDocumentMoniker": "Respawn Menu\\Tile_Button_Config.cs",
-              "ToolTip": "E:\\DAT602-Project\\DatGame\\Respawn Menu\\Tile_Button_Config.cs",
+              "ToolTip": "C:\\Users\\dyfry\\workspace\\2026\\DAT602-Project\\DatGame\\Respawn Menu\\Tile_Button_Config.cs",
               "RelativeToolTip": "Respawn Menu\\Tile_Button_Config.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAACEAAAAwAAAAAAAAAA==",
+              "ViewState": "AgIAAAEAAAAAAAAAAAAAwCAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-10-10T19:31:39.957Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 4,
               "Title": "DAOClass.cs",
-              "DocumentMoniker": "E:\\DAT602-Project\\DatGame\\DAOClass.cs",
+              "DocumentMoniker": "C:\\Users\\dyfry\\workspace\\2026\\DAT602-Project\\DatGame\\DAOClass.cs",
               "RelativeDocumentMoniker": "DAOClass.cs",
-              "ToolTip": "E:\\DAT602-Project\\DatGame\\DAOClass.cs",
+              "ToolTip": "C:\\Users\\dyfry\\workspace\\2026\\DAT602-Project\\DatGame\\DAOClass.cs",
               "RelativeToolTip": "DAOClass.cs",
-              "ViewState": "AgIAAMQCAAAAAAAAAAAmwNQCAAALAAAAAAAAAA==",
+              "ViewState": "AgIAAMwCAAAAAAAAAAArwNcCAAAWAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-10-04T01:54:39.854Z",
+              "WhenOpened": "2026-10-04T01:54:39.854Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Statistic_Readout.cs",
+              "DocumentMoniker": "C:\\Users\\dyfry\\workspace\\2026\\DAT602-Project\\DatGame\\Gameplay\\Statistic_Readout.cs",
+              "RelativeDocumentMoniker": "Gameplay\\Statistic_Readout.cs",
+              "ToolTip": "C:\\Users\\dyfry\\workspace\\2026\\DAT602-Project\\DatGame\\Gameplay\\Statistic_Readout.cs",
+              "RelativeToolTip": "Gameplay\\Statistic_Readout.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABUAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-11T19:31:42.137Z",
               "EditorCaption": ""
             }
           ]

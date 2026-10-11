@@ -42,5 +42,5 @@ joypads/ignore_joypad_on_unfocused_application=true
 [rendering]
 
 rendering_device/driver.windows="d3d12"
-lights_and_shadows/multi_bounce_occlusion/enabled=true
 environment/defaults/default_clear_color=Color(0.93333334, 0.93333334, 0.93333334, 1)
+lights_and_shadows/multi_bounce_occlusion/enabled=true
