@@ -1,0 +1,55 @@
+[gd_scene format=3 uid="uid://omdywgjpyq3t"]
+
+[ext_resource type="Script" uid="uid://ckrhtiilc2bt" path="res://Respawn Menu/Load_Tiles.cs" id="1_e7a27"]
+
+[node name="Respawn Menu" type="Control" unique_id=903988421]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=1221301081]
+
+[node name="Columns" type="HBoxContainer" parent="CanvasLayer" unique_id=2021823584]
+custom_minimum_size = Vector2(1260, 700)
+custom_maximum_size = Vector2(1260, 700)
+offset_left = 10.0
+offset_top = 10.0
+offset_right = 1270.0
+offset_bottom = 710.0
+
+[node name="Button" type="Button" parent="CanvasLayer/Columns" unique_id=955674879]
+custom_minimum_size = Vector2(200, 0)
+custom_maximum_size = Vector2(200, -1)
+layout_mode = 2
+size_flags_vertical = 0
+theme_override_font_sizes/font_size = 24
+text = "Back to menu"
+
+[node name="Respawn Panel" type="VBoxContainer" parent="CanvasLayer/Columns" unique_id=1601708014]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="lblTitle" type="Label" parent="CanvasLayer/Columns/Respawn Panel" unique_id=226870367]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 24
+text = "Select a tile to spawn on:"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Scrollbar" type="ScrollContainer" parent="CanvasLayer/Columns/Respawn Panel" unique_id=752560901]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Tile list" type="VBoxContainer" parent="CanvasLayer/Columns/Respawn Panel/Scrollbar" unique_id=56743695]
+layout_mode = 2
+script = ExtResource("1_e7a27")
+
+[node name="List Refresh" type="Timer" parent="CanvasLayer/Columns/Respawn Panel/Scrollbar" unique_id=1394146841]
+wait_time = 0.1
+autostart = true
+
+[connection signal="timeout" from="CanvasLayer/Columns/Respawn Panel/Scrollbar/List Refresh" to="CanvasLayer/Columns/Respawn Panel/Scrollbar/Tile list" method="_UpdateTileList"]

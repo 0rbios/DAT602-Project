@@ -96,12 +96,24 @@ namespace DATGame
                         tileinfo["diagonal"] = movediagonal;
 
                         // Get the distance between the player and the current tile
-                        int xdiff = Math.Abs((int)tileinfo["XPos"] - (int)((Vector2)posvals[_head.Account])[0]);
-                        int ydiff = Math.Abs((int)tileinfo["YPos"] - (int)((Vector2)posvals[_head.Account])[1]);
+
+                        Vector2 referenceposition;
+
+                        if (posvals.TryGetValue(_head.Account, out Variant playerpos))
+                        {
+                            referenceposition = (Vector2)playerpos;
+                        }
+                        else
+                        {
+                            referenceposition = new Vector2(x, y);
+                        }
+
+                        int xdiff = Math.Abs((int)tileinfo["XPos"] - (int)referenceposition.X);
+                        int ydiff = Math.Abs((int)tileinfo["YPos"] - (int)referenceposition.Y);
 
                         // Set the tile sprite according to it's situation
 
-                            // If the tile is occupied by a player
+                        // If the tile is occupied by a player
                         if ((string)tileinfo["AccountName"] != "") { tileinfo["type"] = (int)TileTypes.Type.Unavailable; }
 
                             // If the tile is within the player's movement range (A.K.A can be moved to)
@@ -200,8 +212,20 @@ namespace DATGame
                         tileinfo["diagonal"] = movediagonal;
 
                         // Get the distance between the player and the current tile
-                        int xdiff = Math.Abs((int)tileinfo["XPos"] - (int)((Vector2)posvals[_head.Account])[0]);
-                        int ydiff = Math.Abs((int)tileinfo["YPos"] - (int)((Vector2)posvals[_head.Account])[1]);
+
+                        Vector2 referenceposition;
+
+                        if (posvals.TryGetValue(_head.Account, out Variant playerpos))
+                        {
+                            referenceposition = (Vector2)playerpos;
+                        }
+                        else
+                        {
+                            referenceposition = new Vector2(tilexpos, tileypos);
+                        }
+
+                        int xdiff = Math.Abs((int)tileinfo["XPos"] - (int)referenceposition.X);
+                        int ydiff = Math.Abs((int)tileinfo["YPos"] - (int)referenceposition.Y);
 
                         // Set the tile sprite according to it's situation
 

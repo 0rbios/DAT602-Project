@@ -2,12 +2,10 @@ USE gamedb;
 
 DROP PROCEDURE IF EXISTS Login;
 DROP PROCEDURE IF EXISTS Create_Account;
-DROP PROCEDURE IF EXISTS Create_Abilities;
 DROP PROCEDURE IF EXISTS Create_Room;
 DROP PROCEDURE IF EXISTS Join_Room;
 DROP PROCEDURE IF EXISTS Layout_Tiles;
 DROP PROCEDURE IF EXISTS Place_Ability_On_Tile;
-DROP PROCEDURE IF EXISTS Create_Player;
 DROP PROCEDURE IF EXISTS Move_Player;
 DROP PROCEDURE IF EXISTS Glitch_Ability;
 DROP FUNCTION IF EXISTS Random_Tile;
@@ -16,7 +14,6 @@ DROP PROCEDURE IF EXISTS Drop_Ability;
 DROP PROCEDURE IF EXISTS Update_Score;
 DROP FUNCTION IF EXISTS Get_Score;
 DROP PROCEDURE IF EXISTS Get_Leaderboard;
-DROP PROCEDURE IF EXISTS Find_Abilities;
 DROP PROCEDURE IF EXISTS Kill_Room;
 DROP PROCEDURE IF EXISTS Update_Account;
 DROP PROCEDURE IF EXISTS Delete_Account;
@@ -45,6 +42,7 @@ DROP PROCEDURE IF EXISTS Get_Player_Energy;
 DROP PROCEDURE IF EXISTS Replenish_Energy;
 DROP PROCEDURE IF EXISTS Transfer_Abilities;
 DROP PROCEDURE IF EXISTS Get_Primary_Player;
+DROP PROCEDURE IF EXISTS Get_Available_Tiles;
 
 DELIMITER //
 
@@ -252,15 +250,26 @@ BEGIN
             WHERE PlayerID = @player;
         
 			-- 	If someone else is currently on the tile which the player was on when they left then return a message to the caller
-			IF (SELECT COUNT(PlayerID)
-				FROM player_tile
+			IF ((SELECT COUNT(pt.PlayerID)
+				FROM player_tile pt
+                JOIN player p
+					ON p.PlayerID = pt.PlayerID
+						AND p.`Active` = 1
 				WHERE TileID = (SELECT TileID
 								FROM player_tile
 								WHERE PlayerID = @player
-									AND MovedOff IS NULL)
-					AND MovedOff IS NULL
-                    AND PlayerID IN (SELECT PlayerID FROM player WHERE `Active` = 1)
-				ORDER BY MovedOn) > 0 THEN
+									AND MovedOff IS NULL
+								LIMIT 1)) > 0) AND ((SELECT TileID
+													FROM player_tile
+													WHERE PlayerID = @player
+														AND MovedOff IS NULL
+													LIMIT 1
+													) NOT IN
+													(SELECT TileID
+													FROM tile
+													WHERE XPos = 0
+														AND YPos = 0
+														AND RoomID = InRoomID)) THEN
                     SELECT 'Tile occupied';
 			ELSE
 				
@@ -409,7 +418,7 @@ BEGIN
 		SELECT 'Room not found' AS message;
 	
     -- Error: If tile is already occupied
-    ELSEIF EXISTS (SELECT PlayerID FROM player_tile WHERE MovedOff IS NULL AND TileID = (SELECT TileID FROM tile WHERE XPos = MoveX AND YPos = MoveY)) THEN
+    ELSEIF EXISTS (SELECT pt.PlayerID FROM player_tile pt JOIN player p ON p.PlayerID = pt.PlayerID WHERE pt.MovedOff IS NULL AND pt.TileID = (SELECT TileID FROM tile WHERE XPos = MoveX AND YPos = MoveY) AND p.`Active` = 1) THEN
 		SELECT 'Tile already occupied' AS message;
     
 	ELSE
@@ -826,39 +835,6 @@ BEGIN
 
 END//
 
--- Locate current position of each ability
-CREATE PROCEDURE Find_Abilities(
-	IN Room INT
-)
-BEGIN
-	
-    -- Error: If the requested room doesn't exist
-	IF NOT EXISTS (SELECT * FROM room WHERE RoomID = Room) THEN
-		SELECT 'Room does not exist' AS message;
-    
-    -- Get a list of all abilties combining the tile and player lists and then getting only the ones that haven't been removed
-    ELSE
-		WITH ability_locations (added, removed, tile, player, abilityid) AS (
-			SELECT tile_ability.Placed, tile_ability.Removed, tile_ability.TileID, NULL, tile_ability.AbilityID
-			FROM tile_ability
-			JOIN tile
-				ON tile.TileID = tile_ability.TileID
-			WHERE tile.RoomID = Room
-			
-			UNION
-			
-			SELECT player_ability.PickedUp, player_ability.Dropped, NULL, player_ability.PlayerID, player_ability.AbilityID
-			FROM player_ability
-			JOIN player
-				ON player.PlayerID = player_ability.PlayerID
-			WHERE player.RoomID = Room
-		)
-		SELECT * FROM ability_locations WHERE removed IS NULL;
-        
-	END IF;
-
-END//
-
 -- Kill running games
 CREATE PROCEDURE Kill_Room(
 	IN Room INT
@@ -1267,49 +1243,56 @@ END//
 -- Rejoin at a new location
 CREATE PROCEDURE Rejoin_At (
 	IN NewLocation INT,
-    IN Player INT
+	IN InAccount VARCHAR(32),
+    IN InRoom INT
 )
 BEGIN
-
+	
+	-- Error: If the account doesn't exist
+    IF NOT EXISTS (SELECT * FROM `account` WHERE AccountName = InAccount) THEN
+		SELECT 'Account not found' AS message;
+    
+    -- Error: If the room doesn't exist
+	ELSEIF NOT EXISTS (SELECT * FROM room WHERE RoomID = InRoom) THEN
+		SELECT 'Room not found' AS message;
+        
 	-- Error: If tile does not exist
-    IF NOT EXISTS (SELECT * FROM tile WHERE TileID = NewLocation) THEN
+    ELSEIF NOT EXISTS (SELECT * FROM tile WHERE TileID = NewLocation) THEN
 		SELECT 'Tile does not exist' AS message;
     
-    -- Error: If player does not exist
-    ELSEIF NOT EXISTS (SELECT * FROM player WHERE PlayerID = Player) THEN
-		SELECT 'Player does not exist' AS message;
-    
     -- Error: If the player is active
-    ELSEIF (SELECT `active` FROM player WHERE PlayerID = Player) = 1 THEN
+    ELSEIF (SELECT `active` FROM player WHERE AccountName = InAccount AND RoomID = InRoom) = 1 THEN
 		SELECT 'Player already in game' AS message;
     
     -- Error: If tile is not in player's room
-    ELSEIF (SELECT RoomID FROM tile WHERE TileID = NewLocation) <> (SELECT RoomID FROM player WHERE PlayerID = Player) THEN
+    ELSEIF (SELECT RoomID FROM tile WHERE TileID = NewLocation) <> (SELECT RoomID FROM player WHERE AccountName = InAccount AND RoomID = InRoom) THEN
 		SELECT 'Tile not in players room' AS message;
     
     -- Error: If tile is occupied
-    ELSEIF (SELECT COUNT(PlayerID)
-				FROM player_tile
-				WHERE TileID = (SELECT TileID
-								FROM player_tile
-								WHERE PlayerID = (SELECT PlayerID
-													FROM player
-													WHERE AccountName = InAccountName)
-									AND MovedOff IS NULL)
-					AND MovedOff IS NULL
-                    AND PlayerID IN (SELECT PlayerID FROM player WHERE `Active` = 1)
-				ORDER BY MovedOn) > 0 THEN
+    ELSEIF (SELECT COUNT(pt.PlayerID)
+				FROM player_tile pt
+                JOIN player p
+					ON p.PlayerID = pt.PlayerID
+						AND p.`Active` = 1
+				WHERE pt.TileID = NewLocation
+					AND MovedOff IS NULL) > 0 THEN
 		SELECT 'Tile already occupied' AS message;
     
     -- Move player to tile and reactivate them
 	ELSE
+		SET @player = (SELECT PlayerID FROM player WHERE AccountName = InAccount AND RoomID = InRoom);
+    
 		UPDATE player_tile
         SET MovedOff = CURRENT_TIMESTAMP()
-        WHERE MovedOff = NULL
-			AND PlayerID = Player;
-            
+        WHERE MovedOff IS NULL
+			AND PlayerID = @player;
+        
 		INSERT INTO player_tile (PlayerID, TileID, MovedOn)
-			VALUES (Player, NewLocation, CURRENT_TIMESTAMP());
+			VALUES (@player, NewLocation, CURRENT_TIMESTAMP());
+            
+        UPDATE player
+        SET `Active` = 1
+        WHERE PlayerID = @player;
     
     END IF;
     
@@ -1498,6 +1481,8 @@ BEGIN
 		LEFT JOIN class c
 			ON c.ClassName = p.ClassName
         WHERE t.RoomID = InRoom
+			AND (p.`Active` <> 0
+				OR p.`Active` IS NULL)
 			AND (
 					(t.XPos <= ((SELECT PlayerX FROM player_position) + InRadius)
 						AND t.XPos >= ((SELECT PlayerX FROM player_position) - InRadius))
@@ -1583,6 +1568,29 @@ BEGIN
 		WHERE p.`active` = 1
         LIMIT 1;
 	
+    END IF;
+
+END//
+
+CREATE PROCEDURE Get_Available_Tiles (
+	IN InRoom INT
+)
+BEGIN
+
+	-- Error: If the room doesn't exist
+	IF NOT EXISTS (SELECT * FROM room WHERE RoomID = InRoom) THEN
+		SELECT 'Room not found' AS message;
+	
+    ELSE
+		SELECT XPos, YPos, TileID
+        FROM tile
+        WHERE RoomID = InRoom
+			AND TileID NOT IN (
+								SELECT TileID
+								FROM player_tile
+								WHERE MovedOff IS NULL
+								);
+		
     END IF;
 
 END//

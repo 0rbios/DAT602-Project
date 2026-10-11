@@ -707,22 +707,57 @@ namespace DATGame
                 _connection.Close();
             }
         }
+        
+        public void Rejoin(string account, int room, int tile)
+        {
+            try
+            {
+                _connection.Open();
 
-        public void JoinGame(string account, int room, string classname)
+                MySqlCommand command = new MySqlCommand($"CALL Rejoin_At('{tile}', '{account}', {room});", _connection);
+
+                command.ExecuteNonQuery();
+            }
+
+            finally
+            {
+                _connection.Close();
+            }
+        }
+
+        public string JoinGame(string account, int room, string classname)
 		{
+            string output = "";
+
 			try
 			{
 				_connection.Open();
 
 				MySqlCommand command = new MySqlCommand($"CALL Join_Room('{account}', {room}, '{classname}');", _connection);
 
-				command.ExecuteNonQuery();
-			}
+                using (MySqlDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        if (reader.GetValue(0) is string vals)
+                        {
+                            output = vals;
+                        }
+
+                        else
+                        {
+                            output = "returned non string";
+                        }
+                    }
+                }
+            }
 
 			finally
 			{
 				_connection.Close();
 			}
+
+            return output;
 		}
 
         public Godot.Collections.Array GetPlayers()
@@ -920,6 +955,49 @@ namespace DATGame
     // Any database calls invloving the map
     internal partial class MapDAO : DAOClass
     {
+        public Godot.Collections.Array GetAvailableTiles(int room)
+        {
+            Godot.Collections.Array output = new Godot.Collections.Array();
+
+            try
+            {
+                _connection.Open();
+
+                MySqlCommand command = new MySqlCommand($"CALL Get_Available_Tiles({room});", _connection);
+
+                using (MySqlDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        Dictionary tile = new Dictionary();
+
+                        for (int i = 0; i < reader.FieldCount; i++)
+                        {
+                            if (reader.GetValue(i) is int vali)
+                            {
+                                tile[reader.GetName(i)] = Variant.From(vali);
+                            }
+
+                            else
+                            {
+                                GD.Print($"Unrecognised data type for column: {reader.GetName(i)} | TYPE ({reader.GetValue(i).GetType()})");
+                            }
+
+                        }
+
+                        output.Add(tile);
+                    }
+                }
+            }
+
+            finally
+            {
+                _connection.Close();
+            }
+
+            return output;
+        }
+
         public void Glitch(int room)
         {
             try

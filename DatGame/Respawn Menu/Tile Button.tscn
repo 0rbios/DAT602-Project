@@ -1,0 +1,14 @@
+[gd_scene format=3 uid="uid://nt7g4v64smqj"]
+
+[ext_resource type="Script" uid="uid://b66vowtv337sk" path="res://Respawn Menu/Tile_Button_Config.cs" id="1_w782o"]
+
+[node name="btnTile" type="Button" unique_id=2128273524]
+custom_minimum_size = Vector2(200, 0)
+custom_maximum_size = Vector2(200, -1)
+offset_right = 8.0
+offset_bottom = 8.0
+theme_override_font_sizes/font_size = 24
+text = "(x, y)"
+script = ExtResource("1_w782o")
+
+[connection signal="pressed" from="." to="." method="_TileSelected"]
