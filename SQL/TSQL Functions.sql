@@ -128,7 +128,7 @@ BEGIN
 		PlayerID INT,
 		SendTime TIMESTAMP,
 		`Text` VARCHAR(128) NOT NULL,
-		PRIMARY KEY (PlayerID, SendTime),
+		PRIMARY KEY (PlayerID, SendTime, `Text`),
 		CONSTRAINT fk_message_player
 			FOREIGN KEY (PlayerID)
 			REFERENCES player(PlayerID)
@@ -281,12 +281,20 @@ END //
 -- Generate a set of test data
 CREATE PROCEDURE Create_Test_Data ()
 BEGIN
-	CALL Login('John', 'Password123');
-	CALL Login('Amanda', 'HelloWorld');
-	CALL Login('Test', 'TestTest');
-	CALL Login('Ghostie', 'eits0hg');
-	CALL Login('V', 'V3nd3774');
 
+    -- Tests registration
+    -- Tests creating a new account
+	CALL Create_Account('V', 'V3nd3774');
+	CALL Create_Account('John', 'Password123');
+	CALL Create_Account('Amanda', 'HelloWorld');
+	CALL Create_Account('Test', 'TestTest');
+	CALL Create_Account('Ghostie', 'eits0hg');
+    
+	-- Tests login
+	CALL Login('Ghostie', 'eits0hg');
+
+	-- Tests laying out tiles on a game board
+    -- Tests Placing items on tiles
 	CALL Create_Room('Test Room', 'Ghostie');
 
 	CALL Join_Room('Ghostie', 1, 'Gorilla');
@@ -294,12 +302,27 @@ BEGIN
     CALL Send_Message('Hello World!', 'Ghostie', 1);
     CALL Send_Message('Is this thing on?', 'Ghostie', 1);
 
-	CALL Pickup_Ability(1, 1);
-    CALL Pickup_Ability(1, 2);
-    CALL Drop_Ability(1, 2);
+	-- Tests player acquiring inventory
+    -- Tests player score changing
+	CALL Transfer_Abilities(-1, 1, 'Ghostie', 1);
+	CALL Transfer_Abilities(-1, 2, 'Ghostie', 1);
+	CALL Transfer_Abilities(-1, 2, 'Ghostie', 1);
     
-    CALL Move_Player('Ghostie', 1, 2, 1, 1, 0);
+    -- Tests player movement
+    CALL Move_Player('Ghostie', 1, 0, 1, 1, 0);
     CALL Move_Player('Ghostie', 1, 1, 1, 1, 0);
+    
+    -- Tests moving an item
+    CALL Glitch_Ability(1);
+    
+    -- Tests updating player data
+    CALL Update_Player('Ghostie', 1, 100, 200);
+    
+    -- Tests deleting a player
+    CALL Delete_Player('Ghostie', 1);
+    
+    -- Tests killing a game
+    CALL Kill_Room(1);
     
 END //
 
@@ -801,85 +824,89 @@ CREATE PROCEDURE Transfer_Abilities(
 )
 BEGIN
 
-	-- Error: If one of the requested ability instances doen't exist
-	IF NOT EXISTS (SELECT * FROM abilityinstance WHERE AbilityID = Item1 OR AbilityID = Item2) THEN
-		SELECT 'One or both ability instances not found' AS message;
+	CASE
     
-	-- Error: If the account doesn't exist
-    ELSEIF NOT EXISTS (SELECT * FROM `account` WHERE AccountName = InAccount) THEN
-		SELECT 'Account not found' AS message;
-    
-    -- Error: If the room doesn't exist
-	ELSEIF NOT EXISTS (SELECT * FROM room WHERE RoomID = InRoom) THEN
-		SELECT 'Room not found' AS message;
-	
-    ELSE
+		-- Error: If one of the requested ability instances doen't exist
+		WHEN NOT EXISTS (SELECT * FROM abilityinstance WHERE AbilityID = Item1 OR AbilityID = Item2) THEN
+			SELECT 'One or both ability instances not found' AS message;
 		
-        SET @player = (SELECT PlayerID FROM player WHERE AccountName = InAccount AND RoomID = InRoom);
-    
-		-- If the first ability is null
-        IF Item1 = -1 THEN
-        
-			-- Error: If both abilities are null
-			IF Item2 = -1 THEN
-				SELECT 'No abilities to swap' AS message;
-                
-			ELSE
-				-- If the second given ability is in the player's inventory
-				IF EXISTS (SELECT * FROM player_ability WHERE AbilityID = Item2 AND Dropped IS NULL) THEN
-					CALL Drop_Ability(@player, Item2);
-                    SELECT 'First selection was null, second was in player inventory' AS message;
-                    
+        -- Error: If the account doesn't exist
+        WHEN NOT EXISTS (SELECT * FROM `account` WHERE AccountName = InAccount) THEN
+			SELECT 'Account not found' AS message;
+		
+        -- Error: If the room doesn't exist
+		WHEN NOT EXISTS (SELECT * FROM room WHERE RoomID = InRoom) THEN
+			SELECT 'Room not found' AS message;
+		
+		ELSE
+		
+			SET @player = (SELECT PlayerID FROM player WHERE AccountName = InAccount AND RoomID = InRoom);
+		
+			-- If the first ability is null
+			IF Item1 = -1 THEN
+			
+				-- Error: If both abilities are null
+				IF Item2 = -1 THEN
+					SELECT 'No abilities to swap' AS message;
+					
+				ELSE
+					-- If the second given ability is in the player's inventory
+					IF EXISTS (SELECT * FROM player_ability WHERE AbilityID = Item2 AND Dropped IS NULL) THEN
+						CALL Drop_Ability(@player, Item2);
+						SELECT 'First selection was null, second was in player inventory' AS message;
+						
+					-- If the first ability is on a tile
+					ELSEIF EXISTS (SELECT * FROM tile_ability WHERE AbilityID = Item2 AND Removed IS NULL) THEN
+						CALL Pickup_Ability(@player, Item2);  
+						SELECT 'First selection was null, second was in tile inventory' AS message;
+					
+					END IF;
+					
+				END IF;
+			
+			-- If only the second ability is null
+			ELSEIF Item2 = -1 THEN
+			
+				-- If the first given ability is in the player's inventory
+				IF EXISTS (SELECT * FROM player_ability WHERE AbilityID = Item1 AND Dropped IS NULL) THEN
+					CALL Drop_Ability(@player, Item1);   
+					SELECT 'Second selection was null, first was in player inventory' AS message;
+				
 				-- If the first ability is on a tile
-				ELSEIF EXISTS (SELECT * FROM tile_ability WHERE AbilityID = Item2 AND Removed IS NULL) THEN
-					CALL Pickup_Ability(@player, Item2);  
-                    SELECT 'First selection was null, second was in tile inventory' AS message;
-                
-				END IF;
-                
-			END IF;
-		
-        -- If only the second ability is null
-		ELSEIF Item2 = -1 THEN
-        
-			-- If the first given ability is in the player's inventory
-			IF EXISTS (SELECT * FROM player_ability WHERE AbilityID = Item1 AND Dropped IS NULL) THEN
-				CALL Drop_Ability(@player, Item1);   
-				SELECT 'Second selection was null, first was in player inventory' AS message;
-			
-            -- If the first ability is on a tile
-            ELSEIF EXISTS (SELECT * FROM tile_ability WHERE AbilityID = Item1 AND Removed IS NULL) THEN
-				CALL Pickup_Ability(@player, Item1);  
-				SELECT 'Second selection was null, first was in tile inventory' AS message; 
-            
-			END IF;
-		
-        ELSE
-			-- If the first given ability is in the player's inventory
-			IF EXISTS (SELECT * FROM player_ability WHERE AbilityID = Item1 AND Dropped IS NULL) THEN
-			-- If the second given ability is not in the player's inventory
-				IF EXISTS (SELECT * FROM tile_ability WHERE AbilityID = Item2 AND Removed IS NULL) THEN
-					CALL Drop_Ability(@player, Item1);
-					CALL Pickup_Ability(@player, Item2);
-                    SELECT 'Selection 1 in player inv, 2 in tile inventory' AS message;
+				ELSEIF EXISTS (SELECT * FROM tile_ability WHERE AbilityID = Item1 AND Removed IS NULL) THEN
+					CALL Pickup_Ability(@player, Item1);  
+					SELECT 'Second selection was null, first was in tile inventory' AS message; 
+				
 				END IF;
 			
-			-- If the second given ability is in the player's inventory
-			ELSEIF EXISTS (SELECT * FROM player_ability WHERE AbilityID = Item2 AND Dropped IS NULL) THEN
-			-- If the first given ability is not in the player's inventory
-				IF EXISTS (SELECT * FROM tile_ability WHERE AbilityID = Item1 AND Removed IS NULL) THEN
-					CALL Drop_Ability(@player, Item2);
-                    CALL Pickup_Ability(@player, Item1);
-                    SELECT 'Selection 2 in player inv, 1 in tile inventory' AS message;
+			ELSEIF Item1 <> -1 AND Item2 <> -1 THEN
+				-- If the first given ability is in the player's inventory
+				IF EXISTS (SELECT * FROM player_ability WHERE AbilityID = Item1 AND Dropped IS NULL) THEN
+				-- If the second given ability is not in the player's inventory
+					IF EXISTS (SELECT * FROM tile_ability WHERE AbilityID = Item2 AND Removed IS NULL) THEN
+						CALL Drop_Ability(@player, Item1);
+						CALL Pickup_Ability(@player, Item2);
+						SELECT 'Selection 1 in player inv, 2 in tile inventory' AS message;
+					END IF;
+				
+				-- If the second given ability is in the player's inventory
+				ELSEIF EXISTS (SELECT * FROM player_ability WHERE AbilityID = Item2 AND Dropped IS NULL) THEN
+				-- If the first given ability is not in the player's inventory
+					IF EXISTS (SELECT * FROM tile_ability WHERE AbilityID = Item1 AND Removed IS NULL) THEN
+						CALL Drop_Ability(@player, Item2);
+						CALL Pickup_Ability(@player, Item1);
+						SELECT 'Selection 2 in player inv, 1 in tile inventory' AS message;
+					END IF;
+				
 				END IF;
-			
-			END IF;
+				
+			ELSE
             
-        END IF;
+				SELECT 'Missed All Checks' AS message; 
             
-	END IF;
+			END IF; 
 
-	SELECT 'Missed All Checks' AS message;
+	END CASE;
 
 END//
 
@@ -1223,8 +1250,8 @@ BEGIN
     -- Update the requested player with the given data
     ELSE
 		UPDATE `player`
-			SET High_Score = Score_High,
-				Current_Score = Score_Current
+			SET HighScore = Score_High,
+				CurrentScore = Score_Current
 			WHERE PlayerID = @player;
 		
 	END IF;
@@ -1872,3 +1899,4 @@ END//
 DELIMITER ;
 
 CALL Generate_Database();
+CALL Create_Test_Data();
