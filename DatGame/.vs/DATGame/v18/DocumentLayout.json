@@ -1,7 +1,12 @@
 {
   "Version": 1,
   "WorkspaceRootPath": "C:\\Users\\dyfry\\workspace\\2026\\DAT602-Project\\DatGame\\",
-  "Documents": [],
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{711F3FF0-1DEB-4209-9E08-FE17DF1E52E1}|DATGame.csproj|c:\\users\\dyfry\\workspace\\2026\\dat602-project\\datgame\\daoclass.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{711F3FF0-1DEB-4209-9E08-FE17DF1E52E1}|DATGame.csproj|solutionrelative:daoclass.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
@@ -9,7 +14,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 214,
-          "SelectedChildIndex": -1,
+          "SelectedChildIndex": 7,
           "Children": [
             {
               "$type": "Bookmark",
@@ -38,6 +43,19 @@
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{34e76e81-ee4a-11d0-ae2e-00a0c90fffc3}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "DAOClass.cs",
+              "DocumentMoniker": "C:\\Users\\dyfry\\workspace\\2026\\DAT602-Project\\DatGame\\DAOClass.cs",
+              "RelativeDocumentMoniker": "DAOClass.cs",
+              "ToolTip": "C:\\Users\\dyfry\\workspace\\2026\\DAT602-Project\\DatGame\\DAOClass.cs",
+              "RelativeToolTip": "DAOClass.cs",
+              "ViewState": "AgIAAPUBAAAAAAAAAAAiwPwBAAAkAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-13T00:32:45.555Z",
+              "EditorCaption": ""
             }
           ]
         }
