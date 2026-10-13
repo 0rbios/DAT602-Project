@@ -46,7 +46,7 @@ namespace DATGame
 
             for (int rm = _abilitybuttons.GetChildren().Count; rm > usables.Count; rm--)
             {
-                _abilitybuttons.GetChildren()[rm].QueueFree();
+                _abilitybuttons.GetChildren()[rm - 1].QueueFree();
             }
 
             for (int cr = _abilitybuttons.GetChildren().Count; cr < usables.Count; cr++)
@@ -57,8 +57,10 @@ namespace DATGame
 
             for (int slot = 0; slot < _abilitybuttons.GetChildren().Count; slot++)
             {
-                Ability_Button_Config conf = (Ability_Button_Config)_abilitybuttons.GetChildren()[slot];
-                conf.UpdateContents((Dictionary)usables[slot]);
+                if (slot < usables.Count) {
+                    Ability_Button_Config conf = (Ability_Button_Config)_abilitybuttons.GetChildren()[slot];
+                    conf.UpdateContents((Dictionary)usables[slot]);
+                }
             }
         }
 
