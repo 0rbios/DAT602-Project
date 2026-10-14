@@ -901,7 +901,7 @@ BEGIN
 				END IF;
 				
 			ELSE
-            
+             
 				SELECT 'Missed All Checks' AS message; 
             
 			END IF; 
@@ -1244,8 +1244,8 @@ BEGIN
 	SET @player = (SELECT PlayerID FROM player WHERE RoomID = Room AND AccountName = InAccount);
 
 	-- Error: If requested player doesn't exist
-	IF NOT EXISTS (SELECT * FROM player WHERE PlayerID = @player AND `Active` = 1) THEN
-		SELECT '{Player does not exist' AS message;
+	IF NOT EXISTS (SELECT * FROM player WHERE PlayerID = @player) THEN
+		SELECT 'Player does not exist' AS message;
     
     -- Update the requested player with the given data
     ELSE
