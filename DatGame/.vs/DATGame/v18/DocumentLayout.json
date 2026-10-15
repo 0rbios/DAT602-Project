@@ -1,25 +1,29 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "C:\\Users\\dyfry\\workspace\\2026\\DAT602-Project\\DatGame\\",
+  "WorkspaceRootPath": "E:\\DAT602-Project\\DatGame\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{711F3FF0-1DEB-4209-9E08-FE17DF1E52E1}|DATGame.csproj|c:\\users\\dyfry\\workspace\\2026\\dat602-project\\datgame\\admin page\\data_display.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{711F3FF0-1DEB-4209-9E08-FE17DF1E52E1}|DATGame.csproj|e:\\dat602-project\\datgame\\datgame.csproj||{04B8AB82-A572-4FEF-95CE-5222444B6B64}|",
+      "RelativeMoniker": "D:0:0:{711F3FF0-1DEB-4209-9E08-FE17DF1E52E1}|DATGame.csproj|solutionrelative:datgame.csproj||{04B8AB82-A572-4FEF-95CE-5222444B6B64}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{711F3FF0-1DEB-4209-9E08-FE17DF1E52E1}|DATGame.csproj|e:\\dat602-project\\datgame\\admin page\\data_display.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{711F3FF0-1DEB-4209-9E08-FE17DF1E52E1}|DATGame.csproj|solutionrelative:admin page\\data_display.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{711F3FF0-1DEB-4209-9E08-FE17DF1E52E1}|DATGame.csproj|c:\\users\\dyfry\\workspace\\2026\\dat602-project\\datgame\\gameplay\\gameplay_config.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{711F3FF0-1DEB-4209-9E08-FE17DF1E52E1}|DATGame.csproj|e:\\dat602-project\\datgame\\gameplay\\gameplay_config.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{711F3FF0-1DEB-4209-9E08-FE17DF1E52E1}|DATGame.csproj|solutionrelative:gameplay\\gameplay_config.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{711F3FF0-1DEB-4209-9E08-FE17DF1E52E1}|DATGame.csproj|c:\\users\\dyfry\\workspace\\2026\\dat602-project\\datgame\\main\\main.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{711F3FF0-1DEB-4209-9E08-FE17DF1E52E1}|DATGame.csproj|e:\\dat602-project\\datgame\\main\\main.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{711F3FF0-1DEB-4209-9E08-FE17DF1E52E1}|DATGame.csproj|solutionrelative:main\\main.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{711F3FF0-1DEB-4209-9E08-FE17DF1E52E1}|DATGame.csproj|c:\\users\\dyfry\\workspace\\2026\\dat602-project\\datgame\\login page\\login_handler.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{711F3FF0-1DEB-4209-9E08-FE17DF1E52E1}|DATGame.csproj|e:\\dat602-project\\datgame\\login page\\login_handler.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{711F3FF0-1DEB-4209-9E08-FE17DF1E52E1}|DATGame.csproj|solutionrelative:login page\\login_handler.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{711F3FF0-1DEB-4209-9E08-FE17DF1E52E1}|DATGame.csproj|c:\\users\\dyfry\\workspace\\2026\\dat602-project\\datgame\\gameplay\\abilty_menu_loader.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{711F3FF0-1DEB-4209-9E08-FE17DF1E52E1}|DATGame.csproj|e:\\dat602-project\\datgame\\gameplay\\abilty_menu_loader.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{711F3FF0-1DEB-4209-9E08-FE17DF1E52E1}|DATGame.csproj|solutionrelative:gameplay\\abilty_menu_loader.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
@@ -30,43 +34,27 @@
       "DocumentGroups": [
         {
           "DockedWidth": 214,
-          "SelectedChildIndex": 9,
+          "SelectedChildIndex": 0,
           "Children": [
             {
-              "$type": "Bookmark",
-              "Name": "ST:0:0:{eefa5220-e298-11d0-8f78-00a0c9110057}"
-            },
-            {
-              "$type": "Bookmark",
-              "Name": "ST:0:0:{b1e99781-ab81-11d0-b683-00aa00a3ee26}"
-            },
-            {
-              "$type": "Bookmark",
-              "Name": "ST:128:0:{116d2292-e37d-41cd-a077-ebacac4c8cc4}"
-            },
-            {
-              "$type": "Bookmark",
-              "Name": "ST:0:0:{004be353-6879-467c-9d1e-9ac23cdf6d49}"
-            },
-            {
-              "$type": "Bookmark",
-              "Name": "ST:0:0:{3ae79031-e1bc-11d0-8f78-00a0c9110057}"
-            },
-            {
-              "$type": "Bookmark",
-              "Name": "ST:0:0:{d78612c7-9962-4b83-95d9-268046dad23a}"
-            },
-            {
-              "$type": "Bookmark",
-              "Name": "ST:0:0:{34e76e81-ee4a-11d0-ae2e-00a0c90fffc3}"
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "DATGame",
+              "DocumentMoniker": "E:\\DAT602-Project\\DatGame\\DATGame.csproj",
+              "RelativeDocumentMoniker": "DATGame.csproj",
+              "ToolTip": "E:\\DAT602-Project\\DatGame\\DATGame.csproj",
+              "RelativeToolTip": "DATGame.csproj",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2026-10-15T19:27:39.64Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 5,
               "Title": "Abilty_Menu_Loader.cs",
-              "DocumentMoniker": "C:\\Users\\dyfry\\workspace\\2026\\DAT602-Project\\DatGame\\Gameplay\\Abilty_Menu_Loader.cs",
+              "DocumentMoniker": "E:\\DAT602-Project\\DatGame\\Gameplay\\Abilty_Menu_Loader.cs",
               "RelativeDocumentMoniker": "Gameplay\\Abilty_Menu_Loader.cs",
-              "ToolTip": "C:\\Users\\dyfry\\workspace\\2026\\DAT602-Project\\DatGame\\Gameplay\\Abilty_Menu_Loader.cs",
+              "ToolTip": "E:\\DAT602-Project\\DatGame\\Gameplay\\Abilty_Menu_Loader.cs",
               "RelativeToolTip": "Gameplay\\Abilty_Menu_Loader.cs",
               "ViewState": "AgIAACsAAAAAAAAAAAAewDsAAAAfAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
@@ -74,11 +62,11 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 4,
               "Title": "Login_Handler.cs",
-              "DocumentMoniker": "C:\\Users\\dyfry\\workspace\\2026\\DAT602-Project\\DatGame\\Login Page\\Login_Handler.cs",
+              "DocumentMoniker": "E:\\DAT602-Project\\DatGame\\Login Page\\Login_Handler.cs",
               "RelativeDocumentMoniker": "Login Page\\Login_Handler.cs",
-              "ToolTip": "C:\\Users\\dyfry\\workspace\\2026\\DAT602-Project\\DatGame\\Login Page\\Login_Handler.cs",
+              "ToolTip": "E:\\DAT602-Project\\DatGame\\Login Page\\Login_Handler.cs",
               "RelativeToolTip": "Login Page\\Login_Handler.cs",
               "ViewState": "AgIAADQAAAAAAAAAAADwvzgAAABQAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
@@ -86,11 +74,11 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 1,
               "Title": "Data_Display.cs",
-              "DocumentMoniker": "C:\\Users\\dyfry\\workspace\\2026\\DAT602-Project\\DatGame\\Admin Page\\Data_Display.cs",
+              "DocumentMoniker": "E:\\DAT602-Project\\DatGame\\Admin Page\\Data_Display.cs",
               "RelativeDocumentMoniker": "Admin Page\\Data_Display.cs",
-              "ToolTip": "C:\\Users\\dyfry\\workspace\\2026\\DAT602-Project\\DatGame\\Admin Page\\Data_Display.cs",
+              "ToolTip": "E:\\DAT602-Project\\DatGame\\Admin Page\\Data_Display.cs",
               "RelativeToolTip": "Admin Page\\Data_Display.cs",
               "ViewState": "AgIAAEQAAAAAAAAAAAAswFgAAAAmAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
@@ -99,29 +87,27 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 2,
               "Title": "Gameplay_Config.cs",
-              "DocumentMoniker": "C:\\Users\\dyfry\\workspace\\2026\\DAT602-Project\\DatGame\\Gameplay\\Gameplay_Config.cs",
+              "DocumentMoniker": "E:\\DAT602-Project\\DatGame\\Gameplay\\Gameplay_Config.cs",
               "RelativeDocumentMoniker": "Gameplay\\Gameplay_Config.cs",
-              "ToolTip": "C:\\Users\\dyfry\\workspace\\2026\\DAT602-Project\\DatGame\\Gameplay\\Gameplay_Config.cs",
+              "ToolTip": "E:\\DAT602-Project\\DatGame\\Gameplay\\Gameplay_Config.cs",
               "RelativeToolTip": "Gameplay\\Gameplay_Config.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-10-13T23:53:05.647Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-10-13T23:53:05.647Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 3,
               "Title": "Main.cs",
-              "DocumentMoniker": "C:\\Users\\dyfry\\workspace\\2026\\DAT602-Project\\DatGame\\Main\\Main.cs",
+              "DocumentMoniker": "E:\\DAT602-Project\\DatGame\\Main\\Main.cs",
               "RelativeDocumentMoniker": "Main\\Main.cs",
-              "ToolTip": "C:\\Users\\dyfry\\workspace\\2026\\DAT602-Project\\DatGame\\Main\\Main.cs",
+              "ToolTip": "E:\\DAT602-Project\\DatGame\\Main\\Main.cs",
               "RelativeToolTip": "Main\\Main.cs",
               "ViewState": "AgIAABkAAAAAAAAAAAA8wAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-10-13T23:53:28.845Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-10-13T23:53:28.845Z"
             }
           ]
         }
